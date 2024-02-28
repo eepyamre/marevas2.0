@@ -11,7 +11,7 @@ export class BufferController {
   drawingCanvasEl: HTMLCanvasElement;
   prevPos: Vector2 | null;
   remoteDrawings: {
-    [key: string]: { canvasBuffer: CanvasBuffer };
+    [key: string]: { canvasBuffer: CanvasBuffer; opacity: string };
   } = {};
   constructor() {
     this.mainCanvas = new CanvasBuffer();
@@ -24,7 +24,6 @@ export class BufferController {
   }
 
   startDraw(pos: Vector2, pressure: number) {
-    // this.drawingCanvas.ctx.globalCompositeOperation = "destination-atop";
     Core.brushController.startDraw(this.drawingCanvas.ctx, pos, pressure);
     Core.networkController.sendStart();
     this.pushData(pos);
@@ -70,22 +69,24 @@ export class BufferController {
 
     Core.networkController.pushData(packet);
   }
+  // TODO: opacity + pressure over network
   startRemoteDrawing(id: string) {
     if (!this.remoteDrawings[id]) {
       const canvasBuffer = new CanvasBuffer();
-      this.remoteDrawings[id] = { canvasBuffer: canvasBuffer };
-      this.remoteDrawings[id].canvasBuffer.ctx.globalCompositeOperation =
-        "destination-atop";
+      this.remoteDrawings[id] = { canvasBuffer: canvasBuffer, opacity: "1" };
+
       this.remoteDrawings[id].canvasBuffer.ctx.beginPath();
     }
   }
   stopRemoteDrawing(id: string) {
     if (this.remoteDrawings[id]) {
+      this.mainCanvas.ctx.globalAlpha = +this.remoteDrawings[id].opacity;
       this.mainCanvas.ctx.drawImage(
         this.remoteDrawings[id].canvasBuffer.canvas,
         0,
         0
       );
+      this.mainCanvas.ctx.globalAlpha = 1;
       this.remoteDrawings[id].canvasBuffer.remove();
       delete this.remoteDrawings[id];
     }
@@ -102,11 +103,13 @@ export class BufferController {
         data.brushSettings.color.toHex(),
         data.brushSettings.size
       );
-
+      this.remoteDrawings[data.userId].opacity = brush.color.color.a.toString();
+      this.remoteDrawings[data.userId].canvasBuffer.canvas.style.opacity =
+        brush.color.color.a.toString();
       this.remoteDrawings[data.userId].canvasBuffer.ctx.strokeStyle =
-        brush.color.toString();
+        brush.color.toCanvasSrting();
       this.remoteDrawings[data.userId].canvasBuffer.ctx.fillStyle =
-        brush.color.toString();
+        brush.color.toCanvasSrting();
       this.remoteDrawings[data.userId].canvasBuffer.ctx.lineWidth = brush.size;
       this.remoteDrawings[data.userId].canvasBuffer.ctx.lineJoin =
         brush.lineJoin;

@@ -15,14 +15,8 @@ export class BasicBrush {
     ctx.strokeStyle = this.color.toCanvasSrting();
     ctx.fillStyle = this.color.toCanvasSrting();
     ctx.canvas.style.opacity = this.color.color.a.toString();
-
-    ctx.beginPath();
-    ctx.lineWidth = this.size * pressure;
-    ctx.lineCap = this.lineCap;
     ctx.lineJoin = this.lineJoin;
-    ctx.moveTo(pos.x, pos.y);
-    ctx.lineTo(pos.x, pos.y);
-    ctx.stroke();
+    ctx.lineCap = this.lineCap;
   }
   draw(
     ctx: CanvasRenderingContext2D,
@@ -32,7 +26,6 @@ export class BasicBrush {
   ) {
     const size = this.size * pressure;
     ctx.lineWidth = size;
-
     ctx.beginPath();
     ctx.moveTo(prevPos.x, prevPos.y);
     ctx.lineTo(pos.x, pos.y);
