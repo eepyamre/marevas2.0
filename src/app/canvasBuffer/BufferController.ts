@@ -50,13 +50,16 @@ export class BufferController {
     };
     Core.historyController.pushToActiveHistoryItem(historyItem);
     historyItem.run();
-    this.pushData(pos, pressure, prev);
+    if (Core.brushController.mode === "draw") {
+      this.pushData(pos, pressure, prev);
+    }
   }
   endDraw() {
     const historyItem = {
+      mode: Core.brushController.mode,
       run: () => {
         Core.brushController.endDraw(this.drawingCanvas.ctx);
-        if (Core.brushController.mode === "erase") {
+        if (historyItem.mode === "erase") {
           this.mainCanvas.ctx.globalCompositeOperation = "destination-out";
         }
         this.mainCanvas.ctx.globalAlpha =

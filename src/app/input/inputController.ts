@@ -18,11 +18,9 @@ export class InputController {
   private keyEvents(e: KeyboardEvent) {
     if (e.key === "e") {
       e.preventDefault();
-
       Core.brushController.setMode(
         Core.brushController.mode === "draw" ? "erase" : "draw"
       );
-      console.log(Core.brushController.mode);
     }
     if (e.ctrlKey) {
       if (e.shiftKey && e.key.toLowerCase() === "z") {
