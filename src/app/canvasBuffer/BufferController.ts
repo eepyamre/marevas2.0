@@ -7,10 +7,8 @@ import { CanvasBuffer } from "./canvasBuffer";
 export class BufferController {
   mainCanvas: CanvasBuffer;
   drawingCanvas: CanvasBuffer;
-  remoteCanvas: CanvasBuffer;
   mainCanvasEl: HTMLCanvasElement;
   drawingCanvasEl: HTMLCanvasElement;
-  remoteCanvasEl: HTMLCanvasElement;
   prevPos: Vector2 | null;
   remoteDrawings: {
     [key: string]: { canvasBuffer: CanvasBuffer };
@@ -22,8 +20,6 @@ export class BufferController {
     this.drawingCanvas = new CanvasBuffer();
     this.drawingCanvasEl = this.drawingCanvas.canvas;
     this.drawingCanvasEl.style.zIndex = "2";
-    this.remoteCanvas = new CanvasBuffer();
-    this.remoteCanvasEl = this.remoteCanvas.canvas;
     this.prevPos = null;
   }
 
@@ -125,6 +121,5 @@ export class BufferController {
     Core.canvasOptions.zoom *= scale;
     Core.bufferController.drawingCanvas.updateZoom();
     Core.bufferController.mainCanvas.updateZoom();
-    Core.bufferController.remoteCanvas.updateZoom();
   }
 }
