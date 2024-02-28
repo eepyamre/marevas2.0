@@ -2,6 +2,8 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  touch-action: none;
+  overscroll-behavior: none;
 }
 body{
   overflow: hidden;
@@ -17,13 +19,6 @@ body{
     top: 0;
     right: 0;
     bottom: 0;
-    cursor: none;
+    cursor: crosshair;
   }
-}
-#cursor{
-  border-radius: 50%;
-  width: 6px;
-  height: 6px;
-  position: fixed;
-  border: 2px solid #121212;
 }
