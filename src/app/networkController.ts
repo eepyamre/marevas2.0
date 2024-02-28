@@ -61,6 +61,7 @@ export class NetworkController {
       this.userId = arr[1];
       return;
     }
+    if (arr[0] === this.userId || arr[1] === this.userId) return;
     if (arr[0] === "start") {
       Core.bufferController.startRemoteDrawing(arr[1]);
       return;
@@ -69,7 +70,6 @@ export class NetworkController {
       Core.bufferController.stopRemoteDrawing(arr[1]);
       return;
     }
-    if (arr[0] === this.userId) return;
     const decoded: Packet = {
       userId: arr[0],
       brushSettings: {

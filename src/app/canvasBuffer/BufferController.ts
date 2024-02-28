@@ -90,26 +90,39 @@ export class BufferController {
     Core.networkController.pushData(packet);
   }
   startRemoteDrawing(id: string) {
-    if (!this.remoteDrawings[id]) {
+    const tempId = id + "_temp";
+    if (!this.remoteDrawings[tempId]) {
       const canvasBuffer = new CanvasBuffer();
-      this.remoteDrawings[id] = { canvasBuffer: canvasBuffer, opacity: "1" };
+      this.remoteDrawings[tempId] = {
+        canvasBuffer: canvasBuffer,
+        opacity: "1",
+      };
     }
   }
   stopRemoteDrawing(id: string) {
-    if (this.remoteDrawings[id]) {
-      this.mainCanvas.ctx.globalAlpha = +this.remoteDrawings[id].opacity;
-      this.mainCanvas.ctx.drawImage(
-        this.remoteDrawings[id].canvasBuffer.canvas,
+    const tempId = id + "_temp";
+    if (this.remoteDrawings[tempId]) {
+      if (!this.remoteDrawings[id]) {
+        const canvasBuffer = new CanvasBuffer();
+        this.remoteDrawings[id] = { canvasBuffer: canvasBuffer, opacity: "1" };
+      }
+      this.remoteDrawings[id].canvasBuffer.ctx.globalAlpha =
+        +this.remoteDrawings[tempId].opacity;
+      this.remoteDrawings[id].canvasBuffer.ctx.globalAlpha =
+        +this.remoteDrawings[tempId].opacity;
+      this.remoteDrawings[id].canvasBuffer.ctx.drawImage(
+        this.remoteDrawings[tempId].canvasBuffer.canvas,
         0,
         0
       );
-      this.mainCanvas.ctx.globalAlpha = 1;
-      this.remoteDrawings[id].canvasBuffer.remove();
-      delete this.remoteDrawings[id];
+      this.remoteDrawings[id].canvasBuffer.ctx.globalAlpha = 1;
+      this.remoteDrawings[tempId].canvasBuffer.remove();
+      delete this.remoteDrawings[tempId];
     }
   }
   remoteDraw(data: Packet) {
-    if (this.remoteDrawings[data.userId]) {
+    const tempId = data.userId + "_temp";
+    if (this.remoteDrawings[tempId]) {
       const brushClass =
         Core.brushController.brushesTypes[data.brushSettings.type];
       if (!brushClass) {
@@ -120,29 +133,28 @@ export class BufferController {
         data.brushSettings.color.toHex(),
         data.brushSettings.size
       );
-      this.remoteDrawings[data.userId].opacity = brush.color.color.a.toString();
-      this.remoteDrawings[data.userId].canvasBuffer.canvas.style.opacity =
+      this.remoteDrawings[tempId].opacity = brush.color.color.a.toString();
+      this.remoteDrawings[tempId].canvasBuffer.canvas.style.opacity =
         brush.color.color.a.toString();
-      this.remoteDrawings[data.userId].canvasBuffer.ctx.strokeStyle =
+      this.remoteDrawings[tempId].canvasBuffer.ctx.strokeStyle =
         brush.color.toCanvasSrting();
-      this.remoteDrawings[data.userId].canvasBuffer.ctx.fillStyle =
+      this.remoteDrawings[tempId].canvasBuffer.ctx.fillStyle =
         brush.color.toCanvasSrting();
-      this.remoteDrawings[data.userId].canvasBuffer.ctx.lineWidth = brush.size;
-      this.remoteDrawings[data.userId].canvasBuffer.ctx.lineJoin =
-        brush.lineJoin;
-      this.remoteDrawings[data.userId].canvasBuffer.ctx.lineCap = brush.lineCap;
+      this.remoteDrawings[tempId].canvasBuffer.ctx.lineWidth = brush.size;
+      this.remoteDrawings[tempId].canvasBuffer.ctx.lineJoin = brush.lineJoin;
+      this.remoteDrawings[tempId].canvasBuffer.ctx.lineCap = brush.lineCap;
 
-      this.remoteDrawings[data.userId].canvasBuffer.ctx.beginPath();
-      this.remoteDrawings[data.userId].canvasBuffer.ctx.moveTo(
+      this.remoteDrawings[tempId].canvasBuffer.ctx.beginPath();
+      this.remoteDrawings[tempId].canvasBuffer.ctx.moveTo(
         data.prevPos.x,
         data.prevPos.y
       );
-      this.remoteDrawings[data.userId].canvasBuffer.ctx.lineTo(
+      this.remoteDrawings[tempId].canvasBuffer.ctx.lineTo(
         data.pos.x,
         data.pos.y
       );
-      this.remoteDrawings[data.userId].canvasBuffer.ctx.stroke();
-      this.remoteDrawings[data.userId].canvasBuffer.ctx.closePath();
+      this.remoteDrawings[tempId].canvasBuffer.ctx.stroke();
+      this.remoteDrawings[tempId].canvasBuffer.ctx.closePath();
     }
   }
 

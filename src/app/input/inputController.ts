@@ -50,8 +50,8 @@ export class InputController {
       );
     if (this.moveCanvas) {
       Core.appRoot.style.transform = Core.getTransformStyle(
-        e.movementX,
-        e.movementY
+        e.movementX / Core.canvasOptions.zoom,
+        e.movementY / Core.canvasOptions.zoom
       );
     }
   };
