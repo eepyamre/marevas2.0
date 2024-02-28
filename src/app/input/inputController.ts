@@ -11,6 +11,21 @@ export class InputController {
     Core.appRoot.addEventListener("pointerout", this.pointerup);
     Core.appRoot.addEventListener("contextmenu", (e) => e.preventDefault());
     Core.appRoot.addEventListener("wheel", this.zoom);
+    addEventListener("keydown", this.keyEvents);
+  }
+  private keyEvents(e: KeyboardEvent) {
+    if (e.ctrlKey) {
+      if (e.shiftKey && e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        Core.historyController.redo();
+        return;
+      }
+      if (e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        Core.historyController.undo();
+        return;
+      }
+    }
   }
   private pointerdown = (e: PointerEvent) => {
     e.preventDefault();
@@ -20,7 +35,6 @@ export class InputController {
       this.shouldDraw = false;
       return;
     }
-    console.log(e);
     Core.bufferController.startDraw(
       new Vector2(e.offsetX, e.offsetY),
       e.pointerType === "pen" ? e.pressure : 1
@@ -51,6 +65,7 @@ export class InputController {
     this.moveCanvas = false;
   };
   private zoom = (e: WheelEvent) => {
+    e.preventDefault();
     let scale = 0.9;
     if (e.deltaY < 0) {
       scale = 1.1;

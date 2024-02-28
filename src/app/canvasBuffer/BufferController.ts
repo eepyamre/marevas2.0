@@ -24,34 +24,54 @@ export class BufferController {
   }
 
   startDraw(pos: Vector2, pressure: number) {
-    Core.brushController.startDraw(this.drawingCanvas.ctx, pos, pressure);
+    const historyItem = {
+      run: () => {
+        Core.brushController.startDraw(this.drawingCanvas.ctx, pos, pressure);
+        this.prevPos = pos;
+      },
+    };
+    Core.historyController.pushNewHistory();
+    Core.historyController.pushToActiveHistoryItem(historyItem);
+    historyItem.run();
     Core.networkController.sendStart();
-    this.prevPos = pos;
   }
   draw(pos: Vector2, pressure: number) {
-    Core.brushController.draw(
-      this.drawingCanvas.ctx,
-      this.prevPos || pos,
-      pos,
-      pressure
-    );
+    const historyItem = {
+      run: () => {
+        Core.brushController.draw(
+          this.drawingCanvas.ctx,
+          this.prevPos || pos,
+          pos,
+          pressure
+        );
+        this.prevPos = pos;
+      },
+    };
+    Core.historyController.pushToActiveHistoryItem(historyItem);
+    historyItem.run();
     this.pushData(pos, pressure);
-    this.prevPos = pos;
   }
   endDraw() {
-    Core.brushController.endDraw(this.drawingCanvas.ctx);
-    this.mainCanvas.ctx.globalAlpha = Core.brushController.brush.color.color.a;
-    this.mainCanvas.ctx.drawImage(this.drawingCanvasEl, 0, 0);
-    this.mainCanvas.ctx.globalAlpha = 1;
-    this.drawingCanvas.ctx.clearRect(
-      0,
-      0,
-      this.drawingCanvas.width,
-      this.drawingCanvas.height
-    );
-    this.drawingCanvas.ctx.globalCompositeOperation = "source-over";
-    this.drawingCanvas.ctx.globalAlpha = 1;
-    this.prevPos = null;
+    const historyItem = {
+      run: () => {
+        Core.brushController.endDraw(this.drawingCanvas.ctx);
+        this.mainCanvas.ctx.globalAlpha =
+          Core.brushController.brush.color.color.a;
+        this.mainCanvas.ctx.drawImage(this.drawingCanvasEl, 0, 0);
+        this.mainCanvas.ctx.globalAlpha = 1;
+        this.drawingCanvas.ctx.clearRect(
+          0,
+          0,
+          this.drawingCanvas.width,
+          this.drawingCanvas.height
+        );
+        this.drawingCanvas.ctx.globalCompositeOperation = "source-over";
+        this.drawingCanvas.ctx.globalAlpha = 1;
+        this.prevPos = null;
+      },
+    };
+    Core.historyController.pushToActiveHistoryItem(historyItem);
+    historyItem.run();
     Core.networkController.sendStop();
   }
 
@@ -68,7 +88,6 @@ export class BufferController {
 
     Core.networkController.pushData(packet);
   }
-  // TODO: opacity + pressure over network
   startRemoteDrawing(id: string) {
     if (!this.remoteDrawings[id]) {
       const canvasBuffer = new CanvasBuffer();
@@ -128,7 +147,16 @@ export class BufferController {
 
   updateCanvasZoom(scale: number) {
     Core.canvasOptions.zoom *= scale;
-    Core.bufferController.drawingCanvas.updateZoom();
-    Core.bufferController.mainCanvas.updateZoom();
+    this.drawingCanvas.updateZoom();
+    this.mainCanvas.updateZoom();
+  }
+
+  clearMain() {
+    this.mainCanvas.ctx.clearRect(
+      0,
+      0,
+      this.mainCanvasEl.width,
+      this.mainCanvasEl.height
+    );
   }
 }
