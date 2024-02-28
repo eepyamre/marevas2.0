@@ -3,7 +3,7 @@ import { InputController } from "./input/inputController";
 import { NetworkController } from "./networkController";
 import { UIController } from "./uiController";
 import { HistoryController } from "./historyController";
-import { DoubleBufferController } from "./canvasBuffer/doubleBufferController";
+import { BufferController } from "./canvasBuffer/BufferController";
 
 export class Core {
   static appRoot: HTMLDivElement;
@@ -12,15 +12,15 @@ export class Core {
   static networkController: NetworkController;
   static brushController: BrushController;
   static uiController: UIController;
-  static bufferController: DoubleBufferController;
+  static bufferController: BufferController;
 
-  static setup = (appRoot: HTMLDivElement) => {
+  static setup = (appRoot: HTMLDivElement, socketUrl: string) => {
     this.appRoot = appRoot;
-    this.bufferController = new DoubleBufferController();
+    this.bufferController = new BufferController();
     this.brushController = new BrushController();
     this.input = new InputController();
     this.uiController = new UIController();
     this.historyController = new HistoryController();
-    this.networkController = new NetworkController("http://localhost");
+    this.networkController = new NetworkController(socketUrl);
   };
 }

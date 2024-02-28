@@ -10,14 +10,17 @@ export class InputController {
     Core.appRoot.addEventListener("contextmenu", (e) => e.preventDefault());
   }
   private pointerdown = (e: PointerEvent) => {
+    e.preventDefault();
     Core.bufferController.startDraw(new Vector2(e.clientX, e.clientY));
     this.shouldDraw = true;
   };
   private pointermove = (e: PointerEvent) => {
+    e.preventDefault();
     if (this.shouldDraw)
       Core.bufferController.draw(new Vector2(e.clientX, e.clientY));
   };
   private pointerup = (e: PointerEvent) => {
+    e.preventDefault();
     if (this.shouldDraw) {
       Core.bufferController.endDraw();
       this.shouldDraw = false;

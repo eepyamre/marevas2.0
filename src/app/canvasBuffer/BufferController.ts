@@ -2,17 +2,21 @@ import { Vector2 } from "../../helpers/vectors";
 import { Core } from "../core";
 import { CanvasBuffer } from "./canvasBuffer";
 
-export class DoubleBufferController {
+export class BufferController {
   mainCanvas: CanvasBuffer;
   drawingCanvas: CanvasBuffer;
+  remoteCanvas: CanvasBuffer;
   mainCanvasEl: HTMLCanvasElement;
   drawingCanvasEl: HTMLCanvasElement;
+  remoteCanvasEl: HTMLCanvasElement;
 
   constructor() {
     this.mainCanvas = new CanvasBuffer();
     this.mainCanvasEl = this.mainCanvas.canvas;
     this.drawingCanvas = new CanvasBuffer();
     this.drawingCanvasEl = this.drawingCanvas.canvas;
+    this.remoteCanvas = new CanvasBuffer();
+    this.remoteCanvasEl = this.remoteCanvas.canvas;
   }
 
   startDraw(pos: Vector2) {
@@ -45,5 +49,23 @@ export class DoubleBufferController {
       brushSize
     );
     Core.networkController.pushData(data.data, pos, brushSize);
+  }
+  pushRemote(data: number[], pos: Vector2) {
+    const size = Math.sqrt(data.length / 4);
+    const canvas = document.createElement("canvas");
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      throw new Error("Cant create canvas context");
+    }
+    const arr = new Uint8ClampedArray(data);
+
+    const imageData = new ImageData(arr, size);
+    ctx.putImageData(imageData, pos.x, pos.y);
+    const halfSize = size / 2;
+    this.mainCanvas.ctx.drawImage(canvas, -halfSize, -halfSize);
   }
 }
