@@ -1,27 +1,27 @@
 import { Color, ColorHex } from "../../helpers/color";
-import { Vecotor2 } from "../../helpers/vectors";
+import { Vector2 } from "../../helpers/vectors";
 
 export class BasicBrush {
   color: Color;
   size: number;
-  constructor(color: ColorHex, size: number){
-    this.color = new Color(color)
-    this.size = size
+  constructor(color: ColorHex, size: number) {
+    this.color = new Color(color);
+    this.size = size;
   }
 
-  startDraw(ctx:CanvasRenderingContext2D, pos:Vecotor2) {
+  startDraw(ctx: CanvasRenderingContext2D, pos: Vector2) {
     ctx.beginPath();
     ctx.strokeStyle = this.color.toString();
     ctx.lineWidth = this.size;
-    ctx.lineJoin = 'round'
-    ctx.lineCap = 'round'
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
     ctx.moveTo(pos.x, pos.y);
   }
-  draw(ctx:CanvasRenderingContext2D, pos:Vecotor2) {
+  draw(ctx: CanvasRenderingContext2D, pos: Vector2) {
     ctx.lineTo(pos.x, pos.y);
-    ctx.stroke()
+    ctx.stroke();
   }
-  endDraw(ctx:CanvasRenderingContext2D) {
+  endDraw(ctx: CanvasRenderingContext2D) {
     ctx.closePath();
   }
 }

@@ -1,7 +1,7 @@
-import { Core } from "./src/app/core"
+import { Core } from "./src/app/core";
 
-addEventListener('DOMContentLoaded', () => {
-  const canvas = document.querySelector('#app canvas')
-  if(!canvas) throw new Error("No canvas found.")
-  const app = new Core(canvas as HTMLCanvasElement);
-})
+addEventListener("DOMContentLoaded", () => {
+  const appRoot = document.querySelector<HTMLDivElement>("#app");
+  if (!appRoot) throw new Error("No #app found.");
+  const app = Core.setup(appRoot);
+});

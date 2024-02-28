@@ -1,43 +1,26 @@
-import { Vecotor2 } from "../helpers/vectors";
-import { BasicBrush } from "./brushes/basicBrush";
-import { Controls } from "./controls/controls";
-import { RemoteConnection } from "./remoteConnection";
-import { UI } from "./ui";
+import { BrushController } from "./brushes/brushController";
+import { InputController } from "./input/inputController";
+import { NetworkController } from "./networkController";
+import { UIController } from "./uiController";
+import { HistoryController } from "./historyController";
+import { DoubleBufferController } from "./canvasBuffer/doubleBufferController";
 
 export class Core {
-  ctx: CanvasRenderingContext2D;
-  controls: Controls;
-  history: History;
-  remote: RemoteConnection;
-  ui: UI;
-  brush: BasicBrush;
-  constructor(canvas: HTMLCanvasElement) {
-    let ctx = canvas.getContext("2d");
-    if (!ctx) {
-      throw new Error("No canvas context available!");
-    }
-    this.ctx = ctx;
-    this.initCanvas(this.ctx);
-    ctx.globalCompositeOperation = 'source-over'
-    this.brush = new BasicBrush(0x12121232, 16)
-    this.controls = new Controls(this);
-  }
+  static appRoot: HTMLDivElement;
+  static input: InputController;
+  static historyController: HistoryController;
+  static networkController: NetworkController;
+  static brushController: BrushController;
+  static uiController: UIController;
+  static bufferController: DoubleBufferController;
 
-  startDraw(pos: Vecotor2) {
-    this.brush.startDraw(this.ctx, pos);
-  }
-  draw(pos: Vecotor2) {
-    this.brush.draw(this.ctx, pos);
-  }
-  endDraw() {
-    this.brush.endDraw(this.ctx);
-  }
-
-  private initCanvas(ctx: CanvasRenderingContext2D) {
-    // const dpr = window.devicePixelRatio || 1;
-    const dpr = 1
-    const rect = ctx.canvas.getBoundingClientRect();
-    ctx.canvas.width = rect.width * dpr;
-    ctx.canvas.height = rect.height * dpr;
-  }
+  static setup = (appRoot: HTMLDivElement) => {
+    this.appRoot = appRoot;
+    this.bufferController = new DoubleBufferController();
+    this.brushController = new BrushController();
+    this.input = new InputController();
+    this.uiController = new UIController();
+    this.historyController = new HistoryController();
+    this.networkController = new NetworkController("http://localhost");
+  };
 }
