@@ -4,7 +4,7 @@ import { Core } from "../core";
 export class InputController {
   shouldDraw = false;
   moveCanvas = false;
-  stablizationLevel = 10;
+  stablizationLevel = 5;
   pointerBuffer: Vector2[] = [];
   constructor() {
     Core.appRoot.addEventListener("pointerdown", this.pointerdown);
@@ -16,6 +16,14 @@ export class InputController {
     addEventListener("keydown", this.keyEvents);
   }
   private keyEvents(e: KeyboardEvent) {
+    if (e.key === "e") {
+      e.preventDefault();
+
+      Core.brushController.setMode(
+        Core.brushController.mode === "draw" ? "erase" : "draw"
+      );
+      console.log(Core.brushController.mode);
+    }
     if (e.ctrlKey) {
       if (e.shiftKey && e.key.toLowerCase() === "z") {
         e.preventDefault();

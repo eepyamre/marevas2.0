@@ -56,17 +56,20 @@ export class BufferController {
     const historyItem = {
       run: () => {
         Core.brushController.endDraw(this.drawingCanvas.ctx);
+        if (Core.brushController.mode === "erase") {
+          this.mainCanvas.ctx.globalCompositeOperation = "destination-out";
+        }
         this.mainCanvas.ctx.globalAlpha =
           Core.brushController.brush.color.color.a;
         this.mainCanvas.ctx.drawImage(this.drawingCanvasEl, 0, 0);
         this.mainCanvas.ctx.globalAlpha = 1;
+        this.mainCanvas.ctx.globalCompositeOperation = "source-over";
         this.drawingCanvas.ctx.clearRect(
           0,
           0,
           this.drawingCanvas.width,
           this.drawingCanvas.height
         );
-        this.drawingCanvas.ctx.globalCompositeOperation = "source-over";
         this.drawingCanvas.ctx.globalAlpha = 1;
         this.prevPos = null;
       },

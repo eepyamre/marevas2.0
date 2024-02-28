@@ -3,6 +3,7 @@ import { BasicBrush } from "./basicBrush";
 
 export class BrushController {
   brush: BasicBrush;
+  mode: "draw" | "erase" = "draw";
   brushesTypes = {
     BasicBrush: BasicBrush,
   };
@@ -11,7 +12,7 @@ export class BrushController {
   }
 
   startDraw(ctx: CanvasRenderingContext2D, pos: Vector2, pressure: number) {
-    this.brush.startDraw(ctx, pos, pressure);
+    this.brush.startDraw(ctx);
   }
   draw(
     ctx: CanvasRenderingContext2D,
@@ -23,5 +24,8 @@ export class BrushController {
   }
   endDraw(ctx: CanvasRenderingContext2D) {
     this.brush.endDraw(ctx);
+  }
+  setMode(mode: "draw" | "erase") {
+    this.mode = mode;
   }
 }
