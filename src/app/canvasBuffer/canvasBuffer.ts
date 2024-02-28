@@ -23,8 +23,13 @@ export class CanvasBuffer {
   private adjustCanvasSize() {
     const dpr = window.devicePixelRatio || 1;
     // const dpr = 1
-    const rect = this.canvas.getBoundingClientRect();
-    this.width = this.canvas.width = rect.width * dpr;
-    this.height = this.canvas.height = rect.height * dpr;
+    // const rect = this.canvas.getBoundingClientRect();
+    this.width = this.canvas.width = Core.canvasOptions.width * dpr;
+    this.height = this.canvas.height = Core.canvasOptions.height * dpr;
+    Core.appRoot.style.width = this.canvas.style.width = this.width + "px";
+    Core.appRoot.style.height = this.canvas.style.height = this.height + "px";
+  }
+  updateZoom() {
+    Core.appRoot.style.transform = Core.getTransformStyle();
   }
 }

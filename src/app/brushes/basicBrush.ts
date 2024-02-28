@@ -10,8 +10,9 @@ export class BasicBrush {
   }
 
   startDraw(ctx: CanvasRenderingContext2D, pos: Vector2) {
-    ctx.beginPath();
     ctx.strokeStyle = this.color.toString();
+    ctx.fillStyle = this.color.toString();
+    ctx.beginPath();
     ctx.lineWidth = this.size;
     ctx.lineJoin = "round";
     ctx.lineCap = "round";

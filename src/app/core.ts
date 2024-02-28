@@ -5,6 +5,14 @@ import { UIController } from "./uiController";
 import { HistoryController } from "./historyController";
 import { BufferController } from "./canvasBuffer/BufferController";
 
+type CanvasOptions = {
+  width: number;
+  height: number;
+  zoom: number;
+  offsetX: number;
+  offsetY: number;
+};
+
 export class Core {
   static appRoot: HTMLDivElement;
   static input: InputController;
@@ -13,9 +21,14 @@ export class Core {
   static brushController: BrushController;
   static uiController: UIController;
   static bufferController: BufferController;
-
-  static setup = (appRoot: HTMLDivElement, socketUrl: string) => {
+  static canvasOptions: CanvasOptions;
+  static setup = (
+    appRoot: HTMLDivElement,
+    socketUrl: string,
+    canvasOptions: CanvasOptions
+  ) => {
     this.appRoot = appRoot;
+    this.canvasOptions = canvasOptions;
     this.bufferController = new BufferController();
     this.brushController = new BrushController();
     this.input = new InputController();
@@ -23,4 +36,9 @@ export class Core {
     this.historyController = new HistoryController();
     this.networkController = new NetworkController(socketUrl);
   };
+  static getTransformStyle(movX = 0, movY = 0) {
+    return `scale(${Core.canvasOptions.zoom}) 
+    translate(${(Core.canvasOptions.offsetX +=
+      movX)}px,${(Core.canvasOptions.offsetY += movY)}px)`;
+  }
 }

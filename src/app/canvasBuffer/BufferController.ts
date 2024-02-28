@@ -13,8 +13,10 @@ export class BufferController {
   constructor() {
     this.mainCanvas = new CanvasBuffer();
     this.mainCanvasEl = this.mainCanvas.canvas;
+    this.mainCanvasEl.style.zIndex = "1";
     this.drawingCanvas = new CanvasBuffer();
     this.drawingCanvasEl = this.drawingCanvas.canvas;
+    this.drawingCanvasEl.style.zIndex = "2";
     this.remoteCanvas = new CanvasBuffer();
     this.remoteCanvasEl = this.remoteCanvas.canvas;
   }
@@ -67,5 +69,11 @@ export class BufferController {
     ctx.putImageData(imageData, pos.x, pos.y);
     const halfSize = size / 2;
     this.mainCanvas.ctx.drawImage(canvas, -halfSize, -halfSize);
+  }
+  updateCanvasZoom(scale: number) {
+    Core.canvasOptions.zoom *= scale;
+    Core.bufferController.drawingCanvas.updateZoom();
+    Core.bufferController.mainCanvas.updateZoom();
+    Core.bufferController.remoteCanvas.updateZoom();
   }
 }

@@ -5,19 +5,17 @@
 }
 body{
   overflow: hidden;
+  background-color: #121212;
 }
 #app{
   width: 100vw;
   height: 100vh;
+  background-color: #ffffff;
   canvas{
     position: fixed;
     left: 0;
     top: 0;
     right: 0;
     bottom: 0;
-    width: 100vw;
-    height: 100vh;
-    max-width: 100vw;
-    max-height: 100vh;
   }
 }
