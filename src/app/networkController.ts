@@ -71,6 +71,12 @@ export class NetworkController {
       Core.bufferController.stopRemoteDrawing(userId);
       return;
     }
+    if (arr[1] === "image") {
+      Core.bufferController.remoteImage(
+        userId,
+        data.slice(arr[0].length + 1 + arr[1].length + 1)
+      );
+    }
     const decoded: Packet = {
       userId: userId,
       brushSettings: {
@@ -88,6 +94,9 @@ export class NetworkController {
   }
   sendStop() {
     this.socket.send(this.userId + "Astop");
+  }
+  sendImage(imageData: string) {
+    this.socket.send(this.userId + "AimageA" + imageData);
   }
   // TODO: send an empty data for changing only a remote mouse position
   pushData(packet: Pick<Packet, "brushSettings" | "pos" | "prevPos">) {

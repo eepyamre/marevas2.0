@@ -51,18 +51,14 @@ void onmessage(ws_cli_conn_t *client,
 	char *cli, *port;
 	cli = ws_getaddress(client);
 	port = ws_getport(client);
+
+	char *ptr = strstr(msg, "data:image/");
 	int portInt = atoi(port);
-	char formattedMessage[size+1];
-	snprintf(formattedMessage, size+1, "%sB", msg);
-	if(users[portInt] != NULL){
-		users[portInt] = strappend(users[portInt], formattedMessage);
-	} else {
-		users[portInt] = strappend((char *)"", formattedMessage);
+	
+	if(ptr != NULL){
+		users[portInt] = ptr;
 	}
-	// ON START DRAWING GET FROM redis(?) TO ARR 
-	// ON END DRAW CLEAN users[portInt] and save to redis(?)
-	// ON UNDO REDO SEND THE WHOLE HISTORY TO THE ALL USERS
-	// WHEN USER DISCONNECTS SOMEHOW COMPRESS AND SAVE HIS RESULT NOT IN FORM OF HISTORY 
+	// save users data somewhere (redis?)
 #ifndef DISABLE_VERBOSE
 	printf("I receive a message: %s (size: %" PRId64 ", type: %d), from: %s\n",
 		msg, size, type, cli);

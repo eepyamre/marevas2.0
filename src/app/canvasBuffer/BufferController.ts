@@ -74,6 +74,7 @@ export class BufferController {
     Core.historyController.pushToActiveHistoryItem(historyItem);
     historyItem.run();
     Core.networkController.sendStop();
+    Core.networkController.sendImage(this.mainCanvas.canvas.toDataURL());
   }
 
   pushData(pos: Vector2, pressure: number, prevPos: Vector2 | null) {
@@ -156,6 +157,20 @@ export class BufferController {
       this.remoteDrawings[tempId].canvasBuffer.ctx.stroke();
       this.remoteDrawings[tempId].canvasBuffer.ctx.closePath();
     }
+  }
+
+  remoteImage(id: string, dataString: string) {
+    const img = new Image();
+    img.addEventListener("load", () => {
+      this.remoteDrawings[id].canvasBuffer.ctx.clearRect(
+        0,
+        0,
+        this.remoteDrawings[id].canvasBuffer.width,
+        this.remoteDrawings[id].canvasBuffer.height
+      );
+      this.remoteDrawings[id].canvasBuffer.ctx.drawImage(img, 0, 0);
+    });
+    img.setAttribute("src", dataString);
   }
 
   updateCanvasZoom(scale: number) {

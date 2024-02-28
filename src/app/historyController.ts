@@ -62,6 +62,9 @@ export class HistoryController {
     } else {
       Core.bufferController.clearMain();
     }
+    Core.networkController.sendImage(
+      Core.bufferController.mainCanvasEl.toDataURL()
+    );
   }
 
   redo() {
@@ -74,5 +77,8 @@ export class HistoryController {
         c = c.next;
       }
     }
+    Core.networkController.sendImage(
+      Core.bufferController.mainCanvasEl.toDataURL()
+    );
   }
 }
