@@ -1,3 +1,7 @@
 [submodule "server/wsServer"]
 	path = server/wsServer
 	url = git@github.com:Theldus/wsServer.git
+
+[submodule "server/hiredis"]
+	path = server/hiredis
+	url = git@github.com:redis/hiredis.git

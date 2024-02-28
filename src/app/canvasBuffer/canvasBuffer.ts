@@ -22,12 +22,17 @@ export class CanvasBuffer {
   }
   private adjustCanvasSize() {
     const dpr = window.devicePixelRatio || 1;
-    // const dpr = 1
-    // const rect = this.canvas.getBoundingClientRect();
+    let prevData: ImageData | undefined;
+    if (this.width && this.height) {
+      prevData = this.ctx.getImageData(0, 0, this.width, this.height);
+    }
     this.width = this.canvas.width = Core.canvasOptions.width * dpr;
     this.height = this.canvas.height = Core.canvasOptions.height * dpr;
     Core.appRoot.style.width = this.canvas.style.width = this.width + "px";
     Core.appRoot.style.height = this.canvas.style.height = this.height + "px";
+    if (prevData) {
+      this.ctx.putImageData(prevData, 0, 0);
+    }
   }
   updateZoom() {
     Core.appRoot.style.transform = Core.getTransformStyle();

@@ -37,6 +37,9 @@ export class NetworkController {
     this.socket.addEventListener("close", this.socketClose);
     this.socket.addEventListener("open", this.socketOpen);
     this.socket.addEventListener("message", this.socketMessage);
+    addEventListener("beforeunload", () => {
+      this.socket.close();
+    });
   };
 
   private socketError = (event: Event) => {
@@ -53,7 +56,6 @@ export class NetworkController {
   private socketOpen = () => {
     console.log("Connection Established");
   };
-  // TODO: DO NOT DRAW ON YOURSELF
   private socketMessage = (event: WsMessageEvent) => {
     const data = event.data;
     const arr = data.split("A");

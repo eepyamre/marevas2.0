@@ -162,6 +162,13 @@ export class BufferController {
   remoteImage(id: string, dataString: string) {
     const img = new Image();
     img.addEventListener("load", () => {
+      if (!this.remoteDrawings[id]) {
+        const canvasBuffer = new CanvasBuffer();
+        this.remoteDrawings[id] = {
+          canvasBuffer: canvasBuffer,
+          opacity: "1",
+        };
+      }
       this.remoteDrawings[id].canvasBuffer.ctx.clearRect(
         0,
         0,
