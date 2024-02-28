@@ -26,7 +26,6 @@ export class BufferController {
   startDraw(pos: Vector2, pressure: number) {
     Core.brushController.startDraw(this.drawingCanvas.ctx, pos, pressure);
     Core.networkController.sendStart();
-    this.pushData(pos);
     this.prevPos = pos;
   }
   draw(pos: Vector2, pressure: number) {
@@ -36,7 +35,7 @@ export class BufferController {
       pos,
       pressure
     );
-    this.pushData(pos);
+    this.pushData(pos, pressure);
     this.prevPos = pos;
   }
   endDraw() {
@@ -56,11 +55,11 @@ export class BufferController {
     Core.networkController.sendStop();
   }
 
-  pushData(pos: Vector2) {
+  pushData(pos: Vector2, pressure: number) {
     const packet: Pick<Packet, "brushSettings" | "pos" | "prevPos"> = {
       brushSettings: {
         color: Core.brushController.brush.color,
-        size: Core.brushController.brush.size,
+        size: Core.brushController.brush.size * pressure,
         type: "BasicBrush",
       },
       pos: pos,
@@ -74,8 +73,6 @@ export class BufferController {
     if (!this.remoteDrawings[id]) {
       const canvasBuffer = new CanvasBuffer();
       this.remoteDrawings[id] = { canvasBuffer: canvasBuffer, opacity: "1" };
-
-      this.remoteDrawings[id].canvasBuffer.ctx.beginPath();
     }
   }
   stopRemoteDrawing(id: string) {
@@ -115,6 +112,7 @@ export class BufferController {
         brush.lineJoin;
       this.remoteDrawings[data.userId].canvasBuffer.ctx.lineCap = brush.lineCap;
 
+      this.remoteDrawings[data.userId].canvasBuffer.ctx.beginPath();
       this.remoteDrawings[data.userId].canvasBuffer.ctx.moveTo(
         data.prevPos.x,
         data.prevPos.y
@@ -124,6 +122,7 @@ export class BufferController {
         data.pos.y
       );
       this.remoteDrawings[data.userId].canvasBuffer.ctx.stroke();
+      this.remoteDrawings[data.userId].canvasBuffer.ctx.closePath();
     }
   }
 

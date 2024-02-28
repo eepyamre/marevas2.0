@@ -38,7 +38,7 @@ export class InputController {
     e.preventDefault();
     this.cursor.style.left = e.clientX + "px";
     this.cursor.style.top = e.clientY + "px";
-    if (this.shouldDraw)
+    if (this.shouldDraw && e.buttons)
       Core.bufferController.draw(
         new Vector2(e.layerX, e.layerY),
         e.pointerType === "pen" ? e.pressure : 1
