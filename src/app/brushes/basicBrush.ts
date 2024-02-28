@@ -11,7 +11,7 @@ export class BasicBrush {
     this.size = size;
   }
 
-  startDraw(ctx: CanvasRenderingContext2D, pos: Vector2, pressure: number) {
+  startDraw(ctx: CanvasRenderingContext2D) {
     ctx.strokeStyle = this.color.toCanvasSrting();
     ctx.fillStyle = this.color.toCanvasSrting();
     ctx.canvas.style.opacity = this.color.color.a.toString();

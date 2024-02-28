@@ -4,6 +4,8 @@ import { Core } from "../core";
 export class InputController {
   shouldDraw = false;
   moveCanvas = false;
+  stablizationLevel = 10;
+  pointerBuffer: Vector2[] = [];
   constructor() {
     Core.appRoot.addEventListener("pointerdown", this.pointerdown);
     Core.appRoot.addEventListener("pointermove", this.pointermove);
@@ -43,9 +45,15 @@ export class InputController {
   };
   private pointermove = (e: PointerEvent) => {
     e.preventDefault();
+    this.pointerBuffer.push(new Vector2(e.offsetX, e.offsetY));
+    if (this.pointerBuffer.length > this.stablizationLevel) {
+      this.pointerBuffer.shift();
+    }
+
+    const stabilizedPosition = this.calculateStabilizedPosition();
     if (this.shouldDraw && e.buttons)
       Core.bufferController.draw(
-        new Vector2(e.offsetX, e.offsetY),
+        stabilizedPosition,
         e.pointerType === "pen" ? e.pressure : 1
       );
     if (this.moveCanvas) {
@@ -55,6 +63,19 @@ export class InputController {
       );
     }
   };
+
+  private calculateStabilizedPosition() {
+    let sumX = 0;
+    let sumY = 0;
+    for (const point of this.pointerBuffer) {
+      sumX += point.x;
+      sumY += point.y;
+    }
+    const avgX = sumX / this.pointerBuffer.length;
+    const avgY = sumY / this.pointerBuffer.length;
+    return new Vector2(avgX, avgY);
+  }
+
   private pointerup = (e: PointerEvent) => {
     e.preventDefault();
     Core.bufferController.drawingCanvasEl.releasePointerCapture(e.pointerId);
