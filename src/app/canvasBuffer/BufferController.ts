@@ -42,7 +42,9 @@ export class BufferController {
   }
   endDraw() {
     Core.brushController.endDraw(this.drawingCanvas.ctx);
+    this.mainCanvas.ctx.globalAlpha = Core.brushController.brush.color.color.a;
     this.mainCanvas.ctx.drawImage(this.drawingCanvasEl, 0, 0);
+    this.mainCanvas.ctx.globalAlpha = 1;
     this.drawingCanvas.ctx.clearRect(
       0,
       0,
@@ -50,6 +52,7 @@ export class BufferController {
       this.drawingCanvas.height
     );
     this.drawingCanvas.ctx.globalCompositeOperation = "source-over";
+    this.drawingCanvas.ctx.globalAlpha = 1;
     this.prevPos = null;
     Core.networkController.sendStop();
   }

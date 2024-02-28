@@ -12,8 +12,10 @@ export class BasicBrush {
   }
 
   startDraw(ctx: CanvasRenderingContext2D, pos: Vector2, pressure: number) {
-    ctx.strokeStyle = this.color.toString();
-    ctx.fillStyle = this.color.toString();
+    ctx.strokeStyle = this.color.toCanvasSrting();
+    ctx.fillStyle = this.color.toCanvasSrting();
+    ctx.canvas.style.opacity = this.color.color.a.toString();
+
     ctx.beginPath();
     ctx.lineWidth = this.size * pressure;
     ctx.lineCap = this.lineCap;
@@ -28,15 +30,17 @@ export class BasicBrush {
     pos: Vector2,
     pressure: number
   ) {
-    ctx.beginPath();
     const size = this.size * pressure;
     ctx.lineWidth = size;
+
+    ctx.beginPath();
     ctx.moveTo(prevPos.x, prevPos.y);
     ctx.lineTo(pos.x, pos.y);
     ctx.stroke();
     ctx.closePath();
   }
   endDraw(ctx: CanvasRenderingContext2D) {
+    ctx.canvas.style.opacity = "1";
     ctx.closePath();
   }
 }

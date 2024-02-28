@@ -21,8 +21,8 @@ export class Color {
     }
   }
 
-  toString() {
-    return `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${this.color.a})`;
+  toCanvasSrting() {
+    return `rgba(${this.color.r}, ${this.color.g}, ${this.color.b})`;
   }
 
   toHex() {
