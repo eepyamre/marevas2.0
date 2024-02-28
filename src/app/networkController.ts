@@ -41,14 +41,14 @@ export class NetworkController {
 
   private socketError = (event: Event) => {
     console.error(event);
-    console.log("Connecting error. Reconecting in 5 seconds...");
+    console.log("Connecting error.");
+  };
+
+  private socketClose = (e) => {
+    console.log("Connecting Closed. Reconecting in 5 seconds...");
     setTimeout(() => {
       this.createSocket();
     }, 5000);
-  };
-
-  private socketClose = () => {
-    console.log("Connection Closed");
   };
   private socketOpen = () => {
     console.log("Connection Established");
@@ -57,21 +57,22 @@ export class NetworkController {
   private socketMessage = (event: WsMessageEvent) => {
     const data = event.data;
     const arr = data.split("A");
-    if (arr[0] === "init") {
-      this.userId = arr[1];
+    const userId = arr[0];
+    if (arr[1] === "init") {
+      this.userId = userId;
       return;
     }
-    if (arr[0] === this.userId || arr[1] === this.userId) return;
-    if (arr[0] === "start") {
-      Core.bufferController.startRemoteDrawing(arr[1]);
+    if (arr[0] === this.userId) return;
+    if (arr[1] === "start") {
+      Core.bufferController.startRemoteDrawing(userId);
       return;
     }
-    if (arr[0] === "stop") {
-      Core.bufferController.stopRemoteDrawing(arr[1]);
+    if (arr[1] === "stop") {
+      Core.bufferController.stopRemoteDrawing(userId);
       return;
     }
     const decoded: Packet = {
-      userId: arr[0],
+      userId: userId,
       brushSettings: {
         type: arr[1],
         size: +arr[2],
@@ -83,12 +84,10 @@ export class NetworkController {
     Core.bufferController.remoteDraw(decoded);
   };
   sendStart() {
-    // startA<id>
-    this.socket.send("startA" + this.userId);
+    this.socket.send(this.userId + "Astart");
   }
   sendStop() {
-    // stopA<id>
-    this.socket.send("stopA" + this.userId);
+    this.socket.send(this.userId + "Astop");
   }
   // TODO: send an empty data for changing only a remote mouse position
   pushData(packet: Pick<Packet, "brushSettings" | "pos" | "prevPos">) {
