@@ -23,16 +23,20 @@ export class BufferController {
     this.prevPos = null;
   }
 
-  startDraw(pos: Vector2) {
-    this.drawingCanvas.ctx.globalCompositeOperation = "destination-atop";
-    Core.brushController.startDraw(this.drawingCanvas.ctx, pos);
-    Core.brushController.draw(this.drawingCanvas.ctx, pos);
+  startDraw(pos: Vector2, pressure: number) {
+    // this.drawingCanvas.ctx.globalCompositeOperation = "destination-atop";
+    Core.brushController.startDraw(this.drawingCanvas.ctx, pos, pressure);
     Core.networkController.sendStart();
     this.pushData(pos);
     this.prevPos = pos;
   }
-  draw(pos: Vector2) {
-    Core.brushController.draw(this.drawingCanvas.ctx, pos);
+  draw(pos: Vector2, pressure: number) {
+    Core.brushController.draw(
+      this.drawingCanvas.ctx,
+      this.prevPos || pos,
+      pos,
+      pressure
+    );
     this.pushData(pos);
     this.prevPos = pos;
   }

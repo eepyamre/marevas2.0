@@ -17,5 +17,13 @@ body{
     top: 0;
     right: 0;
     bottom: 0;
+    cursor: none;
   }
+}
+#cursor{
+  border-radius: 50%;
+  width: 6px;
+  height: 6px;
+  position: fixed;
+  border: 2px solid #121212;
 }
