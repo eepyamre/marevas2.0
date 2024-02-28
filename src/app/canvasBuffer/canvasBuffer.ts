@@ -32,4 +32,7 @@ export class CanvasBuffer {
   updateZoom() {
     Core.appRoot.style.transform = Core.getTransformStyle();
   }
+  remove() {
+    this.canvas.remove();
+  }
 }

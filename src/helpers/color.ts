@@ -24,4 +24,10 @@ export class Color {
   toString() {
     return `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${this.color.a})`;
   }
+
+  toHex() {
+    return `0x${this.color.r.toString(16)}${this.color.g.toString(
+      16
+    )}${this.color.b.toString(16)}${(this.color.a * 255).toString(16)}`;
+  }
 }

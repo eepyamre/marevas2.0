@@ -4,6 +4,8 @@ import { Vector2 } from "../../helpers/vectors";
 export class BasicBrush {
   color: Color;
   size: number;
+  lineCap: CanvasLineCap = "round";
+  lineJoin: CanvasLineJoin = "round";
   constructor(color: ColorHex, size: number) {
     this.color = new Color(color);
     this.size = size;
@@ -14,8 +16,8 @@ export class BasicBrush {
     ctx.fillStyle = this.color.toString();
     ctx.beginPath();
     ctx.lineWidth = this.size;
-    ctx.lineJoin = "round";
-    ctx.lineCap = "round";
+    ctx.lineCap = this.lineCap;
+    ctx.lineJoin = this.lineJoin;
     ctx.moveTo(pos.x, pos.y);
   }
   draw(ctx: CanvasRenderingContext2D, pos: Vector2) {
