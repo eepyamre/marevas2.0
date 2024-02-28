@@ -36,6 +36,7 @@ export class BufferController {
     Core.networkController.sendStart();
   }
   draw(pos: Vector2, pressure: number) {
+    const prev = this.prevPos;
     const historyItem = {
       run: () => {
         Core.brushController.draw(
@@ -49,7 +50,7 @@ export class BufferController {
     };
     Core.historyController.pushToActiveHistoryItem(historyItem);
     historyItem.run();
-    this.pushData(pos, pressure);
+    this.pushData(pos, pressure, prev);
   }
   endDraw() {
     const historyItem = {
@@ -75,7 +76,7 @@ export class BufferController {
     Core.networkController.sendStop();
   }
 
-  pushData(pos: Vector2, pressure: number) {
+  pushData(pos: Vector2, pressure: number, prevPos: Vector2 | null) {
     const packet: Pick<Packet, "brushSettings" | "pos" | "prevPos"> = {
       brushSettings: {
         color: Core.brushController.brush.color,
@@ -83,7 +84,7 @@ export class BufferController {
         type: "BasicBrush",
       },
       pos: pos,
-      prevPos: this.prevPos || pos,
+      prevPos: prevPos || pos,
     };
 
     Core.networkController.pushData(packet);
