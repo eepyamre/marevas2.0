@@ -1,3 +1,3 @@
-class  LayerHistory {
+export class LayerHistory {
   constructor(){}
 }

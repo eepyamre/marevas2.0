@@ -1,3 +1,3 @@
-class LayerManager {
+export class LayerManager {
   constructor(){}
 }
