@@ -4,6 +4,7 @@
   padding: 0;
   touch-action: none;
   overscroll-behavior: none;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 body{
   overflow: hidden;
@@ -20,5 +21,102 @@ body{
     right: 0;
     bottom: 0;
     cursor: crosshair;
+  }
+}
+
+#ui{
+  .sidebar{
+    flex-direction: column;
+    color: #e6e6e6;
+    width: 250px;
+    background-color: #333;
+    position: fixed;
+    display: flex;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 10;
+    width: 260px;
+    align-items: center;
+    padding: 10px;
+
+  }
+  .header{
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    cursor: pointer;
+    padding-top: 2px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    padding-bottom: 12px;
+    display: flex;
+    align-items: center;
+    width: calc(100% + 20px);
+    gap: 16px;
+    margin: -10px;
+    margin-bottom: 12px;
+    user-select: none;
+    padding: 10px;
+    border-bottom: 1px solid #121212;
+    &:hover{
+      background-color: #222;
+    }
+    img{
+      width: 32px;
+    }
+    .info_btn{
+      font-size: .5rem;
+      text-align: right;
+      width: 100%;
+    }
+  }
+  .kl-color-picker{
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #121212;
+  }
+  .controls {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #121212;
+    user-select: none;
+  }
+  .input_wrapper{
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    font-size: .8rem;
+    > span{
+      flex-basis: 60px;
+    }
+    .slider{
+      background-color: #e9e9e9;
+      border-radius: 4px;
+      flex-grow: 1;
+      color: #000;
+      text-align: right;
+      position: relative;
+      .bg{
+        border-radius: 4px;
+        background-color: #aaa;
+        width: 50%;
+        height: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+      }
+      span.value{
+        user-select: none;
+        right: 0;
+        z-index: 2;
+        position: absolute;
+        padding-right: 4px;
+      }
+    }
   }
 }

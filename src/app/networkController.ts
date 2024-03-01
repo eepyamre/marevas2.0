@@ -37,9 +37,6 @@ export class NetworkController {
     this.socket.addEventListener("close", this.socketClose);
     this.socket.addEventListener("open", this.socketOpen);
     this.socket.addEventListener("message", this.socketMessage);
-    addEventListener("beforeunload", () => {
-      this.socket.close();
-    });
   };
 
   private socketError = (event: Event) => {
@@ -47,14 +44,21 @@ export class NetworkController {
     console.log("Connecting error.");
   };
 
-  private socketClose = (e) => {
+  private socketClose = () => {
     console.log("Connecting Closed. Reconecting in 5 seconds...");
+    this.socket.removeEventListener("error", this.socketError);
+    this.socket.removeEventListener("close", this.socketClose);
+    this.socket.removeEventListener("open", this.socketOpen);
+    this.socket.removeEventListener("message", this.socketMessage);
     setTimeout(() => {
       this.createSocket();
     }, 5000);
   };
   private socketOpen = () => {
     console.log("Connection Established");
+    addEventListener("beforeunload", () => {
+      this.socket.close();
+    });
   };
   private socketMessage = (event: WsMessageEvent) => {
     const data = event.data;
@@ -84,7 +88,7 @@ export class NetworkController {
       brushSettings: {
         type: arr[1],
         size: +arr[2],
-        color: new Color(+arr[3]),
+        color: new Color(arr[3]),
       },
       pos: new Vector2(+arr[4], +arr[5]),
       prevPos: new Vector2(+arr[6], +arr[7]),
@@ -92,16 +96,20 @@ export class NetworkController {
     Core.bufferController.remoteDraw(decoded);
   };
   sendStart() {
+    if (!this.socket.readyState) return;
     this.socket.send(this.userId + "Astart");
   }
   sendStop() {
+    if (!this.socket.readyState) return;
     this.socket.send(this.userId + "Astop");
   }
   sendImage(imageData: string) {
+    if (!this.socket.readyState) return;
     this.socket.send(this.userId + "AimageA" + imageData);
   }
   // TODO: send an empty data for changing only a remote mouse position
   pushData(packet: Pick<Packet, "brushSettings" | "pos" | "prevPos">) {
+    if (!this.socket.readyState) return;
     const arr: (number | string)[] = [
       this.userId,
       packet.brushSettings.type,

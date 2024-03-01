@@ -9,6 +9,119 @@
   </head>
   <body>
     <div id="app"></div>
+    <div id="ui">
+      <div class="sidebar">
+        <div class="header">
+          <img src="./src/assets/drawmareicon.png" alt="" />
+          <p>Marevas</p>
+          <p class="info_btn">info</p>
+        </div>
+        <div
+          style="position: relative; width: 250px; opacity: 1"
+          class="kl-color-picker"
+        >
+          <div
+            style="
+              width: 250px;
+              height: 337px;
+              overflow: hidden;
+              display: block;
+              position: relative;
+              cursor: crosshair;
+            "
+            class="kl-color-picker__sv"
+          >
+            <div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+                style="width: 250px; height: 337px"
+              >
+                <defs>
+                  <linearGradient id="value" gradientTransform="rotate(90)">
+                    <stop offset="0" stop-color="#fff"></stop>
+                    <stop offset="100%" stop-color="#000"></stop>
+                  </linearGradient>
+                  <linearGradient id="hue" gradientTransform="rotate(0)">
+                    <stop offset="0" stop-color="#fff"></stop>
+                    <stop
+                      id="hue-stop"
+                      offset="100%"
+                      stop-color="#ff0000"
+                    ></stop>
+                  </linearGradient>
+                </defs>
+                <rect
+                  x="0"
+                  y="0"
+                  width="100"
+                  height="100"
+                  fill="url('#hue')"
+                ></rect>
+                <rect
+                  x="0"
+                  y="0"
+                  width="100"
+                  height="100"
+                  fill="url('#value')"
+                  style="mix-blend-mode: multiply"
+                ></rect>
+              </svg>
+            </div>
+            <div
+              style="
+                width: 12px;
+                height: 12px;
+                border-radius: 6px;
+                position: absolute;
+                pointer-events: none;
+                box-shadow: rgb(0, 0, 0) 0px 0px 0px 1px,
+                  rgb(255, 255, 255) 0px 0px 0px 1px inset;
+                left: 115px;
+                top: 199px;
+              "
+            ></div>
+          </div>
+          <div
+            style="
+              overflow: hidden;
+              position: relative;
+              width: 250px;
+              height: 30px;
+              cursor: ew-resize;
+              margin-top: 1px;
+              margin-bottom: 1px;
+            "
+            class="kl-color-picker__h"
+          >
+            <img
+              style="
+                position: absolute;
+                left: 0px;
+                top: 0px;
+                display: block;
+                pointer-events: none;
+              "
+              alt="hue"
+              src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPoAAAAeCAYAAAAFOQOpAAACZElEQVR4Xu2di07DMAxF3XWD//9c6LqSIFKlWdPrhAohOEhTNeUx6ti514+0wzLaYi9mm89r8T1vP2o76ncLc8axjeOXMO5xNZtHs2kwew9TxM/b1zV9L6+pPV6noq8a6/mNco7JBptttIddg0DjzUZhNN5s00J8Y/4ozFxgSiCqXQnMMz7rM4QFu9zNxtnstpyjmkcrkVTTI9F8nltY6TGs+sXuYfWTlnluNmlwj3Z65k994v8UBBj+Bgx9q/Ne/cfQd3bamg626GZYAAy9Bl8eiMv7YOgbQFOsYK8dQ8fQQfQ9DgR17/CHFPVX7cmXKvpB3TdOEtS99N09TkxFtz7dVnz0irHXDFYZsmrH0GvqmKs2ho6hVyk+1B3qDnWHuhN190Y1dyL2BOMIxpFec+dBD3Kd+Oj46DL92+kW4qPv+UHKg1TCVu346ErCsR0fHR8dH92buj3qRx69EtCgYGYtKqMyrocJiFJHqDvUHeruK7Ml6n5i1L0QJsE4gnEE4/5iMA5Dz3ZN5eeodkpg3ZuEOqOx545yqOXgpJHSTQwdQ8dH/wc+OoaOoWPoGLr3lHTv6WrSa6TXSK/9RHoNRAfRQXQQHUTvrSfmPDrn0Vt0RwXTVPRSjQfRQXQQHUQH0Vt2ZdJrpNdSDv63VcaB6CA6iA6ig+gguoyK9xwbUC4nBTOVR/D2PhwSRAfRQXQQHUQH0UH0p2fBO4of8NE5vcbpNU6vPe2eKj2mfB01HuoOdYe6Q92h7lB3qDvUfZUAte4ltaIyjsq4FpBQ1BvqzrvX1u2WFzjwphbnu694wsz5T5j5ANNRtoaXaaCtAAAAAElFTkSuQmCC"
+            />
+            <div
+              style="
+                width: 1px;
+                height: 30px;
+                background: rgb(0, 0, 0);
+                border-left: 1px solid rgb(255, 255, 255);
+                position: absolute;
+                top: 0px;
+                left: 5px;
+              "
+            ></div>
+          </div>
+        </div>
+        <div class="controls"></div>
+      </div>
+    </div>
     <script type="module" src="/index.ts"></script>
   </body>
 </html>

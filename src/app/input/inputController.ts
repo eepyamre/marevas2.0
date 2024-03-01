@@ -1,10 +1,11 @@
+import { mapNumRange } from "../../helpers/utils";
 import { Vector2 } from "../../helpers/vectors";
 import { Core } from "../core";
 
 export class InputController {
   shouldDraw = false;
   moveCanvas = false;
-  stablizationLevel = 5;
+  stablizationLevel = 3;
   pointerBuffer: Vector2[] = [];
   constructor() {
     Core.appRoot.addEventListener("pointerdown", this.pointerdown);
@@ -35,6 +36,7 @@ export class InputController {
       }
     }
   }
+
   private pointerdown = (e: PointerEvent) => {
     e.preventDefault();
     Core.bufferController.drawingCanvasEl.setPointerCapture(e.pointerId);
@@ -43,12 +45,10 @@ export class InputController {
       this.shouldDraw = false;
       return;
     }
-    Core.bufferController.startDraw(
-      new Vector2(e.offsetX, e.offsetY),
-      e.pointerType === "pen" ? e.pressure : 1
-    );
+    Core.bufferController.startDraw(new Vector2(e.offsetX, e.offsetY));
     this.shouldDraw = true;
   };
+
   private pointermove = (e: PointerEvent) => {
     e.preventDefault();
     this.pointerBuffer.push(new Vector2(e.offsetX, e.offsetY));
@@ -57,6 +57,7 @@ export class InputController {
     }
 
     const stabilizedPosition = this.calculateStabilizedPosition();
+
     if (this.shouldDraw && e.buttons)
       Core.bufferController.draw(
         stabilizedPosition,
@@ -79,7 +80,7 @@ export class InputController {
     }
     const avgX = sumX / this.pointerBuffer.length;
     const avgY = sumY / this.pointerBuffer.length;
-    return new Vector2(avgX, avgY);
+    return new Vector2(Math.round(avgX), Math.round(avgY));
   }
 
   private pointerup = (e: PointerEvent) => {
@@ -89,8 +90,10 @@ export class InputController {
       Core.bufferController.endDraw();
       this.shouldDraw = false;
     }
+    this.pointerBuffer = [];
     this.moveCanvas = false;
   };
+
   private zoom = (e: WheelEvent) => {
     e.preventDefault();
     let scale = 0.9;
@@ -101,5 +104,9 @@ export class InputController {
       }
     }
     Core.bufferController.updateCanvasZoom(scale);
+  };
+
+  setStabilizationLevel = (n: number) => {
+    this.stablizationLevel = mapNumRange(n, 0, 100, 0, 30);
   };
 }

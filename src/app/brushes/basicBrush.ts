@@ -6,7 +6,7 @@ export class BasicBrush {
   size: number;
   lineCap: CanvasLineCap = "round";
   lineJoin: CanvasLineJoin = "round";
-  constructor(color: ColorHex, size: number) {
+  constructor(color: string, size: number) {
     this.color = new Color(color);
     this.size = size;
   }

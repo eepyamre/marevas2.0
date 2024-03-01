@@ -23,10 +23,11 @@ export class BufferController {
     this.prevPos = null;
   }
 
-  startDraw(pos: Vector2, pressure: number) {
+  startDraw(pos: Vector2) {
+    if (!Core.networkController.socket.readyState) return;
     const historyItem = {
       run: () => {
-        Core.brushController.startDraw(this.drawingCanvas.ctx, pos, pressure);
+        Core.brushController.startDraw(this.drawingCanvas.ctx);
         this.prevPos = pos;
       },
     };
@@ -36,6 +37,7 @@ export class BufferController {
     Core.networkController.sendStart();
   }
   draw(pos: Vector2, pressure: number) {
+    if (!Core.networkController.socket.readyState) return;
     const prev = this.prevPos;
     const historyItem = {
       run: () => {
@@ -55,6 +57,7 @@ export class BufferController {
     }
   }
   endDraw() {
+    if (!Core.networkController.socket.readyState) return;
     const historyItem = {
       mode: Core.brushController.mode,
       run: () => {
