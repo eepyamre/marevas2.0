@@ -1,5 +1,5 @@
 import { Core } from "../core";
-import { ColorPalette } from "./colorPalette";
+import { ColorPicker } from "./colorPalette";
 import { Slider } from "./slider";
 
 export class UIController {
@@ -7,13 +7,15 @@ export class UIController {
   sizeSlider: Slider;
   opacitySlider: Slider;
   stabilizerSlider: Slider;
-  colorPalette: ColorPalette;
+  colorPalette: ColorPicker;
   constructor(controlsRoot: string) {
     this.controlsRoot = document.querySelector(controlsRoot)!;
     if (!this.controlsRoot) {
       throw new Error("Cant find control items!");
     }
-    this.colorPalette = new ColorPalette();
+    this.colorPalette = new ColorPicker((color) => {
+      Core.brushController.setBrushColor(color);
+    });
     this.sizeSlider = new Slider(
       this.controlsRoot,
       (val) => {

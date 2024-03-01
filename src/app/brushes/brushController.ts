@@ -40,4 +40,10 @@ export class BrushController {
   setBrushOpacity(opacity: number) {
     this.brush.color.color.a = mapNumRange(opacity, 100, 0, 0, 1);
   }
+
+  setBrushColor(color: { r: number; g: number; b: number }) {
+    this.brush.color.color.r = color.r;
+    this.brush.color.color.g = color.g;
+    this.brush.color.color.b = color.b;
+  }
 }

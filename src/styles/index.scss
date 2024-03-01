@@ -40,6 +40,33 @@ body{
     align-items: center;
     padding: 10px;
 
+    #color_slider{
+      margin-bottom: 12px;
+      cursor: crosshair;
+    }
+    #color_picker{
+      cursor: crosshair;
+    }
+    .color_picker-wrapper,
+    .color_slider-wrapper{
+      position: relative;
+      .cursor{
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        border: 2px solid #121212;
+        left: 0;
+        top: 240px;
+      }
+    }
+    .color_slider-wrapper{
+      .cursor{
+        border-radius: 0;
+        height: 50px;
+        top: 0;
+      }
+    }
   }
   .header{
     text-transform: uppercase;
