@@ -26,8 +26,12 @@ export class BufferController {
   startDraw(pos: Vector2) {
     if (!Core.networkController.socket.readyState) return;
     const historyItem = {
+      mode: Core.brushController.mode,
       run: () => {
         Core.brushController.startDraw(this.drawingCanvas.ctx);
+        if (historyItem.mode === "erase") {
+          this.drawingCanvasEl.style.opacity = "0";
+        }
         this.prevPos = pos;
       },
     };
@@ -40,6 +44,7 @@ export class BufferController {
     if (!Core.networkController.socket.readyState) return;
     const prev = this.prevPos;
     const historyItem = {
+      mode: Core.brushController.mode,
       run: () => {
         Core.brushController.draw(
           this.drawingCanvas.ctx,
@@ -48,6 +53,14 @@ export class BufferController {
           pressure
         );
         this.prevPos = pos;
+        if (historyItem.mode === "erase") {
+          this.mainCanvas.ctx.globalCompositeOperation = "destination-out";
+          this.mainCanvas.ctx.globalAlpha =
+            Core.brushController.brush.color.color.a;
+          this.mainCanvas.ctx.drawImage(this.drawingCanvasEl, 0, 0);
+          this.mainCanvas.ctx.globalAlpha = 1;
+          this.mainCanvas.ctx.globalCompositeOperation = "source-over";
+        }
       },
     };
     Core.historyController.pushToActiveHistoryItem(historyItem);
