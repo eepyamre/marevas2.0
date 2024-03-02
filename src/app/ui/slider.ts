@@ -66,9 +66,11 @@ export class Slider {
     if (!this.handlePointer) {
       return;
     }
-    const x = e.screenX - this.el.getBoundingClientRect().left;
+    const x = e.clientX - this.el.getBoundingClientRect().left;
+
     const maxX = this.el.getBoundingClientRect().width;
     this.value = Math.ceil((x / maxX) * this.max).toString();
+
     if (+this.value < this.min) {
       this.value = this.min.toString();
     }
@@ -102,9 +104,10 @@ export class Slider {
     e.preventDefault();
     e.stopPropagation();
     if (!this.handlePointer) return;
-    const x = e.screenX - this.el.getBoundingClientRect().left;
+    const x = e.clientX - this.el.getBoundingClientRect().left;
     const maxX = this.el.getBoundingClientRect().width;
     this.value = Math.ceil((x / maxX) * this.max).toString();
+
     if (+this.value < this.min) {
       this.value = this.min.toString();
     }
