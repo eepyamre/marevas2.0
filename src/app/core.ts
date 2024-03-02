@@ -32,7 +32,7 @@ export class Core {
     this.bufferController = new BufferController();
     this.brushController = new BrushController();
     this.inputController = new InputController();
-    this.uiController = new UIController(".controls");
+    this.uiController = new UIController();
     this.historyController = new HistoryController();
     this.networkController = new NetworkController(socketUrl);
   };

@@ -97,11 +97,7 @@ body{
       width: 100%;
     }
   }
-  .kl-color-picker{
-    padding-bottom: 12px;
-    margin-bottom: 12px;
-    border-bottom: 1px solid #121212;
-  }
+
   .controls {
     width: 100%;
     display: flex;
@@ -109,7 +105,6 @@ body{
     gap: 8px;
     padding-bottom: 12px;
     margin-bottom: 12px;
-    border-bottom: 1px solid #121212;
     user-select: none;
   }
   .input_wrapper{
@@ -143,6 +138,59 @@ body{
         z-index: 2;
         position: absolute;
         padding-right: 4px;
+      }
+    }
+  }
+  .tabs{
+    width: calc(100% + 20px);
+    margin-top: -12px;
+    margin-left: -10px;
+    margin-right: -10px;
+    &__buttons{
+      display: flex;
+      border-bottom: 1px solid #333; 
+      &__item{
+        flex-basis: 50%;
+        background-color: #444;
+        padding: 2px 8px;
+        border-top-left-radius: 6px;
+        border-top-right-radius: 6px;
+        cursor: pointer;
+
+        &.active{
+          background-color: #666
+        }
+      }
+    }
+    &__content_list{
+      flex-direction: column;
+      max-height: calc(100vh - 79px - 66px - 250px - 53px);
+      overflow: auto;
+      gap: 1px;
+      display: none;
+      &.active{
+        display: flex;
+      }
+      &__item{
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 50px;
+        padding: 0 8px;
+        border-bottom: 1px solid #444; 
+        cursor: pointer;
+          &.active{
+          background-color: #666
+        }
+      }
+      &__item.layer{
+        .text{
+          display: flex;
+          flex-direction: column;
+        }
+      }
+      .icon{
+        width: 12px;
       }
     }
   }

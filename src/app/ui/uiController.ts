@@ -1,6 +1,8 @@
 import { Core } from "../core";
 import { ColorPicker } from "./colorPalette";
 import { Slider } from "./slider";
+import { TabsWrapper } from "./tabs/tabsWrapper";
+import BasicBrush from "../../assets/brushes/basic_brush.png";
 
 export class UIController {
   controlsRoot: HTMLDivElement;
@@ -8,8 +10,9 @@ export class UIController {
   opacitySlider: Slider;
   stabilizerSlider: Slider;
   colorPalette: ColorPicker;
-  constructor(controlsRoot: string) {
-    this.controlsRoot = document.querySelector(controlsRoot)!;
+  tabs: TabsWrapper;
+  constructor() {
+    this.controlsRoot = document.querySelector(".controls")!;
     if (!this.controlsRoot) {
       throw new Error("Cant find control items!");
     }
@@ -55,5 +58,48 @@ export class UIController {
         title: "Stabilizer",
       }
     );
+
+    const sidebar: HTMLDivElement = document.querySelector(".sidebar")!;
+    this.tabs = new TabsWrapper(sidebar, [
+      {
+        title: "Brushes",
+        items: [
+          {
+            title: "Basic Brush",
+            image: BasicBrush,
+            type: "brush",
+            onClick: () => {},
+          },
+          // {
+          //   title: "Basic Brush",
+          //   image: BasicBrush,
+          //   type: "brush",
+          // },
+          // {
+          //   title: "Basic Brush",
+          //   image: BasicBrush,
+          //   type: "brush",
+          // },
+        ],
+      },
+      {
+        title: "Layers",
+        items: [
+          {
+            title: "Layer 1",
+            user: "Test User",
+            image: BasicBrush,
+            type: "layer",
+            onClick: () => {},
+          },
+          // {
+          //   title: "Layer 1",
+          //   user: "Test User",
+          //   image: BasicBrush,
+          //   type: "layer",
+          // },
+        ],
+      },
+    ]);
   }
 }

@@ -9,7 +9,7 @@ export class BrushController {
     BasicBrush: BasicBrush,
   };
   constructor() {
-    this.brush = new BasicBrush("0xff12ffff", 16);
+    this.brush = new BasicBrush("0x000000", 16);
   }
 
   startDraw(ctx: CanvasRenderingContext2D) {
