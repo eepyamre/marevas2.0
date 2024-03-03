@@ -37,7 +37,7 @@ export class ColorPicker {
     if (!this.ctx || !this.ctx1) {
       throw new Error("Can't get color picker 2d context!");
     }
-    this.gradientColor = "#0000ff";
+    this.gradientColor = "#ff0000";
     this.generateColorWheel();
     const gradientSlide = this.ctx1.createLinearGradient(
       0,

@@ -116,6 +116,12 @@ export class Slider {
     }
     this.valueEl.textContent = this.value + this.postfix;
     this.handlePointer = false;
+    this.bg.style.width = (+this.value / +this.max) * 100 + "%";
     this.onChange && this.onChange(this.value);
+  };
+
+  setValue = (value: number) => {
+    this.valueEl.textContent = value + this.postfix;
+    this.bg.style.width = (+value / +this.max) * 100 + "%";
   };
 }

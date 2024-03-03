@@ -102,4 +102,11 @@ export class UIController {
       },
     ]);
   }
+
+  changeSize(size: number) {
+    this.sizeSlider.setValue(size);
+  }
+  changeOpacity(opacity: number) {
+    this.opacitySlider.setValue(opacity);
+  }
 }

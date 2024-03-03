@@ -2,6 +2,7 @@ import { Vector2 } from "../../helpers/vectors";
 import { BasicBrush } from "../brushes/basicBrush";
 import { BrushController } from "../brushes/brushController";
 import { Core } from "../core";
+import { HistoryDrawingData } from "../historyController";
 import { Packet } from "../networkController";
 import { CanvasBuffer } from "./canvasBuffer";
 
@@ -29,9 +30,13 @@ export class BufferController {
 
   startDraw(pressure: number) {
     if (!Core.networkController.socket.readyState) return;
-    const historyItem = {
+    const historyItem: HistoryDrawingData = {
       mode: Core.brushController.mode,
+      color: { ...Core.brushController.brush.color.color },
       run: () => {
+        if (historyItem.color)
+          Core.brushController.setBrushColor(historyItem.color);
+
         Core.brushController.startDraw(this.drawingCanvas.ctx, pressure);
         if (historyItem.mode === "erase") {
           this.drawingCanvasEl.style.opacity = "0";
@@ -45,7 +50,7 @@ export class BufferController {
   }
   draw(pos: Vector2, pressure: number) {
     if (!Core.networkController.socket.readyState) return;
-    const historyItem = {
+    const historyItem: HistoryDrawingData = {
       mode: Core.brushController.mode,
       run: () => {
         Core.brushController.draw(this.drawingCanvas.ctx, pos, pressure);
@@ -58,6 +63,7 @@ export class BufferController {
           this.mainCanvas.ctx.globalCompositeOperation = "source-over";
         }
       },
+      color: Core.brushController.brush.color.color,
     };
     Core.historyController.pushToActiveHistoryItem(historyItem);
     historyItem.run();

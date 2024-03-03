@@ -1,7 +1,14 @@
 import { mapNumRange } from "./utils";
 
 export type ColorHex = string;
-export type ColorRGBA = { r: number; g: number; b: number; a: number };
+export interface ColorRGB {
+  r: number;
+  g: number;
+  b: number;
+}
+export interface ColorRGBA extends ColorRGB {
+  a: number;
+}
 export type ColorType = ColorRGBA;
 export class Color {
   color: ColorType;
@@ -20,7 +27,7 @@ export class Color {
   }
 
   toCanvasSrting() {
-    return `rgba(${this.color.r}, ${this.color.g}, ${this.color.b})`;
+    return `rgb(${this.color.r}, ${this.color.g}, ${this.color.b})`;
   }
 
   toHex() {

@@ -29,11 +29,11 @@ export class Core {
   ) => {
     this.appRoot = appRoot;
     this.canvasOptions = canvasOptions;
-    this.bufferController = new BufferController();
-    this.brushController = new BrushController();
-    this.inputController = new InputController();
-    this.uiController = new UIController();
     this.historyController = new HistoryController();
+    this.uiController = new UIController();
+    this.bufferController = new BufferController();
+    this.brushController = new BrushController(true);
+    this.inputController = new InputController();
     this.networkController = new NetworkController(socketUrl);
   };
   static getTransformStyle(movX = 0, movY = 0) {

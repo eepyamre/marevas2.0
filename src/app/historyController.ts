@@ -1,8 +1,13 @@
+import { ColorRGB } from "../helpers/color";
 import { Core } from "./core";
 
-type HistoryData = {
+interface HistoryData {
   run: () => void;
-};
+}
+export interface HistoryDrawingData extends HistoryData {
+  mode?: "draw" | "erase";
+  color?: ColorRGB;
+}
 type HistoryList = {
   data: HistoryData[];
   next: HistoryList | null;
