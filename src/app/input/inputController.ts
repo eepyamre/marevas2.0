@@ -45,7 +45,7 @@ export class InputController {
       this.shouldDraw = false;
       return;
     }
-    Core.bufferController.startDraw(new Vector2(e.offsetX, e.offsetY));
+    Core.bufferController.startDraw(e.pointerType === "pen" ? e.pressure : 1);
     this.shouldDraw = true;
   };
 

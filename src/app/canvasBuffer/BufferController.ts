@@ -1,5 +1,6 @@
 import { Vector2 } from "../../helpers/vectors";
 import { BasicBrush } from "../brushes/basicBrush";
+import { BrushController } from "../brushes/brushController";
 import { Core } from "../core";
 import { Packet } from "../networkController";
 import { CanvasBuffer } from "./canvasBuffer";
@@ -9,9 +10,13 @@ export class BufferController {
   drawingCanvas: CanvasBuffer;
   mainCanvasEl: HTMLCanvasElement;
   drawingCanvasEl: HTMLCanvasElement;
-  prevPos: Vector2 | null;
   remoteDrawings: {
-    [key: string]: { canvasBuffer: CanvasBuffer; opacity: string };
+    [key: string]: {
+      canvasBuffer: CanvasBuffer;
+      opacity: string;
+      brushController?: BrushController;
+      brush?: BasicBrush;
+    };
   } = {};
   constructor() {
     this.mainCanvas = new CanvasBuffer();
@@ -20,19 +25,17 @@ export class BufferController {
     this.drawingCanvas = new CanvasBuffer();
     this.drawingCanvasEl = this.drawingCanvas.canvas;
     this.drawingCanvasEl.style.zIndex = "2";
-    this.prevPos = null;
   }
 
-  startDraw(pos: Vector2) {
+  startDraw(pressure: number) {
     if (!Core.networkController.socket.readyState) return;
     const historyItem = {
       mode: Core.brushController.mode,
       run: () => {
-        Core.brushController.startDraw(this.drawingCanvas.ctx);
+        Core.brushController.startDraw(this.drawingCanvas.ctx, pressure);
         if (historyItem.mode === "erase") {
           this.drawingCanvasEl.style.opacity = "0";
         }
-        this.prevPos = pos;
       },
     };
     Core.historyController.pushNewHistory();
@@ -42,17 +45,10 @@ export class BufferController {
   }
   draw(pos: Vector2, pressure: number) {
     if (!Core.networkController.socket.readyState) return;
-    const prev = this.prevPos;
     const historyItem = {
       mode: Core.brushController.mode,
       run: () => {
-        Core.brushController.draw(
-          this.drawingCanvas.ctx,
-          this.prevPos || pos,
-          pos,
-          pressure
-        );
-        this.prevPos = pos;
+        Core.brushController.draw(this.drawingCanvas.ctx, pos, pressure);
         if (historyItem.mode === "erase") {
           this.mainCanvas.ctx.globalCompositeOperation = "destination-out";
           this.mainCanvas.ctx.globalAlpha =
@@ -66,7 +62,7 @@ export class BufferController {
     Core.historyController.pushToActiveHistoryItem(historyItem);
     historyItem.run();
     if (Core.brushController.mode === "draw") {
-      this.pushData(pos, pressure, prev);
+      this.pushData(pos, pressure);
     }
   }
   endDraw() {
@@ -90,7 +86,6 @@ export class BufferController {
           this.drawingCanvas.height
         );
         this.drawingCanvas.ctx.globalAlpha = 1;
-        this.prevPos = null;
       },
     };
     Core.historyController.pushToActiveHistoryItem(historyItem);
@@ -99,15 +94,15 @@ export class BufferController {
     Core.networkController.sendImage(this.mainCanvas.canvas.toDataURL());
   }
 
-  pushData(pos: Vector2, pressure: number, prevPos: Vector2 | null) {
-    const packet: Pick<Packet, "brushSettings" | "pos" | "prevPos"> = {
+  pushData(pos: Vector2, pressure: number) {
+    const packet: Pick<Packet, "brushSettings" | "pos"> = {
       brushSettings: {
         color: Core.brushController.brush.color,
-        size: Core.brushController.brush.size * pressure,
+        size: Core.brushController.brush.size,
+        pressure,
         type: "BasicBrush",
       },
       pos: pos,
-      prevPos: prevPos || pos,
     };
 
     Core.networkController.pushData(packet);
@@ -119,6 +114,7 @@ export class BufferController {
       this.remoteDrawings[tempId] = {
         canvasBuffer: canvasBuffer,
         opacity: "1",
+        brushController: new BrushController(),
       };
     }
   }
@@ -146,38 +142,42 @@ export class BufferController {
   remoteDraw(data: Packet) {
     const tempId = data.userId + "_temp";
     if (this.remoteDrawings[tempId]) {
-      const brushClass =
-        Core.brushController.brushesTypes[data.brushSettings.type];
-      if (!brushClass) {
-        console.error(`No such brush type ${data.brushSettings.type}`);
-        return;
+      const ctx = this.remoteDrawings[tempId].canvasBuffer.ctx;
+      if (!this.remoteDrawings[tempId].brush) {
+        this.remoteDrawings[tempId].brushController = new BrushController();
+        const brushClass =
+          Core.brushController.brushesTypes[data.brushSettings.type];
+        if (!brushClass) {
+          console.error(`No such brush type ${data.brushSettings.type}`);
+          return;
+        }
+        if (!brushClass) {
+          console.error(`No such brush type ${data.brushSettings.type}`);
+          return;
+        }
+        this.remoteDrawings[tempId].brush = new brushClass(
+          data.brushSettings.color.toHex(),
+          data.brushSettings.size
+        );
+        this.remoteDrawings[tempId].brushController.setBrush(
+          this.remoteDrawings[tempId].brush
+        );
+        this.remoteDrawings[tempId].brushController.startDraw(
+          ctx,
+          data.brushSettings.pressure
+        );
       }
-      const brush: BasicBrush = new brushClass(
-        data.brushSettings.color.toHex(),
-        data.brushSettings.size
-      );
+
+      const brush = this.remoteDrawings[tempId].brush;
+
       this.remoteDrawings[tempId].opacity = brush.color.color.a.toString();
       this.remoteDrawings[tempId].canvasBuffer.canvas.style.opacity =
         brush.color.color.a.toString();
-      this.remoteDrawings[tempId].canvasBuffer.ctx.strokeStyle =
-        brush.color.toCanvasSrting();
-      this.remoteDrawings[tempId].canvasBuffer.ctx.fillStyle =
-        brush.color.toCanvasSrting();
-      this.remoteDrawings[tempId].canvasBuffer.ctx.lineWidth = brush.size;
-      this.remoteDrawings[tempId].canvasBuffer.ctx.lineJoin = brush.lineJoin;
-      this.remoteDrawings[tempId].canvasBuffer.ctx.lineCap = brush.lineCap;
-
-      this.remoteDrawings[tempId].canvasBuffer.ctx.beginPath();
-      this.remoteDrawings[tempId].canvasBuffer.ctx.moveTo(
-        data.prevPos.x,
-        data.prevPos.y
+      this.remoteDrawings[tempId].brushController.draw(
+        ctx,
+        data.pos,
+        data.brushSettings.pressure
       );
-      this.remoteDrawings[tempId].canvasBuffer.ctx.lineTo(
-        data.pos.x,
-        data.pos.y
-      );
-      this.remoteDrawings[tempId].canvasBuffer.ctx.stroke();
-      this.remoteDrawings[tempId].canvasBuffer.ctx.closePath();
     }
   }
 

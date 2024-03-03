@@ -13,9 +13,9 @@ export type Packet = {
     size: number;
     color: Color;
     type: string;
+    pressure: number;
   };
   pos: Vector2;
-  prevPos: Vector2;
 };
 interface WsMessageEvent extends Event {
   data: string;
@@ -88,10 +88,10 @@ export class NetworkController {
       brushSettings: {
         type: arr[1],
         size: +arr[2],
-        color: new Color(arr[3]),
+        pressure: +arr[3],
+        color: new Color(arr[4]),
       },
-      pos: new Vector2(+arr[4], +arr[5]),
-      prevPos: new Vector2(+arr[6], +arr[7]),
+      pos: new Vector2(+arr[5], +arr[6]),
     };
     Core.bufferController.remoteDraw(decoded);
   };
@@ -108,17 +108,16 @@ export class NetworkController {
     this.socket.send(this.userId + "AimageA" + imageData);
   }
   // TODO: send an empty data for changing only a remote mouse position
-  pushData(packet: Pick<Packet, "brushSettings" | "pos" | "prevPos">) {
+  pushData(packet: Pick<Packet, "brushSettings" | "pos">) {
     if (!this.socket.readyState) return;
     const arr: (number | string)[] = [
       this.userId,
       packet.brushSettings.type,
       packet.brushSettings.size,
+      packet.brushSettings.pressure,
       packet.brushSettings.color.toHex(),
       packet.pos.x,
       packet.pos.y,
-      packet.prevPos.x,
-      packet.prevPos.y,
     ];
 
     this.socket.send(arr.join("A"));

@@ -12,17 +12,12 @@ export class BrushController {
     this.brush = new BasicBrush("0x000000", 16);
   }
 
-  startDraw(ctx: CanvasRenderingContext2D) {
-    this.brush.startDraw(ctx);
+  startDraw(ctx: CanvasRenderingContext2D, pressure: number) {
+    this.brush.startDraw(ctx, pressure);
   }
 
-  draw(
-    ctx: CanvasRenderingContext2D,
-    prevPos: Vector2,
-    pos: Vector2,
-    pressure: number
-  ) {
-    this.brush.draw(ctx, prevPos, pos, pressure);
+  draw(ctx: CanvasRenderingContext2D, pos: Vector2, pressure: number) {
+    this.brush.draw(ctx, pos, pressure);
   }
 
   endDraw(ctx: CanvasRenderingContext2D) {
@@ -45,5 +40,9 @@ export class BrushController {
     this.brush.color.color.r = color.r;
     this.brush.color.color.g = color.g;
     this.brush.color.color.b = color.b;
+  }
+
+  setBrush(brush: BasicBrush) {
+    this.brush = brush;
   }
 }
