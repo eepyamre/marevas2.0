@@ -3,7 +3,7 @@ import { InputController } from "./input/inputController";
 import { NetworkController } from "./networkController";
 import { UIController } from "./ui/uiController";
 import { HistoryController } from "./historyController";
-import { BufferController } from "./canvasBuffer/BufferController";
+import { BufferController } from "./canvasBuffer/bufferController";
 
 type CanvasOptions = {
   width: number;

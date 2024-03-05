@@ -7,6 +7,7 @@ export class InputController {
   moveCanvas = false;
   stablizationLevel = 3;
   pointerBuffer: Vector2[] = [];
+  lastTimestamp = 0;
   constructor() {
     Core.appRoot.addEventListener("pointerdown", this.pointerdown);
     Core.appRoot.addEventListener("pointermove", this.pointermove);
@@ -24,6 +25,8 @@ export class InputController {
       );
     }
     if (e.ctrlKey) {
+      if (e.timeStamp < this.lastTimestamp + 100) return;
+      this.lastTimestamp = e.timeStamp;
       if (e.shiftKey && e.key.toLowerCase() === "z") {
         e.preventDefault();
         Core.historyController.redo();

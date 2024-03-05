@@ -19,6 +19,7 @@ export class BufferController {
       brush?: BasicBrush;
     };
   } = {};
+  mainCopy: CanvasBuffer;
   constructor() {
     this.mainCanvas = new CanvasBuffer();
     this.mainCanvasEl = this.mainCanvas.canvas;
@@ -39,6 +40,9 @@ export class BufferController {
 
         Core.brushController.startDraw(this.drawingCanvas.ctx, pressure);
         if (historyItem.mode === "erase") {
+          delete this.mainCopy;
+          this.mainCopy = new CanvasBuffer(false);
+          this.mainCopy.ctx.drawImage(this.mainCanvasEl, 0, 0);
           this.drawingCanvasEl.style.opacity = "0";
         }
       },
@@ -52,18 +56,24 @@ export class BufferController {
     if (!Core.networkController.socket.readyState) return;
     const historyItem: HistoryDrawingData = {
       mode: Core.brushController.mode,
+      color: Core.brushController.brush.color.color,
       run: () => {
         Core.brushController.draw(this.drawingCanvas.ctx, pos, pressure);
         if (historyItem.mode === "erase") {
+          this.mainCanvas.ctx.clearRect(
+            0,
+            0,
+            this.mainCanvas.width,
+            this.mainCanvas.height
+          );
+          this.mainCanvas.ctx.drawImage(this.mainCopy.canvas, 0, 0);
           this.mainCanvas.ctx.globalCompositeOperation = "destination-out";
-          this.mainCanvas.ctx.globalAlpha =
-            Core.brushController.brush.color.color.a;
+          this.mainCanvas.ctx.globalAlpha = historyItem.color.a;
           this.mainCanvas.ctx.drawImage(this.drawingCanvasEl, 0, 0);
           this.mainCanvas.ctx.globalAlpha = 1;
           this.mainCanvas.ctx.globalCompositeOperation = "source-over";
         }
       },
-      color: Core.brushController.brush.color.color,
     };
     Core.historyController.pushToActiveHistoryItem(historyItem);
     historyItem.run();
@@ -78,6 +88,14 @@ export class BufferController {
       run: () => {
         Core.brushController.endDraw(this.drawingCanvas.ctx);
         if (historyItem.mode === "erase") {
+          this.mainCanvas.ctx.clearRect(
+            0,
+            0,
+            this.mainCanvas.width,
+            this.mainCanvas.height
+          );
+          this.mainCanvas.ctx.drawImage(this.mainCopy.canvas, 0, 0);
+          delete this.mainCopy;
           this.mainCanvas.ctx.globalCompositeOperation = "destination-out";
         }
         this.mainCanvas.ctx.globalAlpha =
@@ -189,7 +207,7 @@ export class BufferController {
 
   remoteImage(id: string, dataString: string) {
     const img = new Image();
-    img.addEventListener("load", () => {
+    const onload = () => {
       if (!this.remoteDrawings[id]) {
         const canvasBuffer = new CanvasBuffer();
         this.remoteDrawings[id] = {
@@ -204,7 +222,9 @@ export class BufferController {
         this.remoteDrawings[id].canvasBuffer.height
       );
       this.remoteDrawings[id].canvasBuffer.ctx.drawImage(img, 0, 0);
-    });
+      img.removeEventListener("load", onload);
+    };
+    img.addEventListener("load", onload);
     img.setAttribute("src", dataString);
   }
 

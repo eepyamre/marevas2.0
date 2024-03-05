@@ -34,5 +34,11 @@ npm run start
 
 ## Dependencies
 
+### server
+
 - [wsServer](https://github.com/Theldus/wsServer/tree/master)
 - [hiredis](https://github.com/redis/hiredis)
+
+### client
+
+- [uuid](https://www.npmjs.com/package/uuid)

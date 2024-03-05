@@ -1,14 +1,16 @@
-import { ColorRGB } from "../helpers/color";
+import { ColorRGBA } from "../helpers/color";
 import { Core } from "./core";
+import { v4 as uuid } from "uuid";
 
 interface HistoryData {
   run: () => void;
 }
 export interface HistoryDrawingData extends HistoryData {
   mode?: "draw" | "erase";
-  color?: ColorRGB;
+  color?: ColorRGBA;
 }
 type HistoryList = {
+  id: string;
   data: HistoryData[];
   next: HistoryList | null;
   prev: HistoryList | null;
@@ -16,11 +18,15 @@ type HistoryList = {
 export class HistoryController {
   history: HistoryList | null;
   historyStart: HistoryList | null;
+  sendTimer: number;
+  isFinish = true;
+  currentProccessing: string;
   constructor() {
     this.clearHistory();
   }
   private clearHistory() {
     this.historyStart = this.history = {
+      id: uuid(),
       data: [{ run: () => {} }],
       next: null,
       prev: null,
@@ -31,6 +37,7 @@ export class HistoryController {
       this.history.data.push(data);
     } else {
       this.historyStart = this.history = {
+        id: uuid(),
         data: [data],
         next: null,
         prev: null,
@@ -41,6 +48,7 @@ export class HistoryController {
   pushNewHistory() {
     if (this.history) {
       this.history = this.history.next = {
+        id: uuid(),
         data: [],
         next: null,
         prev: this.history,
@@ -48,6 +56,7 @@ export class HistoryController {
     } else {
       this.clearHistory();
       this.history = this.history!.next = {
+        id: uuid(),
         data: [],
         next: null,
         prev: this.history,
@@ -57,31 +66,49 @@ export class HistoryController {
 
   undo() {
     if (this.history && this.history.prev) {
+      this.isFinish = false;
       this.history = this.history.prev;
+      this.currentProccessing = this.history.id;
       let c = this.historyStart;
       Core.bufferController.clearMain();
       while (c && c !== this.history.next) {
+        if (this.currentProccessing !== this.history.id) {
+          console.log("STOp");
+          return;
+        }
         c.data.forEach((item) => item.run());
         c = c.next;
       }
-    } else {
+    } else if (!this.isFinish) {
+      this.isFinish = true;
       Core.bufferController.clearMain();
+      this.sendData();
     }
-    Core.networkController.sendImage(
-      Core.bufferController.mainCanvasEl.toDataURL()
-    );
+    clearTimeout(this.sendTimer);
+    this.sendTimer = setTimeout(this.sendData, 1000);
   }
 
   redo() {
     if (this.history && this.history.next) {
+      this.isFinish = false;
       this.history = this.history.next;
+      this.currentProccessing = this.history.id;
       let c = this.historyStart;
       Core.bufferController.clearMain();
       while (c && c !== this.history.next) {
+        if (this.currentProccessing !== this.history.id) return;
         c.data.forEach((item) => item.run());
         c = c.next;
       }
+    } else if (!this.isFinish) {
+      this.isFinish = true;
+      this.sendData();
     }
+    clearTimeout(this.sendTimer);
+    this.sendTimer = setTimeout(this.sendData, 1000);
+  }
+
+  private sendData() {
     Core.networkController.sendImage(
       Core.bufferController.mainCanvasEl.toDataURL()
     );

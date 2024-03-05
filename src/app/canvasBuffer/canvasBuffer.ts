@@ -5,12 +5,14 @@ export class CanvasBuffer {
   ctx: CanvasRenderingContext2D;
   width: number;
   height: number;
-  constructor() {
-    this.initCanvas();
+  constructor(shouldAppend = true) {
+    this.initCanvas(shouldAppend);
   }
-  private initCanvas() {
+  private initCanvas(shouldAppend) {
     this.canvas = document.createElement("canvas");
-    Core.appRoot.append(this.canvas);
+    if (shouldAppend) {
+      Core.appRoot.append(this.canvas);
+    }
     const ctx = this.canvas.getContext("2d");
     if (!ctx) {
       throw new Error("No canvas context available!");

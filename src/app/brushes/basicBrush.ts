@@ -39,9 +39,6 @@ export class BasicBrush {
     const x1 = (p1.x + p2.x) / 2;
     const y1 = (p1.y + p2.y) / 2;
 
-    // HOW:
-    // change pressure from prev to current smooth not in one moment
-
     const targetSize = this.size * pressure;
     let size = targetSize;
     if (Math.abs(targetSize - this.prevSize) > 0.5) {
