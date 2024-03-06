@@ -141,9 +141,28 @@ body{
       }
     }
   }
+  .icon_buttons{  
+    display: flex;
+    width: 100%;
+    .icon_button{
+      width: 42px;
+      border: 2px solid #2b2b2b;
+      border-radius: 4px;
+      padding: 2px;
+      cursor: pointer;
+      &:hover{
+        background-color: #2f2f2f;
+      }
+      &.active,
+      &:active{
+        background-color: #222;
+      }
+    }
+  }
+
   .tabs{
     width: calc(100% + 20px);
-    margin-top: -12px;
+    margin-top: 12px;
     margin-left: -10px;
     margin-right: -10px;
     &__buttons{

@@ -2,7 +2,9 @@ import { Core } from "../core";
 import { ColorPicker } from "./colorPalette";
 import { Slider } from "./slider";
 import { TabsWrapper } from "./tabs/tabsWrapper";
-import BasicBrush from "../../assets/brushes/basic_brush.png";
+import { IconButton } from "./iconButton";
+import basicBrush from "../../assets/brushes/basic_brush.png";
+import eraser from "../../assets/brushes/eraser.png";
 
 export class UIController {
   controlsRoot: HTMLDivElement;
@@ -11,6 +13,7 @@ export class UIController {
   stabilizerSlider: Slider;
   colorPalette: ColorPicker;
   tabs: TabsWrapper;
+  eraserBtn: IconButton;
   constructor() {
     this.controlsRoot = document.querySelector(".controls")!;
     if (!this.controlsRoot) {
@@ -59,6 +62,12 @@ export class UIController {
       }
     );
 
+    const iconButtons = document.querySelector(".icon_buttons");
+    this.eraserBtn = new IconButton(iconButtons, eraser, () => {
+      Core.brushController.setMode(
+        Core.brushController.mode === "draw" ? "erase" : "draw"
+      );
+    });
     const sidebar: HTMLDivElement = document.querySelector(".sidebar")!;
     this.tabs = new TabsWrapper(sidebar, [
       {
@@ -66,7 +75,7 @@ export class UIController {
         items: [
           {
             title: "Basic Brush",
-            image: BasicBrush,
+            image: basicBrush,
             type: "brush",
             onClick: () => {},
           },
@@ -88,7 +97,7 @@ export class UIController {
           {
             title: "Layer 1",
             user: "Test User",
-            image: BasicBrush,
+            image: basicBrush,
             type: "layer",
             onClick: () => {},
           },
@@ -108,5 +117,8 @@ export class UIController {
   }
   changeOpacity(opacity: number) {
     this.opacitySlider.setValue(opacity);
+  }
+  setEraser(b: boolean) {
+    this.eraserBtn.setActive(b);
   }
 }

@@ -39,6 +39,7 @@ export class BrushController {
       Core.historyController.pushNewHistory();
       Core.historyController.pushToActiveHistoryItem({ run });
     }
+    Core.uiController.setEraser(mode === "erase");
     run();
   }
 
