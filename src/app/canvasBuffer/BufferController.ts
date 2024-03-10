@@ -32,6 +32,7 @@ export class BufferController {
   startDraw(pressure: number) {
     if (!Core.networkController.socket.readyState) return;
     const historyItem: HistoryDrawingData = {
+      type: "draw",
       mode: Core.brushController.mode,
       color: { ...Core.brushController.brush.color.color },
       run: () => {
@@ -55,6 +56,7 @@ export class BufferController {
   draw(pos: Vector2, pressure: number) {
     if (!Core.networkController.socket.readyState) return;
     const historyItem: HistoryDrawingData = {
+      type: "draw",
       mode: Core.brushController.mode,
       color: Core.brushController.brush.color.color,
       run: () => {
@@ -83,7 +85,8 @@ export class BufferController {
   }
   endDraw() {
     if (!Core.networkController.socket.readyState) return;
-    const historyItem = {
+    const historyItem: HistoryDrawingData = {
+      type: "draw",
       mode: Core.brushController.mode,
       run: () => {
         Core.brushController.endDraw(this.drawingCanvas.ctx);
@@ -222,6 +225,23 @@ export class BufferController {
         this.remoteDrawings[id].canvasBuffer.height
       );
       this.remoteDrawings[id].canvasBuffer.ctx.drawImage(img, 0, 0);
+      img.removeEventListener("load", onload);
+    };
+    img.addEventListener("load", onload);
+    img.setAttribute("src", dataString);
+  }
+
+  remoteHistoryImage(dataString: string) {
+    if (!dataString) return;
+    const img = new Image();
+    const onload = () => {
+      this.mainCanvas.ctx.clearRect(
+        0,
+        0,
+        this.mainCanvas.width,
+        this.mainCanvas.height
+      );
+      this.mainCanvas.ctx.drawImage(img, 0, 0);
       img.removeEventListener("load", onload);
     };
     img.addEventListener("load", onload);

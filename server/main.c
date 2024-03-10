@@ -44,7 +44,7 @@ void onopen(ws_cli_conn_t *client)
 	port = ws_getport(client);
 	char message [50];
 	char *uuid = gen_uuid();
-	snprintf(message, 100, "%sAinit", uuid);
+	snprintf(message, 100, "%s\ninit", uuid);
 	strcpy(users[iota++], uuid);
 #ifndef DISABLE_VERBOSE
 	printf("Connection opened, addr: %s, port: %s\n", cli, port);
@@ -81,16 +81,49 @@ void onmessage(ws_cli_conn_t *client,
 	printf("I receive a message: %s (size: %" PRId64 ", type: %d), from: %s\n",
 		msg, size, type, cli);
 #endif
-	ws_sendframe_bcast(PORT, (char *)msg, size, type);
+	char for_strtok[size];
+	strcpy(for_strtok, msg);
+	char *user_id = strtok(for_strtok, "\n");
+	char *action = strtok(NULL, "\n");
+	// "user_id gethistory history_user_id"
+	if(strcmp(action, "gethistory") == 0){
+		char *history_user_id = strtok(NULL, "\n");
+		redisReply *reply;
+		reply = redisCommand(c,"LRANGE %s-history 0 10", history_user_id);
 
+		if (reply->type == REDIS_REPLY_ARRAY) {
+			char *res; 
+			int size = asprintf(&res, "%s\nhistory", history_user_id);
+			if(size == -1){
+				freeReplyObject(reply);
+				printf("Cant allocate memory to copy and send history.");
+				return;
+			}
+			for (int j = 0; j < reply->elements; j++) {
+				int size = asprintf(&res, "%s\n%s", res, reply->element[j]->str);
+				if(size == -1){
+					printf("Cant allocate memory to copy and send history.");
+					break;
+				}
+			}
+			ws_sendframe_txt(client, res);
+			free(res);
+		}
+		freeReplyObject(reply);
+		return;
+	}
+
+	ws_sendframe_bcast(PORT, (char *)msg, size, type);
 	char *ptr = strstr(msg, "data:image/");
-	
 	if(ptr != NULL){
 		char copy[size];
 		strcpy(copy, msg);
-		char *user_id = strtok(msg, "A");
 		redisReply *reply;
 		reply = redisCommand(c,"SET %s %s", user_id, copy);
+		freeReplyObject(reply);
+		reply = redisCommand(c,"LPUSH %s-history %s", user_id, copy);
+		freeReplyObject(reply);
+		reply = redisCommand(c,"LTRIM %s-history 0 10", user_id);
 		freeReplyObject(reply);
 	}
 }

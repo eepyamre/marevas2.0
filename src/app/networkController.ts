@@ -26,6 +26,8 @@ export class NetworkController {
   url: string;
   socket: WebSocket;
   userId: string;
+  // set id by selected layer
+  userHistory: string = "76931fac-dab2-36c2-8b87-6ae33f9a62d7";
   constructor(url: string) {
     this.url = url;
     this.createSocket();
@@ -56,14 +58,27 @@ export class NetworkController {
   };
   private socketOpen = () => {
     console.log("Connection Established");
+    // get history when layer change
+    // this.socket.send(this.userId + "\ngethistory\n" + this.userHistory);
     addEventListener("beforeunload", () => {
       this.socket.close();
     });
   };
   private socketMessage = (event: WsMessageEvent) => {
     const data = event.data;
-    const arr = data.split("A");
+    const arr = data.split("\n");
     const userId = arr[0];
+    if (arr[1] === "history") {
+      if (arr[0] === this.userHistory) {
+        Core.historyController.pushFromRemoteHistory(
+          arr
+            .slice(4)
+            .filter((_, i) => i % 3 === 0)
+            .reverse()
+        );
+      }
+      return;
+    }
     if (arr[1] === "init") {
       this.userId = userId;
       return;
@@ -82,6 +97,7 @@ export class NetworkController {
         userId,
         data.slice(arr[0].length + 1 + arr[1].length + 1)
       );
+      return;
     }
     const decoded: Packet = {
       userId: userId,
@@ -97,15 +113,15 @@ export class NetworkController {
   };
   sendStart() {
     if (!this.socket.readyState) return;
-    this.socket.send(this.userId + "Astart");
+    this.socket.send(this.userId + "\nstart");
   }
   sendStop() {
     if (!this.socket.readyState) return;
-    this.socket.send(this.userId + "Astop");
+    this.socket.send(this.userId + "\nstop");
   }
   sendImage(imageData: string) {
     if (!this.socket.readyState) return;
-    this.socket.send(this.userId + "AimageA" + imageData);
+    this.socket.send(this.userId + "\nimage\n" + imageData);
   }
   // TODO: send an empty data for changing only a remote mouse position
   pushData(packet: Pick<Packet, "brushSettings" | "pos">) {
@@ -120,6 +136,6 @@ export class NetworkController {
       packet.pos.y,
     ];
 
-    this.socket.send(arr.join("A"));
+    this.socket.send(arr.join("\n"));
   }
 }

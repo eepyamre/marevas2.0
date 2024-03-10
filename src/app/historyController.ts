@@ -3,7 +3,8 @@ import { Core } from "./core";
 import { v4 as uuid } from "uuid";
 
 interface HistoryData {
-  run: () => void;
+  type: "draw" | "image";
+  run: () => unknown;
 }
 export interface HistoryDrawingData extends HistoryData {
   mode?: "draw" | "erase";
@@ -27,7 +28,7 @@ export class HistoryController {
   private clearHistory() {
     this.historyStart = this.history = {
       id: uuid(),
-      data: [{ run: () => {} }],
+      data: [{ type: "draw", run: () => {} }],
       next: null,
       prev: null,
     };
@@ -73,7 +74,6 @@ export class HistoryController {
       Core.bufferController.clearMain();
       while (c && c !== this.history.next) {
         if (this.currentProccessing !== this.history.id) {
-          console.log("STOp");
           return;
         }
         c.data.forEach((item) => item.run());
@@ -106,6 +106,19 @@ export class HistoryController {
     }
     clearTimeout(this.sendTimer);
     this.sendTimer = setTimeout(this.sendData, 1000);
+  }
+
+  pushFromRemoteHistory(images: string[]) {
+    this.clearHistory();
+    for (let i = 0; i < images.length; i++) {
+      this.pushNewHistory();
+      this.pushToActiveHistoryItem({
+        type: "image",
+        run: () => {
+          Core.bufferController.remoteHistoryImage(images[i]);
+        },
+      });
+    }
   }
 
   private sendData() {
