@@ -151,6 +151,12 @@ export class BufferController {
       if (!this.remoteDrawings[id]) {
         const canvasBuffer = new CanvasBuffer();
         this.remoteDrawings[id] = { canvasBuffer: canvasBuffer, opacity: "1" };
+        Core.layerController.addLayer({
+          id: id,
+          buffer: canvasBuffer,
+          title: id,
+          visibility: true,
+        });
       }
       this.remoteDrawings[id].canvasBuffer.ctx.globalAlpha =
         +this.remoteDrawings[tempId].opacity;
@@ -167,7 +173,7 @@ export class BufferController {
     }
   }
   remoteDraw(data: Packet) {
-    const tempId = data.userId + "_temp";
+    const tempId = data.layerId + "_temp";
     if (this.remoteDrawings[tempId]) {
       const ctx = this.remoteDrawings[tempId].canvasBuffer.ctx;
       if (!this.remoteDrawings[tempId].brush) {
@@ -218,13 +224,11 @@ export class BufferController {
           opacity: "1",
         };
         Core.layerController.addLayer({
-          id: uuid(),
+          id: id,
           buffer: canvasBuffer,
           title: id,
-          userId: id,
           visibility: true,
         });
-        Core.uiController.rerenderTabs();
       }
       this.remoteDrawings[id].canvasBuffer.ctx.clearRect(
         0,
@@ -241,14 +245,9 @@ export class BufferController {
 
   remoteHistoryImage(dataString: string) {
     if (!dataString) return;
+
     const img = new Image();
     const onload = () => {
-      this.mainCanvas.ctx.clearRect(
-        0,
-        0,
-        this.mainCanvas.width,
-        this.mainCanvas.height
-      );
       this.mainCanvas.ctx.drawImage(img, 0, 0);
       img.removeEventListener("load", onload);
     };
@@ -277,16 +276,14 @@ export class BufferController {
   }
 
   saveMain() {
-    if (!Core.networkController.userId) return;
+    if (!Core.networkController.layerId) return;
     Core.layerController.addLayer({
-      id: uuid(),
+      id: Core.networkController.layerId,
       buffer: this.mainCanvas,
       title: "Layer 1",
-      userId: Core.networkController.userId,
       visibility: true,
     });
-    Core.uiController.rerenderTabs();
-    this.remoteDrawings[Core.networkController.userId] = {
+    this.remoteDrawings[Core.networkController.layerId] = {
       canvasBuffer: this.mainCanvas,
       opacity: "1",
     };

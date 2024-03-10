@@ -9,7 +9,7 @@
 #define PORT 6969
 #define DISABLE_VERBOSE
 // TODO: MOVE TO REDIS TOO
-char users[1000][40];
+char layers[1000][40];
 int iota = 0;
 redisContext *c;
 
@@ -45,15 +45,15 @@ void onopen(ws_cli_conn_t *client)
 	char message [50];
 	char *uuid = gen_uuid();
 	snprintf(message, 100, "%s\ninit", uuid);
-	strcpy(users[iota++], uuid);
+	strcpy(layers[iota++], uuid);
 #ifndef DISABLE_VERBOSE
 	printf("Connection opened, addr: %s, port: %s\n", cli, port);
 #endif
 	ws_sendframe_txt(client, message);
 	for (int i = 0; i < 1000; i++){
-		if(users[i][0] == '\0'){ break; }
+		if(layers[i][0] == '\0'){ break; }
 		redisReply *reply;
-		reply = redisCommand(c, "GET %s", users[i]);
+		reply = redisCommand(c, "GET %s", layers[i]);
 		if(reply != NULL && reply->type == REDIS_REPLY_STRING){
 			ws_sendframe_txt(client, reply->str);
 			freeReplyObject(reply);
@@ -83,17 +83,16 @@ void onmessage(ws_cli_conn_t *client,
 #endif
 	char for_strtok[size];
 	strcpy(for_strtok, msg);
-	char *user_id = strtok(for_strtok, "\n");
+	char *layer_id = strtok(for_strtok, "\n");
 	char *action = strtok(NULL, "\n");
-	// "user_id gethistory history_user_id"
 	if(strcmp(action, "gethistory") == 0){
-		char *history_user_id = strtok(NULL, "\n");
+		char *history_layer_id = strtok(NULL, "\n");
 		redisReply *reply;
-		reply = redisCommand(c,"LRANGE %s-history 0 10", history_user_id);
+		reply = redisCommand(c,"LRANGE %s-history 0 10", history_layer_id);
 
 		if (reply->type == REDIS_REPLY_ARRAY) {
 			char *res; 
-			int size = asprintf(&res, "%s\nhistory", history_user_id);
+			int size = asprintf(&res, "%s\nhistory", history_layer_id);
 			if(size == -1){
 				freeReplyObject(reply);
 				printf("Cant allocate memory to copy and send history.");
@@ -107,7 +106,9 @@ void onmessage(ws_cli_conn_t *client,
 				}
 			}
 			ws_sendframe_txt(client, res);
-			free(res);
+			if(res != NULL){
+				free(res);
+			}
 		}
 		freeReplyObject(reply);
 		return;
@@ -118,11 +119,11 @@ void onmessage(ws_cli_conn_t *client,
 		char copy[size];
 		strcpy(copy, msg);
 		redisReply *reply;
-		reply = redisCommand(c,"SET %s %s", user_id, copy);
+		reply = redisCommand(c,"SET %s %s", layer_id, copy);
 		freeReplyObject(reply);
-		reply = redisCommand(c,"LPUSH %s-history %s", user_id, copy);
+		reply = redisCommand(c,"LPUSH %s-history %s", layer_id, copy);
 		freeReplyObject(reply);
-		reply = redisCommand(c,"LTRIM %s-history 0 10", user_id);
+		reply = redisCommand(c,"LTRIM %s-history 0 10", layer_id);
 		freeReplyObject(reply);
 	}
 }

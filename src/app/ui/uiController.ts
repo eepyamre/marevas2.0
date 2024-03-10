@@ -139,12 +139,12 @@ export class UIController {
             isActive: item.id === Core.layerController.activeLayer?.id,
             image: basicBrush,
             title: item.title,
-            user: item.userName || item.userId,
+            user: item.userName || item.id,
             onClick: () => {
               Core.layerController.selectLayer(item.id);
               // FIXME: dont use userid
-              Core.networkController.getRemoteHistory(item.userId);
-              Core.bufferController.changeMain(item.userId);
+              Core.networkController.getRemoteHistory(item.id);
+              Core.bufferController.changeMain(item.id);
             },
           })),
         },

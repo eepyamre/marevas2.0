@@ -4,7 +4,6 @@ import { Core } from "./core";
 export type Layer = {
   id: string;
   title: string;
-  userId: string;
   userName?: string;
   visibility: boolean;
   buffer: CanvasBuffer;
@@ -21,6 +20,7 @@ export class LayerController {
     if (!this.activeLayer) {
       this.activeLayer = layer;
     }
+    Core.uiController.rerenderTabs();
   }
   removeLayer() {
     throw new Error("TODO!");

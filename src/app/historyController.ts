@@ -70,8 +70,14 @@ export class HistoryController {
       this.isFinish = false;
       this.history = this.history.prev;
       this.currentProccessing = this.history.id;
-      let c = this.historyStart;
+      let c = this.history;
       Core.bufferController.clearMain();
+      while (c && c.prev) {
+        if (c.data[0].type === "image") {
+          break;
+        }
+        c = c.prev;
+      }
       while (c && c !== this.history.next) {
         if (this.currentProccessing !== this.history.id) {
           return;
@@ -93,8 +99,14 @@ export class HistoryController {
       this.isFinish = false;
       this.history = this.history.next;
       this.currentProccessing = this.history.id;
-      let c = this.historyStart;
+      let c = this.history;
       Core.bufferController.clearMain();
+      while (c && c.prev) {
+        if (c.data[0].type === "image") {
+          break;
+        }
+        c = c.prev;
+      }
       while (c && c !== this.history.next) {
         if (this.currentProccessing !== this.history.id) return;
         c.data.forEach((item) => item.run());

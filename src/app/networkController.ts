@@ -2,13 +2,8 @@ import { Color } from "../helpers/color";
 import { Vector2 } from "../helpers/vectors";
 import { Core } from "./core";
 
-/*
-Data format
-uning 'A' as divider
-<brush>A<posX>A<posY>A<prevPosX>A<prevPosY>A
-*/
 export type Packet = {
-  userId: string;
+  layerId: string;
   brushSettings: {
     size: number;
     color: Color;
@@ -21,13 +16,10 @@ interface WsMessageEvent extends Event {
   data: string;
 }
 
-// For future communication with the server
 export class NetworkController {
   url: string;
   socket: WebSocket;
-  userId: string;
-  // set id by selected layer
-  userHistory: string;
+  layerId: string;
   constructor(url: string) {
     this.url = url;
     this.createSocket();
@@ -65,16 +57,10 @@ export class NetworkController {
   private socketMessage = (event: WsMessageEvent) => {
     const data = event.data;
     const arr = data.split("\n");
-    const userId = arr[0];
+    const layerId = arr[0];
     if (arr[1] === "history") {
-      if (arr[0] === this.userHistory) {
+      if (arr[0] === this.layerId) {
         Core.historyController.pushFromRemoteHistory(
-          arr
-            .slice(4)
-            .filter((_, i) => i % 3 === 0)
-            .reverse()
-        );
-        console.log(
           arr
             .slice(4)
             .filter((_, i) => i % 3 === 0)
@@ -84,28 +70,28 @@ export class NetworkController {
       return;
     }
     if (arr[1] === "init") {
-      this.userId = userId;
+      this.layerId = layerId;
       Core.bufferController.saveMain();
       return;
     }
-    if (arr[0] === this.userId) return;
+    if (arr[0] === this.layerId) return;
     if (arr[1] === "start") {
-      Core.bufferController.startRemoteDrawing(userId);
+      Core.bufferController.startRemoteDrawing(layerId);
       return;
     }
     if (arr[1] === "stop") {
-      Core.bufferController.stopRemoteDrawing(userId);
+      Core.bufferController.stopRemoteDrawing(layerId);
       return;
     }
     if (arr[1] === "image") {
       Core.bufferController.remoteImage(
-        userId,
+        layerId,
         data.slice(arr[0].length + 1 + arr[1].length + 1)
       );
       return;
     }
     const decoded: Packet = {
-      userId: userId,
+      layerId: layerId,
       brushSettings: {
         type: arr[1],
         size: +arr[2],
@@ -118,21 +104,21 @@ export class NetworkController {
   };
   sendStart() {
     if (!this.socket.readyState) return;
-    this.socket.send(this.userId + "\nstart");
+    this.socket.send(this.layerId + "\nstart");
   }
   sendStop() {
     if (!this.socket.readyState) return;
-    this.socket.send(this.userId + "\nstop");
+    this.socket.send(this.layerId + "\nstop");
   }
   sendImage(imageData: string) {
     if (!this.socket.readyState) return;
-    this.socket.send(this.userId + "\nimage\n" + imageData);
+    this.socket.send(this.layerId + "\nimage\n" + imageData);
   }
   // TODO: send an empty data for changing only a remote mouse position
   pushData(packet: Pick<Packet, "brushSettings" | "pos">) {
     if (!this.socket.readyState) return;
     const arr: (number | string)[] = [
-      this.userId,
+      this.layerId,
       packet.brushSettings.type,
       packet.brushSettings.size,
       packet.brushSettings.pressure,
@@ -147,7 +133,7 @@ export class NetworkController {
     if (!id) {
       throw new Error("No ID provided");
     }
-    this.userHistory = id;
-    this.socket.send(this.userId + "\ngethistory\n" + this.userHistory);
+    this.layerId = id;
+    this.socket.send(this.layerId + "\ngethistory\n" + this.layerId);
   }
 }
