@@ -1,7 +1,13 @@
 import eyeIcon from "../../../assets/icons/eye.png";
 export class TabsLayer {
   el: HTMLDivElement;
-  constructor(text: string, imgSrc: string, user: string) {
+  constructor(
+    text: string,
+    imgSrc: string,
+    user: string,
+    isActive: boolean,
+    onClick: () => void
+  ) {
     this.el = document.createElement("div");
     const title = document.createElement("span");
     title.classList.add("title");
@@ -17,6 +23,10 @@ export class TabsLayer {
     textEl.append(title, userEl);
     const icon = document.createElement("img");
     icon.src = eyeIcon;
+    if (isActive) {
+      this.el.classList.add("active");
+    }
+    this.el.addEventListener("click", onClick);
     this.el.append(icon, img, textEl);
   }
 }

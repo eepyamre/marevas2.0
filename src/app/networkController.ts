@@ -27,7 +27,7 @@ export class NetworkController {
   socket: WebSocket;
   userId: string;
   // set id by selected layer
-  userHistory: string = "76931fac-dab2-36c2-8b87-6ae33f9a62d7";
+  userHistory: string;
   constructor(url: string) {
     this.url = url;
     this.createSocket();
@@ -58,8 +58,6 @@ export class NetworkController {
   };
   private socketOpen = () => {
     console.log("Connection Established");
-    // get history when layer change
-    // this.socket.send(this.userId + "\ngethistory\n" + this.userHistory);
     addEventListener("beforeunload", () => {
       this.socket.close();
     });
@@ -76,11 +74,18 @@ export class NetworkController {
             .filter((_, i) => i % 3 === 0)
             .reverse()
         );
+        console.log(
+          arr
+            .slice(4)
+            .filter((_, i) => i % 3 === 0)
+            .reverse()
+        );
       }
       return;
     }
     if (arr[1] === "init") {
       this.userId = userId;
+      Core.bufferController.saveMain();
       return;
     }
     if (arr[0] === this.userId) return;
@@ -137,5 +142,12 @@ export class NetworkController {
     ];
 
     this.socket.send(arr.join("\n"));
+  }
+  getRemoteHistory(id: string) {
+    if (!id) {
+      throw new Error("No ID provided");
+    }
+    this.userHistory = id;
+    this.socket.send(this.userId + "\ngethistory\n" + this.userHistory);
   }
 }

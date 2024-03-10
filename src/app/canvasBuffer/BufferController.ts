@@ -5,7 +5,7 @@ import { Core } from "../core";
 import { HistoryDrawingData } from "../historyController";
 import { Packet } from "../networkController";
 import { CanvasBuffer } from "./canvasBuffer";
-
+import { v4 as uuid } from "uuid";
 export class BufferController {
   mainCanvas: CanvasBuffer;
   drawingCanvas: CanvasBuffer;
@@ -217,6 +217,14 @@ export class BufferController {
           canvasBuffer: canvasBuffer,
           opacity: "1",
         };
+        Core.layerController.addLayer({
+          id: uuid(),
+          buffer: canvasBuffer,
+          title: id,
+          userId: id,
+          visibility: true,
+        });
+        Core.uiController.rerenderTabs();
       }
       this.remoteDrawings[id].canvasBuffer.ctx.clearRect(
         0,
@@ -261,5 +269,26 @@ export class BufferController {
       this.mainCanvasEl.width,
       this.mainCanvasEl.height
     );
+  }
+
+  changeMain(id: string) {
+    this.mainCanvas = this.remoteDrawings[id].canvasBuffer;
+    this.mainCanvasEl = this.remoteDrawings[id].canvasBuffer.canvas;
+  }
+
+  saveMain() {
+    if (!Core.networkController.userId) return;
+    Core.layerController.addLayer({
+      id: uuid(),
+      buffer: this.mainCanvas,
+      title: "Layer 1",
+      userId: Core.networkController.userId,
+      visibility: true,
+    });
+    Core.uiController.rerenderTabs();
+    this.remoteDrawings[Core.networkController.userId] = {
+      canvasBuffer: this.mainCanvas,
+      opacity: "1",
+    };
   }
 }

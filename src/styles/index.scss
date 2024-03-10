@@ -1,20 +1,21 @@
-*{
+* {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
   touch-action: none;
   overscroll-behavior: none;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
-body{
+body {
   overflow: hidden;
   background-color: #121212;
 }
-#app{
+#app {
   width: 100vw;
   height: 100vh;
   background-color: #ffffff;
-  canvas{
+  canvas {
     position: fixed;
     left: 0;
     top: 0;
@@ -24,8 +25,8 @@ body{
   }
 }
 
-#ui{
-  .sidebar{
+#ui {
+  .sidebar {
     flex-direction: column;
     color: #e6e6e6;
     width: 250px;
@@ -40,17 +41,17 @@ body{
     align-items: center;
     padding: 10px;
 
-    #color_slider{
+    #color_slider {
       margin-bottom: 12px;
       cursor: crosshair;
     }
-    #color_picker{
+    #color_picker {
       cursor: crosshair;
     }
     .color_picker-wrapper,
-    .color_slider-wrapper{
+    .color_slider-wrapper {
       position: relative;
-      .cursor{
+      .cursor {
         position: absolute;
         width: 10px;
         height: 10px;
@@ -60,15 +61,15 @@ body{
         top: 240px;
       }
     }
-    .color_slider-wrapper{
-      .cursor{
+    .color_slider-wrapper {
+      .cursor {
         border-radius: 0;
         height: 50px;
         top: 0;
       }
     }
   }
-  .header{
+  .header {
     text-transform: uppercase;
     letter-spacing: 4px;
     cursor: pointer;
@@ -85,14 +86,14 @@ body{
     user-select: none;
     padding: 10px;
     border-bottom: 1px solid #121212;
-    &:hover{
+    &:hover {
       background-color: #222;
     }
-    img{
+    img {
       width: 32px;
     }
-    .info_btn{
-      font-size: .5rem;
+    .info_btn {
+      font-size: 0.5rem;
       text-align: right;
       width: 100%;
     }
@@ -107,22 +108,22 @@ body{
     margin-bottom: 12px;
     user-select: none;
   }
-  .input_wrapper{
+  .input_wrapper {
     display: flex;
     gap: 8px;
     width: 100%;
-    font-size: .8rem;
-    > span{
+    font-size: 0.8rem;
+    > span {
       flex-basis: 60px;
     }
-    .slider{
+    .slider {
       background-color: #e9e9e9;
       border-radius: 4px;
       flex-grow: 1;
       color: #000;
       text-align: right;
       position: relative;
-      .bg{
+      .bg {
         border-radius: 4px;
         background-color: #aaa;
         width: 50%;
@@ -132,7 +133,7 @@ body{
         top: 0;
         bottom: 0;
       }
-      span.value{
+      span.value {
         user-select: none;
         right: 0;
         z-index: 2;
@@ -141,74 +142,81 @@ body{
       }
     }
   }
-  .icon_buttons{  
+  .icon_buttons {
     display: flex;
     width: 100%;
-    .icon_button{
+    .icon_button {
       width: 42px;
       border: 2px solid #2b2b2b;
       border-radius: 4px;
       padding: 2px;
       cursor: pointer;
-      &:hover{
+      &:hover {
         background-color: #2f2f2f;
       }
       &.active,
-      &:active{
+      &:active {
         background-color: #222;
       }
     }
   }
 
-  .tabs{
+  .tabs {
     width: calc(100% + 20px);
     margin-top: 12px;
     margin-left: -10px;
     margin-right: -10px;
-    &__buttons{
+    &__buttons {
       display: flex;
-      border-bottom: 1px solid #333; 
-      &__item{
+      border-bottom: 1px solid #333;
+      &__item {
         flex-basis: 50%;
         background-color: #444;
         padding: 2px 8px;
         border-top-left-radius: 6px;
         border-top-right-radius: 6px;
         cursor: pointer;
-
-        &.active{
-          background-color: #666
+        &.active {
+          background-color: #666;
         }
       }
     }
-    &__content_list{
+    &__content_list {
       flex-direction: column;
       max-height: calc(100vh - 79px - 66px - 250px - 53px);
       overflow: auto;
       gap: 1px;
       display: none;
-      &.active{
+      &.active {
         display: flex;
       }
-      &__item{
+      &__item {
         display: flex;
         align-items: center;
         gap: 8px;
         height: 50px;
         padding: 0 8px;
-        border-bottom: 1px solid #444; 
+        border-bottom: 1px solid #444;
         cursor: pointer;
-          &.active{
-          background-color: #666
+        &.active {
+          background-color: #666;
         }
       }
-      &__item.layer{
-        .text{
+      &__item.layer {
+        .text {
           display: flex;
           flex-direction: column;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          user-select: none;
+          .user {
+            font-size: 0.7rem;
+            color: #ccc;
+          }
         }
       }
-      .icon{
+      .icon {
         width: 12px;
       }
     }

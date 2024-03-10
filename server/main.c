@@ -112,7 +112,6 @@ void onmessage(ws_cli_conn_t *client,
 		freeReplyObject(reply);
 		return;
 	}
-
 	ws_sendframe_bcast(PORT, (char *)msg, size, type);
 	char *ptr = strstr(msg, "data:image/");
 	if(ptr != NULL){

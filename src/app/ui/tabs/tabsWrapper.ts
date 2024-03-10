@@ -3,6 +3,7 @@ import { TabsButton } from "./tabsButton";
 import { TabsLayer } from "./tabsLayer";
 
 type ITabsLayer = {
+  isActive: boolean;
   title: string;
   image: string;
   user: string;
@@ -10,6 +11,7 @@ type ITabsLayer = {
   type: "layer";
 };
 type ITabsBrush = {
+  isActive: boolean;
   title: string;
   image: string;
   onClick: () => void;
@@ -23,7 +25,8 @@ export class TabsWrapper {
     tabs: {
       title: string;
       items: TabsItem[];
-    }[]
+    }[],
+    activeTab: string
   ) {
     this.el = document.createElement("div");
     this.el.classList.add("tabs");
@@ -36,18 +39,28 @@ export class TabsWrapper {
       const list = document.createElement("div");
       list.classList.add("tabs__content_list", tab.title);
       lists.push(list);
-      if (i === 0) {
+      if (tab.title === activeTab) {
         list.classList.add("active");
         btn.el.classList.add("active");
       }
       tab.items.forEach((item, i) => {
         if (item.type === "brush") {
-          list.append(new TabsBrush(item.title, item.image).el);
+          const el = new TabsBrush(
+            item.title,
+            item.image,
+            item.isActive,
+            item.onClick
+          ).el;
+          list.append(el);
         } else if (item.type === "layer") {
-          list.append(new TabsLayer(item.title, item.image, item.user).el);
-        }
-        if (i === 0) {
-          list.firstElementChild?.classList.add("active");
+          const el = new TabsLayer(
+            item.title,
+            item.image,
+            item.user,
+            item.isActive,
+            item.onClick
+          ).el;
+          list.append(el);
         }
       });
     });

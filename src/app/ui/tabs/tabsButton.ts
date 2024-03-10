@@ -1,3 +1,5 @@
+import { Core } from "../../core";
+
 export class TabsButton {
   el: HTMLDivElement;
   text: string;
@@ -17,6 +19,7 @@ export class TabsButton {
       if (btns[i].textContent === this.text) {
         btns[i].classList.add("active");
         list.classList.add("active");
+        Core.uiController.setActiveTab(this.text);
       }
     });
   };
