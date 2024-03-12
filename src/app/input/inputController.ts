@@ -49,16 +49,44 @@ export class InputController {
         Core.historyController.redo();
         return;
       }
-      if (e.key.toLowerCase() === "z") {
-        if (e.timeStamp < this.lastTimestamp + 100) return;
-        e.preventDefault();
-        Core.historyController.undo();
-        return;
+      switch (e.key.toLowerCase()) {
+        case "z":
+          if (e.timeStamp < this.lastTimestamp + 100) break;
+          e.preventDefault();
+          Core.historyController.undo();
+          break;
+        case "s":
+          e.preventDefault();
+          Core.bufferController.exportPNG();
+          break;
+        case "+":
+        case "]":
+          e.preventDefault();
+          Core.brushController.setBrushSize(
+            Core.brushController.brush.size + 1
+          );
+          break;
+        case "-":
+        case "[":
+          e.preventDefault();
+          Core.brushController.setBrushSize(
+            Core.brushController.brush.size - 1
+          );
+          break;
       }
-      if (e.key.toLowerCase() === "s") {
+      return;
+    }
+    switch (e.key.toLowerCase()) {
+      case "+":
+      case "]":
         e.preventDefault();
-        Core.bufferController.exportPNG();
-      }
+        Core.brushController.setBrushSize(Core.brushController.brush.size + 1);
+        break;
+      case "-":
+      case "[":
+        e.preventDefault();
+        Core.brushController.setBrushSize(Core.brushController.brush.size - 1);
+        break;
     }
   };
 
@@ -123,6 +151,12 @@ export class InputController {
 
   private zoom = (e: WheelEvent) => {
     e.preventDefault();
+    if (e.ctrlKey) {
+      Core.brushController.setBrushSize(
+        Core.brushController.brush.size + (e.deltaY < 0 ? 1 : -1)
+      );
+      return;
+    }
     let scale = 0.9;
     if (e.deltaY < 0) {
       scale = 1.1;
