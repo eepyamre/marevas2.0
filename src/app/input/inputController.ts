@@ -37,6 +37,10 @@ export class InputController {
         Core.historyController.undo();
         return;
       }
+      if (e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        Core.bufferController.exportPNG();
+      }
     }
   }
 

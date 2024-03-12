@@ -27,6 +27,7 @@ export class NetworkController {
 
   private createSocket = () => {
     this.socket = new WebSocket(this.url);
+    console.log("Connecting to the socket...");
     this.socket.addEventListener("error", this.socketError);
     this.socket.addEventListener("close", this.socketClose);
     this.socket.addEventListener("open", this.socketOpen);

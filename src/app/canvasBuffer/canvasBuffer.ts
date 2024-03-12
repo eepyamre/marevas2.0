@@ -8,7 +8,7 @@ export class CanvasBuffer {
   constructor(shouldAppend = true) {
     this.initCanvas(shouldAppend);
   }
-  private initCanvas(shouldAppend) {
+  private initCanvas(shouldAppend: boolean) {
     this.canvas = document.createElement("canvas");
     if (shouldAppend) {
       Core.appRoot.append(this.canvas);

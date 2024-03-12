@@ -288,4 +288,16 @@ export class BufferController {
       opacity: "1",
     };
   }
+  exportPNG() {
+    const exportCanvas = new CanvasBuffer();
+    Object.keys(this.remoteDrawings).forEach((key) => {
+      exportCanvas.ctx.drawImage(
+        this.remoteDrawings[key].canvasBuffer.canvas,
+        0,
+        0
+      );
+    });
+    window.open(exportCanvas.canvas.toDataURL(), "_blank");
+    exportCanvas.remove();
+  }
 }
