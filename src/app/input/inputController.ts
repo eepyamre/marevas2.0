@@ -5,6 +5,7 @@ import { Core } from "../core";
 export class InputController {
   shouldDraw = false;
   moveCanvas = false;
+  spacePressed = false;
   stablizationLevel = 3;
   pointerBuffer: Vector2[] = [];
   lastTimestamp = 0;
@@ -16,23 +17,40 @@ export class InputController {
     Core.appRoot.addEventListener("contextmenu", (e) => e.preventDefault());
     Core.appRoot.addEventListener("wheel", this.zoom);
     addEventListener("keydown", this.keyEvents);
+    addEventListener("keyup", this.keyUpEvents);
   }
-  private keyEvents(e: KeyboardEvent) {
+  private keyUpEvents = (e: KeyboardEvent) => {
+    if (e.key === " ") {
+      e.preventDefault();
+      this.moveCanvas = false;
+      this.shouldDraw = true;
+      this.spacePressed = false;
+      return;
+    }
+  };
+  private keyEvents = (e: KeyboardEvent) => {
     if (e.key === "e") {
       e.preventDefault();
       Core.brushController.setMode(
         Core.brushController.mode === "draw" ? "erase" : "draw"
       );
+      return;
+    }
+    if (e.key === " ") {
+      e.preventDefault();
+      this.spacePressed = true;
+      return;
     }
     if (e.ctrlKey) {
-      if (e.timeStamp < this.lastTimestamp + 100) return;
       this.lastTimestamp = e.timeStamp;
       if (e.shiftKey && e.key.toLowerCase() === "z") {
+        if (e.timeStamp < this.lastTimestamp + 100) return;
         e.preventDefault();
         Core.historyController.redo();
         return;
       }
       if (e.key.toLowerCase() === "z") {
+        if (e.timeStamp < this.lastTimestamp + 100) return;
         e.preventDefault();
         Core.historyController.undo();
         return;
@@ -42,12 +60,12 @@ export class InputController {
         Core.bufferController.exportPNG();
       }
     }
-  }
+  };
 
   private pointerdown = (e: PointerEvent) => {
     e.preventDefault();
     Core.bufferController.drawingCanvasEl.setPointerCapture(e.pointerId);
-    if (e.buttons === 4) {
+    if (e.buttons === 4 || this.spacePressed) {
       this.moveCanvas = true;
       this.shouldDraw = false;
       return;
@@ -63,17 +81,19 @@ export class InputController {
       this.pointerBuffer.shift();
     }
 
-    const stabilizedPosition = this.calculateStabilizedPosition();
-
-    if (this.shouldDraw && e.buttons)
-      Core.bufferController.draw(
-        stabilizedPosition,
-        e.pointerType === "pen" ? e.pressure : 1
-      );
     if (this.moveCanvas) {
       Core.appRoot.style.transform = Core.getTransformStyle(
         e.movementX / Core.canvasOptions.zoom,
         e.movementY / Core.canvasOptions.zoom
+      );
+      return;
+    }
+
+    const stabilizedPosition = this.calculateStabilizedPosition();
+    if (this.shouldDraw && e.buttons) {
+      Core.bufferController.draw(
+        stabilizedPosition,
+        e.pointerType === "pen" ? e.pressure : 1
       );
     }
   };
@@ -93,12 +113,12 @@ export class InputController {
   private pointerup = (e: PointerEvent) => {
     e.preventDefault();
     Core.bufferController.drawingCanvasEl.releasePointerCapture(e.pointerId);
-    if (this.shouldDraw) {
+    if (this.shouldDraw && !this.spacePressed) {
       Core.bufferController.endDraw();
       this.shouldDraw = false;
     }
     this.pointerBuffer = [];
-    this.moveCanvas = false;
+    if (!this.spacePressed) this.moveCanvas = false;
   };
 
   private zoom = (e: WheelEvent) => {
