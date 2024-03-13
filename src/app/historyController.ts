@@ -3,7 +3,7 @@ import { Core } from "./core";
 import { v4 as uuid } from "uuid";
 
 interface HistoryData {
-  type: "draw" | "image";
+  type: "draw" | "image" | "settings";
   run: () => unknown;
 }
 export interface HistoryDrawingData extends HistoryData {

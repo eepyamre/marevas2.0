@@ -8,6 +8,7 @@ export class BasicBrush {
   lineJoin: CanvasLineJoin = "round";
   points: Vector2 | null[] = [null, null, null];
   prevSize: number;
+  type = "BasicBrush";
   constructor(color: string, size: number) {
     this.color = new Color(color);
     this.size = size;

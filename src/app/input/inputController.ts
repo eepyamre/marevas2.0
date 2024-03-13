@@ -9,6 +9,8 @@ export class InputController {
   stablizationLevel = 3;
   pointerBuffer: Vector2[] = [];
   lastTimestamp = 0;
+  prevMovX = 0;
+  prevMovY = 0;
   constructor() {
     Core.appRoot.addEventListener("pointerdown", this.pointerdown);
     Core.appRoot.addEventListener("pointermove", this.pointermove);
@@ -59,19 +61,25 @@ export class InputController {
           e.preventDefault();
           Core.bufferController.exportPNG();
           break;
-        case "+":
         case "]":
           e.preventDefault();
           Core.brushController.setBrushSize(
             Core.brushController.brush.size + 1
           );
           break;
-        case "-":
         case "[":
           e.preventDefault();
           Core.brushController.setBrushSize(
             Core.brushController.brush.size - 1
           );
+          break;
+        case "-":
+          e.preventDefault();
+          Core.bufferController.updateCanvasZoom(0.9);
+          break;
+        case "+":
+          e.preventDefault();
+          Core.bufferController.updateCanvasZoom(1.1);
           break;
       }
       return;
@@ -110,9 +118,19 @@ export class InputController {
     }
 
     if (this.moveCanvas) {
+      let movX = e.movementX;
+      let movY = e.movementY;
+      if (e.pointerType === "pen") {
+        if (this.prevMovX && this.prevMovY) {
+          movX -= this.prevMovX;
+          movY -= this.prevMovY;
+        }
+        this.prevMovX = e.movementX;
+        this.prevMovY = e.movementY;
+      }
       Core.appRoot.style.transform = Core.getTransformStyle(
-        e.movementX / Core.canvasOptions.zoom,
-        e.movementY / Core.canvasOptions.zoom
+        movX / Core.canvasOptions.zoom,
+        movY / Core.canvasOptions.zoom
       );
       return;
     }
@@ -145,8 +163,10 @@ export class InputController {
       Core.bufferController.endDraw();
       this.shouldDraw = false;
     }
+    this.prevMovX = undefined;
+    this.prevMovY = undefined;
     this.pointerBuffer = [];
-    if (!this.spacePressed) this.moveCanvas = false;
+    this.moveCanvas = false;
   };
 
   private zoom = (e: WheelEvent) => {

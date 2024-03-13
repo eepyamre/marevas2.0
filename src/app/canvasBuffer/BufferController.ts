@@ -5,7 +5,6 @@ import { Core } from "../core";
 import { HistoryDrawingData } from "../historyController";
 import { Packet } from "../networkController";
 import { CanvasBuffer } from "./canvasBuffer";
-import { v4 as uuid } from "uuid";
 export class BufferController {
   mainCanvas: CanvasBuffer;
   drawingCanvas: CanvasBuffer;

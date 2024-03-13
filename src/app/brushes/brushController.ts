@@ -3,12 +3,14 @@ import { mapNumRange } from "../../helpers/utils";
 import { Vector2 } from "../../helpers/vectors";
 import { Core } from "../core";
 import { BasicBrush } from "./basicBrush";
+import { SoftBrush } from "./softBrush";
 
 export class BrushController {
   brush: BasicBrush;
   mode: "draw" | "erase" = "draw";
   brushesTypes = {
     BasicBrush: BasicBrush,
+    SoftBrush: SoftBrush,
   };
   saveHistory: boolean;
   constructor(saveHistory: boolean = false) {
@@ -37,7 +39,7 @@ export class BrushController {
     };
     if (this.saveHistory) {
       Core.historyController.pushNewHistory();
-      Core.historyController.pushToActiveHistoryItem({ run });
+      Core.historyController.pushToActiveHistoryItem({ run, type: "settings" });
     }
     Core.uiController.setEraser(mode === "erase");
     run();
@@ -50,7 +52,7 @@ export class BrushController {
     };
     if (this.saveHistory) {
       Core.historyController.pushNewHistory();
-      Core.historyController.pushToActiveHistoryItem({ run });
+      Core.historyController.pushToActiveHistoryItem({ run, type: "settings" });
     }
     run();
   }
@@ -62,7 +64,7 @@ export class BrushController {
     };
     if (this.saveHistory) {
       Core.historyController.pushNewHistory();
-      Core.historyController.pushToActiveHistoryItem({ run });
+      Core.historyController.pushToActiveHistoryItem({ run, type: "settings" });
     }
     run();
   }
@@ -75,5 +77,15 @@ export class BrushController {
 
   setBrush(brush: BasicBrush) {
     this.brush = brush;
+  }
+
+  selectBrush(type: keyof typeof this.brushesTypes) {
+    const opacity = this.brush.color.color.a;
+    this.brush = new this.brushesTypes[type](
+      this.brush.color.toCanvasSrting(),
+      this.brush.size
+    );
+    this.brush.color.color.a = opacity;
+    Core.uiController.rerenderTabs();
   }
 }

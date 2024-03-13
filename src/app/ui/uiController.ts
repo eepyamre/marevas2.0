@@ -5,6 +5,7 @@ import { TabsWrapper } from "./tabs/tabsWrapper";
 import { IconButton } from "./iconButton";
 import basicBrush from "../../assets/brushes/basic_brush.png";
 import eraser from "../../assets/brushes/eraser.png";
+import softBrush from "../../assets/brushes/soft_brush.png";
 
 export class UIController {
   controlsRoot: HTMLDivElement;
@@ -75,25 +76,7 @@ export class UIController {
       [
         {
           title: "Brushes",
-          items: [
-            {
-              isActive: true,
-              title: "Basic Brush",
-              image: basicBrush,
-              type: "brush",
-              onClick: () => {},
-            },
-            // {
-            //   title: "Basic Brush",
-            //   image: BasicBrush,
-            //   type: "brush",
-            // },
-            // {
-            //   title: "Basic Brush",
-            //   image: BasicBrush,
-            //   type: "brush",
-            // },
-          ],
+          items: [],
         },
         {
           title: "Layers",
@@ -124,11 +107,22 @@ export class UIController {
           title: "Brushes",
           items: [
             {
-              isActive: true,
+              isActive: Core.brushController.brush.type === "BasicBrush",
               title: "Basic Brush",
               image: basicBrush,
               type: "brush",
-              onClick: () => {},
+              onClick: () => {
+                Core.brushController.selectBrush("BasicBrush");
+              },
+            },
+            {
+              isActive: Core.brushController.brush.type === "SoftBrush",
+              title: "Soft Brush",
+              image: softBrush,
+              type: "brush",
+              onClick: () => {
+                Core.brushController.selectBrush("SoftBrush");
+              },
             },
           ],
         },
@@ -142,7 +136,6 @@ export class UIController {
             user: item.userName || item.id,
             onClick: () => {
               Core.layerController.selectLayer(item.id);
-              // FIXME: dont use userid
               Core.networkController.getRemoteHistory(item.id);
               Core.bufferController.changeMain(item.id);
             },

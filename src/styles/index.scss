@@ -201,6 +201,10 @@ body {
         &.active {
           background-color: #666;
         }
+        img {
+          width: 32px;
+          height: 32px;
+        }
       }
       &__item.layer {
         .text {
