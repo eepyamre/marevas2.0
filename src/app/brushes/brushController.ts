@@ -3,8 +3,7 @@ import { mapNumRange } from "../../helpers/utils";
 import { Vector2 } from "../../helpers/vectors";
 import { Core } from "../core";
 import { BasicBrush } from "./basicBrush";
-import { ChalkBrush } from "./chalkBrush";
-import { GrainyBrush } from "./GrainyBrush";
+import { GrainyBrush } from "./grainyBrush";
 import { SlicedBrush } from "./slicedBrush";
 import { SoftBrush } from "./softBrush";
 
