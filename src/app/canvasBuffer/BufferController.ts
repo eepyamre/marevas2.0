@@ -299,7 +299,7 @@ export class BufferController {
         0
       );
     });
-    window.open(exportCanvas.canvas.toDataURL(), "_blank");
+    window.open(exportCanvas.canvas.toDataURL("image/png", 1), "_blank");
     exportCanvas.remove();
   }
 }

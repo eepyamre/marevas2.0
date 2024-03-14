@@ -7,7 +7,8 @@ import { Modal } from "./modal";
 import basicBrush from "../../assets/brushes/basic_brush.png";
 import eraser from "../../assets/brushes/eraser.png";
 import softBrush from "../../assets/brushes/soft_brush.png";
-import inkBrush from "../../assets/brushes/ink_brush.png";
+import grainyBrush from "../../assets/brushes/grainy_brush.png";
+import slicedBrush from "../../assets/brushes/sliced_brush.png";
 
 export class UIController {
   controlsRoot: HTMLDivElement;
@@ -146,6 +147,15 @@ export class UIController {
               },
             },
             {
+              isActive: Core.brushController.brush.type === "SlicedBrush",
+              title: "Sliced Brush",
+              image: slicedBrush,
+              type: "brush",
+              onClick: () => {
+                Core.brushController.selectBrush("SlicedBrush");
+              },
+            },
+            {
               isActive: Core.brushController.brush.type === "SoftBrush",
               title: "Soft Brush",
               image: softBrush,
@@ -155,12 +165,12 @@ export class UIController {
               },
             },
             {
-              isActive: Core.brushController.brush.type === "InkBrush",
-              title: "Ink Brush",
-              image: inkBrush,
+              isActive: Core.brushController.brush.type === "GrainyBrush",
+              title: "Grainy Brush",
+              image: grainyBrush,
               type: "brush",
               onClick: () => {
-                Core.brushController.selectBrush("InkBrush");
+                Core.brushController.selectBrush("GrainyBrush");
               },
             },
           ],

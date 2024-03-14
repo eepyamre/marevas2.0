@@ -18,6 +18,7 @@ export class CanvasBuffer {
       throw new Error("No canvas context available!");
     }
     this.ctx = ctx;
+    this.ctx.imageSmoothingEnabled = false;
     ctx.globalCompositeOperation = "source-over";
     this.adjustCanvasSize();
     window.addEventListener("resize", this.adjustCanvasSize.bind(this));

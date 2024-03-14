@@ -4,10 +4,17 @@ import { Vector2 } from "../../helpers/vectors";
 export class ImageBrush extends BasicBrush {
   type = "ImageBrush";
   image: HTMLImageElement;
-  constructor(color: string, size: number, image: string) {
+  aspectRatio: number;
+  constructor(
+    color: string,
+    size: number,
+    image: string,
+    aspectRatio: number = 1
+  ) {
     super(color, size);
     this.image = new Image();
     this.image.src = image;
+    this.aspectRatio = aspectRatio;
   }
   draw(ctx: CanvasRenderingContext2D, pos: Vector2, pressure: number): void {
     this.points[0] = this.points[1];
@@ -43,8 +50,13 @@ export class ImageBrush extends BasicBrush {
       x: number,
       y: number;
 
+    // const angle = new Vector2(x0, y0).calculateAngle(new Vector2(x1, y1));
+    // this.image.width = size * this.aspectRatio;
     this.image.width = size;
     this.image.height = size;
+    // ctx.translate(p2.x, p2.y);
+    // ctx.rotate(angle);
+    // ctx.translate(-this.image.width / 2, -this.image.height / 2);
     while (i <= dist) {
       t = Math.max(0, Math.min(1, i / dist));
       x = x1 + (x0 - x1) * t;
@@ -58,10 +70,13 @@ export class ImageBrush extends BasicBrush {
         this.image.width,
         this.image.height
       );
+      // ctx.drawImage(this.image, 0, 0, this.image.width, this.image.height);
       i += step;
     }
     ctx.globalCompositeOperation = "source-in";
     ctx.fillStyle = this.color.toCanvasSrting();
+    // ctx.resetTransform();
+
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.globalCompositeOperation = "source-over";
   }

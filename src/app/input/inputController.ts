@@ -56,6 +56,7 @@ export class InputController {
           if (e.timeStamp < this.lastTimestamp + 100) break;
           e.preventDefault();
           Core.historyController.undo();
+          this.lastTimestamp = e.timeStamp;
           break;
         case "s":
           e.preventDefault();
@@ -82,7 +83,6 @@ export class InputController {
           Core.bufferController.updateCanvasZoom(1.1);
           break;
       }
-      this.lastTimestamp = e.timeStamp;
       return;
     }
     switch (e.key.toLowerCase()) {
@@ -126,8 +126,8 @@ export class InputController {
           movX -= this.prevMovX;
           movY -= this.prevMovY;
         }
-        this.prevMovX = e.movementX;
-        this.prevMovY = e.movementY;
+        this.prevMovX = movX;
+        this.prevMovY = movY;
       }
       Core.appRoot.style.transform = Core.getTransformStyle(
         movX / Core.canvasOptions.zoom,
@@ -135,7 +135,6 @@ export class InputController {
       );
       return;
     }
-
     const stabilizedPosition = this.calculateStabilizedPosition();
     if (this.shouldDraw && e.buttons) {
       Core.bufferController.draw(
@@ -154,7 +153,7 @@ export class InputController {
     }
     const avgX = sumX / this.pointerBuffer.length;
     const avgY = sumY / this.pointerBuffer.length;
-    return new Vector2(Math.round(avgX), Math.round(avgY));
+    return new Vector2(Math.round(avgX) + 0.5, Math.round(avgY) + 0.5);
   }
 
   private pointerup = (e: PointerEvent) => {

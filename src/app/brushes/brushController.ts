@@ -4,7 +4,8 @@ import { Vector2 } from "../../helpers/vectors";
 import { Core } from "../core";
 import { BasicBrush } from "./basicBrush";
 import { ChalkBrush } from "./chalkBrush";
-import { InkBrush } from "./inkBrush";
+import { GrainyBrush } from "./GrainyBrush";
+import { SlicedBrush } from "./slicedBrush";
 import { SoftBrush } from "./softBrush";
 
 export class BrushController {
@@ -13,7 +14,8 @@ export class BrushController {
   brushesTypes = {
     BasicBrush: BasicBrush,
     SoftBrush: SoftBrush,
-    InkBrush: InkBrush,
+    GrainyBrush: GrainyBrush,
+    SlicedBrush: SlicedBrush,
   };
   saveHistory: boolean;
   constructor(saveHistory: boolean = false) {
