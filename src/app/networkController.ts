@@ -107,6 +107,8 @@ export class NetworkController {
       },
       pos: new Vector2(+arr[5], +arr[6]),
     };
+    console.log(arr[4]);
+
     Core.uiController.updateUser(layerId, decoded.pos);
     Core.bufferController.remoteDraw(decoded);
   };
@@ -139,7 +141,6 @@ export class NetworkController {
       packet.pos.x,
       packet.pos.y,
     ];
-
     this.socket.send(arr.join("\n"));
   }
   getRemoteHistory(id: string) {

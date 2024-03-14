@@ -33,9 +33,9 @@ export class Color {
   toHex() {
     return `0x${this.color.r.toString(16).padStart(2, "0")}${this.color.g
       .toString(16)
-      .padStart(2, "0")}${this.color.b.toString(16).padStart(2, "0")}${(
-      this.color.a * 255
-    )
+      .padStart(2, "0")}${this.color.b
+      .toString(16)
+      .padStart(2, "0")}${Math.round(this.color.a * 255)
       .toString(16)
       .padStart(2, "0")}`;
   }

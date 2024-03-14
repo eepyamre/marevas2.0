@@ -196,7 +196,16 @@ export class BufferController {
           data.brushSettings
             .type as keyof typeof Core.brushController.brushesTypes
         );
+        this.remoteDrawings[tempId].brushController.setBrushSize(
+          data.brushSettings.size
+        );
 
+        this.remoteDrawings[tempId].brushController.setBrushOpacity(
+          data.brushSettings.color.color.a
+        );
+        this.remoteDrawings[tempId].brushController.setBrushColor(
+          data.brushSettings.color.color
+        );
         this.remoteDrawings[tempId].brushController.startDraw(
           ctx,
           data.brushSettings.pressure
@@ -204,10 +213,12 @@ export class BufferController {
       }
 
       const brush = this.remoteDrawings[tempId].brushController.brush;
-
+      this.remoteDrawings[tempId].canvasBuffer.canvas.style.opacity =
+        brush.color.color.a.toString();
       this.remoteDrawings[tempId].opacity = brush.color.color.a.toString();
       this.remoteDrawings[tempId].canvasBuffer.canvas.style.opacity =
         brush.color.color.a.toString();
+
       this.remoteDrawings[tempId].brushController.draw(
         ctx,
         data.pos,

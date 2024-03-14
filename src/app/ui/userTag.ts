@@ -38,6 +38,7 @@ export class UserTag {
   remove() {
     if (this.el) {
       this.el.remove();
+      this.el = undefined;
       Core.uiController.removeUser(this.id);
     }
   }
