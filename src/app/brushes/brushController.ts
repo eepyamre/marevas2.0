@@ -40,10 +40,6 @@ export class BrushController {
     const run = () => {
       this.mode = mode;
     };
-    if (this.saveHistory) {
-      Core.historyController.pushNewHistory();
-      Core.historyController.pushToActiveHistoryItem({ run, type: "settings" });
-    }
     Core.uiController.setEraser(mode === "erase");
     run();
   }
@@ -53,10 +49,6 @@ export class BrushController {
       this.brush.size = size;
       Core.uiController.changeSize(size);
     };
-    if (this.saveHistory) {
-      Core.historyController.pushNewHistory();
-      Core.historyController.pushToActiveHistoryItem({ run, type: "settings" });
-    }
     run();
   }
 
@@ -65,10 +57,6 @@ export class BrushController {
       this.brush.color.color.a = mapNumRange(opacity, 100, 0, 0, 1);
       Core.uiController.changeOpacity(opacity);
     };
-    if (this.saveHistory) {
-      Core.historyController.pushNewHistory();
-      Core.historyController.pushToActiveHistoryItem({ run, type: "settings" });
-    }
     run();
   }
 

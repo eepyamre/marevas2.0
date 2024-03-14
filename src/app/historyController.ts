@@ -10,6 +10,7 @@ export interface HistoryDrawingData extends HistoryData {
   mode?: "draw" | "erase";
   color?: ColorRGBA;
   brush?: keyof typeof Core.brushController.brushesTypes;
+  size?: number;
 }
 type HistoryList = {
   id: string;

@@ -34,10 +34,12 @@ export class BufferController {
       type: "draw",
       mode: Core.brushController.mode,
       color: { ...Core.brushController.brush.color.color },
+      size: Core.brushController.brush.size,
       brush: Core.brushController.brush
         .type as keyof typeof Core.brushController.brushesTypes,
       run: () => {
         Core.brushController.selectBrush(historyItem.brush);
+        Core.brushController.setBrushSize(historyItem.size);
         if (historyItem.color)
           Core.brushController.setBrushColor(historyItem.color);
 
