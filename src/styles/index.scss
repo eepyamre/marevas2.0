@@ -299,7 +299,7 @@ button {
   padding-bottom: 4px;
 }
 
-.user {
+#app > .user {
   &::before {
     content: "";
     position: absolute;
