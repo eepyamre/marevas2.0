@@ -15,7 +15,7 @@ export class BufferController {
       canvasBuffer: CanvasBuffer;
       opacity: string;
       brushController?: BrushController;
-      brush?: BasicBrush;
+      brush?: keyof typeof Core.brushController.brushesTypes;
     };
   } = {};
   mainCopy: CanvasBuffer;
@@ -133,7 +133,7 @@ export class BufferController {
         color: Core.brushController.brush.color,
         size: Core.brushController.brush.size,
         pressure,
-        type: "BasicBrush",
+        type: Core.brushController.brush.type,
       },
       pos: pos,
     };
@@ -183,31 +183,25 @@ export class BufferController {
     if (this.remoteDrawings[tempId]) {
       const ctx = this.remoteDrawings[tempId].canvasBuffer.ctx;
       if (!this.remoteDrawings[tempId].brush) {
-        this.remoteDrawings[tempId].brushController = new BrushController();
         const brushClass =
           Core.brushController.brushesTypes[data.brushSettings.type];
         if (!brushClass) {
           console.error(`No such brush type ${data.brushSettings.type}`);
           return;
         }
-        if (!brushClass) {
-          console.error(`No such brush type ${data.brushSettings.type}`);
-          return;
-        }
-        this.remoteDrawings[tempId].brush = new brushClass(
-          data.brushSettings.color.toHex(),
-          data.brushSettings.size
+        this.remoteDrawings[tempId].brush = brushClass;
+        this.remoteDrawings[tempId].brushController.selectBrush(
+          data.brushSettings
+            .type as keyof typeof Core.brushController.brushesTypes
         );
-        this.remoteDrawings[tempId].brushController.setBrush(
-          this.remoteDrawings[tempId].brush
-        );
+
         this.remoteDrawings[tempId].brushController.startDraw(
           ctx,
           data.brushSettings.pressure
         );
       }
 
-      const brush = this.remoteDrawings[tempId].brush;
+      const brush = this.remoteDrawings[tempId].brushController.brush;
 
       this.remoteDrawings[tempId].opacity = brush.color.color.a.toString();
       this.remoteDrawings[tempId].canvasBuffer.canvas.style.opacity =

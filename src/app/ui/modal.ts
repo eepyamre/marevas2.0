@@ -8,11 +8,18 @@ export class Modal {
   title: string;
   text: string;
   buttons: ModalButton[];
+  closable: boolean;
 
-  constructor(title: string, text?: string, buttons?: ModalButton[]) {
+  constructor(
+    title: string,
+    text?: string,
+    buttons?: ModalButton[],
+    closable: boolean = true
+  ) {
     this.title = title;
     this.text = text;
     this.buttons = buttons;
+    this.closable = closable;
   }
   render() {
     if (this.el === undefined) {
@@ -39,7 +46,9 @@ export class Modal {
         }
         this.el.append(wrapper);
       }
-      this.backdrop.addEventListener("click", this.remove.bind(this));
+      if (this.closable) {
+        this.backdrop.addEventListener("click", this.remove.bind(this));
+      }
       document.body.append(this.el);
       document.body.append(this.backdrop);
     }

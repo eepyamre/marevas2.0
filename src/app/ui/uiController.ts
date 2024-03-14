@@ -89,7 +89,12 @@ export class UIController {
       ],
       this.activeTab
     );
-    this.loadingModal = new Modal("Connecting, please wait...");
+    this.loadingModal = new Modal(
+      "Connecting, please wait...",
+      undefined,
+      undefined,
+      false
+    );
     this.setLoading(true);
     this.infoModal = new Modal(
       "Info",

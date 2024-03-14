@@ -78,15 +78,9 @@ export class BrushController {
     this.brush.color.color.b = color.b;
   }
 
-  setBrush(brush: BasicBrush) {
-    this.brush = brush;
-  }
-
   selectBrush(type: keyof typeof this.brushesTypes) {
     const opacity = this.brush.color.color.a;
     const color = this.brush.color.toHex();
-    console.log(color);
-
     this.brush = new this.brushesTypes[type](color, this.brush.size);
     this.brush.color.color.a = opacity;
     Core.uiController.rerenderTabs();
