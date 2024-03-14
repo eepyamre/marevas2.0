@@ -3,6 +3,8 @@ import { mapNumRange } from "../../helpers/utils";
 import { Vector2 } from "../../helpers/vectors";
 import { Core } from "../core";
 import { BasicBrush } from "./basicBrush";
+import { ChalkBrush } from "./chalkBrush";
+import { InkBrush } from "./inkBrush";
 import { SoftBrush } from "./softBrush";
 
 export class BrushController {
@@ -11,6 +13,7 @@ export class BrushController {
   brushesTypes = {
     BasicBrush: BasicBrush,
     SoftBrush: SoftBrush,
+    InkBrush: InkBrush,
   };
   saveHistory: boolean;
   constructor(saveHistory: boolean = false) {
@@ -81,10 +84,10 @@ export class BrushController {
 
   selectBrush(type: keyof typeof this.brushesTypes) {
     const opacity = this.brush.color.color.a;
-    this.brush = new this.brushesTypes[type](
-      this.brush.color.toCanvasSrting(),
-      this.brush.size
-    );
+    const color = this.brush.color.toHex();
+    console.log(color);
+
+    this.brush = new this.brushesTypes[type](color, this.brush.size);
     this.brush.color.color.a = opacity;
     Core.uiController.rerenderTabs();
   }

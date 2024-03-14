@@ -44,11 +44,11 @@ export class InputController {
       return;
     }
     if (e.ctrlKey) {
-      this.lastTimestamp = e.timeStamp;
       if (e.shiftKey && e.key.toLowerCase() === "z") {
         if (e.timeStamp < this.lastTimestamp + 100) return;
         e.preventDefault();
         Core.historyController.redo();
+        this.lastTimestamp = e.timeStamp;
         return;
       }
       switch (e.key.toLowerCase()) {
@@ -82,6 +82,7 @@ export class InputController {
           Core.bufferController.updateCanvasZoom(1.1);
           break;
       }
+      this.lastTimestamp = e.timeStamp;
       return;
     }
     switch (e.key.toLowerCase()) {

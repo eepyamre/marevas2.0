@@ -3,9 +3,11 @@ import { ColorPicker } from "./colorPalette";
 import { Slider } from "./slider";
 import { TabsWrapper } from "./tabs/tabsWrapper";
 import { IconButton } from "./iconButton";
+import { Modal } from "./modal";
 import basicBrush from "../../assets/brushes/basic_brush.png";
 import eraser from "../../assets/brushes/eraser.png";
 import softBrush from "../../assets/brushes/soft_brush.png";
+import inkBrush from "../../assets/brushes/ink_brush.png";
 
 export class UIController {
   controlsRoot: HTMLDivElement;
@@ -16,6 +18,8 @@ export class UIController {
   tabs: TabsWrapper;
   eraserBtn: IconButton;
   activeTab: string = "Brushes";
+  loadingModal: Modal;
+  infoModal: Modal;
   constructor() {
     this.controlsRoot = document.querySelector(".controls")!;
     if (!this.controlsRoot) {
@@ -85,6 +89,27 @@ export class UIController {
       ],
       this.activeTab
     );
+    this.loadingModal = new Modal("Connecting, please wait...");
+    this.setLoading(true);
+    this.infoModal = new Modal(
+      "Info",
+      "Mares mares mares mares amres mares marse mares maresmares mares mares mares mares amres mares marse mares mares mares mares!!! ",
+      [
+        {
+          text: "Ok",
+          onClick: () => {
+            this.infoModal.remove();
+          },
+        },
+      ]
+    );
+
+    const infoBtn = document.querySelector(".header");
+    if (infoBtn) {
+      infoBtn.addEventListener("click", () => {
+        this.infoModal.render();
+      });
+    }
   }
 
   changeSize(size: number) {
@@ -124,6 +149,15 @@ export class UIController {
                 Core.brushController.selectBrush("SoftBrush");
               },
             },
+            {
+              isActive: Core.brushController.brush.type === "InkBrush",
+              title: "Ink Brush",
+              image: inkBrush,
+              type: "brush",
+              onClick: () => {
+                Core.brushController.selectBrush("InkBrush");
+              },
+            },
           ],
         },
         {
@@ -147,5 +181,9 @@ export class UIController {
   }
   setActiveTab(tab: string) {
     this.activeTab = tab;
+  }
+  setLoading(b: boolean) {
+    if (b) this.loadingModal.render();
+    else this.loadingModal.remove();
   }
 }

@@ -43,13 +43,21 @@ export class ImageBrush extends BasicBrush {
       x: number,
       y: number;
 
+    this.image.width = size;
+    this.image.height = size;
     while (i <= dist) {
       t = Math.max(0, Math.min(1, i / dist));
       x = x1 + (x0 - x1) * t;
       y = y1 + (y0 - y1) * t;
       b = (Math.random() * 3) | 0;
 
-      ctx.drawImage(this.image, x - size * 0.5, y - size * 0.5, size, size);
+      ctx.drawImage(
+        this.image,
+        x - size * 0.5,
+        y - size * 0.5,
+        this.image.width,
+        this.image.height
+      );
       i += step;
     }
     ctx.globalCompositeOperation = "source-in";

@@ -41,6 +41,7 @@ export class NetworkController {
 
   private socketClose = () => {
     console.log("Connecting Closed. Reconecting in 5 seconds...");
+    Core.uiController.setLoading(true);
     this.socket.removeEventListener("error", this.socketError);
     this.socket.removeEventListener("close", this.socketClose);
     this.socket.removeEventListener("open", this.socketOpen);
@@ -51,6 +52,7 @@ export class NetworkController {
   };
   private socketOpen = () => {
     console.log("Connection Established");
+    Core.uiController.setLoading(false);
     addEventListener("beforeunload", () => {
       this.socket.close();
     });
