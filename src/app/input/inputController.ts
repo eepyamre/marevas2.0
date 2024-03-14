@@ -126,8 +126,8 @@ export class InputController {
           movX -= this.prevMovX;
           movY -= this.prevMovY;
         }
-        this.prevMovX = movX;
-        this.prevMovY = movY;
+        this.prevMovX = e.movementX;
+        this.prevMovY = e.movementY;
       }
       Core.appRoot.style.transform = Core.getTransformStyle(
         movX / Core.canvasOptions.zoom,

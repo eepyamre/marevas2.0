@@ -4,7 +4,9 @@ main: build_dep main.c
 		main.c \
 		-Wall \
 		-I./wsServer/include -L./wsServer -lws \
-		-I /usr/local/include/hiredis -lhiredis
+		-I /usr/local/include/hiredis -lhiredis \
+		-pthread \
+		-O3
 
 build_dep: 
 	make -C ./wsServer
@@ -17,4 +19,6 @@ no_dep:
 		main.c \
 		-Wall \
 		-I./wsServer/include -L./wsServer -lws \
-		-I /usr/local/include/hiredis -lhiredis
+		-I /usr/local/include/hiredis -lhiredis \
+		-pthread \
+		-O3

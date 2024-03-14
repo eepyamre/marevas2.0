@@ -58,6 +58,10 @@ void onopen(ws_cli_conn_t *client)
 			ws_sendframe_txt(client, reply->str);
 			freeReplyObject(reply);
 		}
+		if(reply == NULL || reply->type == REDIS_REPLY_ERROR){
+			printf("Redis Error!\n");
+			exit(1);
+		}
 	}
 }
 
@@ -109,6 +113,9 @@ void onmessage(ws_cli_conn_t *client,
 			if(res != NULL){
 				free(res);
 			}
+		} else if(reply->type == REDIS_REPLY_ERROR){
+			printf("Redis Error!\n");
+			exit(1);
 		}
 		freeReplyObject(reply);
 		return;
@@ -124,6 +131,10 @@ void onmessage(ws_cli_conn_t *client,
 		reply = redisCommand(c,"LPUSH %s-history %s", layer_id, copy);
 		freeReplyObject(reply);
 		reply = redisCommand(c,"LTRIM %s-history 0 10", layer_id);
+		if(reply == NULL || reply->type == REDIS_REPLY_ERROR){
+			printf("Redis Error!\n");
+			exit(1);
+		}
 		freeReplyObject(reply);
 	}
 }
