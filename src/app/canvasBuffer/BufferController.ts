@@ -34,7 +34,10 @@ export class BufferController {
       type: "draw",
       mode: Core.brushController.mode,
       color: { ...Core.brushController.brush.color.color },
+      brush: Core.brushController.brush
+        .type as keyof typeof Core.brushController.brushesTypes,
       run: () => {
+        Core.brushController.selectBrush(historyItem.brush);
         if (historyItem.color)
           Core.brushController.setBrushColor(historyItem.color);
 
@@ -58,6 +61,8 @@ export class BufferController {
       type: "draw",
       mode: Core.brushController.mode,
       color: Core.brushController.brush.color.color,
+      brush: Core.brushController.brush
+        .type as keyof typeof Core.brushController.brushesTypes,
       run: () => {
         Core.brushController.draw(this.drawingCanvas.ctx, pos, pressure);
         if (historyItem.mode === "erase") {
@@ -87,6 +92,8 @@ export class BufferController {
     const historyItem: HistoryDrawingData = {
       type: "draw",
       mode: Core.brushController.mode,
+      brush: Core.brushController.brush
+        .type as keyof typeof Core.brushController.brushesTypes,
       run: () => {
         Core.brushController.endDraw(this.drawingCanvas.ctx);
         if (historyItem.mode === "erase") {
