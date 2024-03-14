@@ -28,11 +28,12 @@ export class Modal {
       this.el = document.createElement("div");
       this.el.classList.add("modal");
       const title = document.createElement("h4");
+      title.classList.add("title");
       title.textContent = this.title;
       this.el.append(title);
       if (this.text) {
         const text = document.createElement("p");
-        text.textContent = this.text;
+        text.innerHTML = this.text;
         this.el.append(text);
       }
       if (this.buttons && this.buttons.length) {

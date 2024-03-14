@@ -78,6 +78,10 @@ export class NetworkController {
       return;
     }
     if (arr[0] === this.layerId) return;
+    if (arr[1] === "position") {
+      Core.uiController.updateUser(arr[0], new Vector2(+arr[2], +arr[3]));
+      return;
+    }
     if (arr[1] === "start") {
       Core.bufferController.startRemoteDrawing(layerId);
       return;
@@ -103,6 +107,7 @@ export class NetworkController {
       },
       pos: new Vector2(+arr[5], +arr[6]),
     };
+    Core.uiController.updateUser(layerId, decoded.pos);
     Core.bufferController.remoteDraw(decoded);
   };
   sendStart() {
@@ -117,7 +122,12 @@ export class NetworkController {
     if (!this.socket.readyState) return;
     this.socket.send(this.layerId + "\nimage\n" + imageData);
   }
-  // TODO: send an empty data for changing only a remote mouse position
+  pushPosition(pos: Vector2) {
+    if (!this.socket.readyState) return;
+    const arr: (number | string)[] = [this.layerId, "position", pos.x, pos.y];
+
+    this.socket.send(arr.join("\n"));
+  }
   pushData(packet: Pick<Packet, "brushSettings" | "pos">) {
     if (!this.socket.readyState) return;
     const arr: (number | string)[] = [

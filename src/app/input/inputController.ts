@@ -141,7 +141,9 @@ export class InputController {
         stabilizedPosition,
         e.pointerType === "pen" ? e.pressure : 1
       );
+      return;
     }
+    Core.networkController.pushPosition(stabilizedPosition);
   };
 
   private calculateStabilizedPosition() {

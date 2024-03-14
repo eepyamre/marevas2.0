@@ -6,6 +6,7 @@ import { BasicBrush } from "./basicBrush";
 import { GrainyBrush } from "./grainyBrush";
 import { SlicedBrush } from "./slicedBrush";
 import { SoftBrush } from "./softBrush";
+import { SprayBrush } from "./sprayBrush";
 
 export class BrushController {
   brush: BasicBrush;
@@ -15,6 +16,7 @@ export class BrushController {
     SoftBrush: SoftBrush,
     GrainyBrush: GrainyBrush,
     SlicedBrush: SlicedBrush,
+    SprayBrush: SprayBrush,
   };
   saveHistory: boolean;
   constructor(saveHistory: boolean = false) {

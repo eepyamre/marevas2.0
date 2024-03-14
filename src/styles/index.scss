@@ -243,13 +243,14 @@ body {
   color: #e6e6e6;
   z-index: 15;
   min-width: 320px;
-  max-width: 320px;
+  max-width: 450px;
   .title {
     font-size: 1.4rem;
   }
   p {
     margin-top: 8px;
     font-size: 1rem;
+    line-height: 120%;
   }
   .btns {
     display: flex;
@@ -288,4 +289,33 @@ button {
   &.hidden {
     display: none;
   }
+}
+.key {
+  display: inline-block;
+  background-color: #222;
+  border-radius: 4px;
+  padding: 0 12px;
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+}
+
+.user {
+  &::before {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: -32px;
+    left: -32px;
+    border: 2px solid #25c125;
+    border-radius: 50%;
+  }
+  position: fixed;
+  z-index: 1;
+  background-color: #25c125;
+  top: 24px;
+  left: 24px;
+  color: #000;
+  padding: 4px 12px;
+  border-radius: 4px;
 }

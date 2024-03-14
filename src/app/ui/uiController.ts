@@ -4,11 +4,14 @@ import { Slider } from "./slider";
 import { TabsWrapper } from "./tabs/tabsWrapper";
 import { IconButton } from "./iconButton";
 import { Modal } from "./modal";
+import { UserTag } from "./userTag";
 import basicBrush from "../../assets/brushes/basic_brush.png";
 import eraser from "../../assets/brushes/eraser.png";
 import softBrush from "../../assets/brushes/soft_brush.png";
 import grainyBrush from "../../assets/brushes/grainy_brush.png";
 import slicedBrush from "../../assets/brushes/sliced_brush.png";
+import sprayBrush from "../../assets/brushes/spay_brush.png";
+import { Vector2 } from "../../helpers/vectors";
 
 export class UIController {
   controlsRoot: HTMLDivElement;
@@ -21,6 +24,9 @@ export class UIController {
   activeTab: string = "Brushes";
   loadingModal: Modal;
   infoModal: Modal;
+  userTags: {
+    [key: string]: UserTag;
+  } = {};
   constructor() {
     this.controlsRoot = document.querySelector(".controls")!;
     if (!this.controlsRoot) {
@@ -63,7 +69,7 @@ export class UIController {
       {
         default: 10,
         max: 100,
-        min: 0,
+        min: 5,
         postfix: "%",
         title: "Stabilizer",
       }
@@ -99,7 +105,31 @@ export class UIController {
     this.setLoading(true);
     this.infoModal = new Modal(
       "Info",
-      "Mares mares mares mares amres mares marse mares maresmares mares mares mares mares amres mares marse mares mares mares mares!!! ",
+      `
+      <p>Hotkeys:</p>
+      <p>
+      <div class='key'>e</div> - eraser </p>
+      <p>
+      <div class='key'>[</div> or <div class='key'>+</div> - reduce brush size </p>
+      <p>
+      <div class='key'>]</div> or <div class='key'>-</div> - increse brush size </p>
+      <p>
+      <div class='key'>mousewheel</div> - control zoom </p>
+      <p>
+      <div class='key'>ctrl</div> + <div class='key'>s</div> - export as png </p>
+      <p>
+      <div class='key'>ctrl</div> + <div class='key'>z</div> - undo </p>
+      <p>
+      <div class='key'>ctrl</div> + <div class='key'>shift</div> + <div class='key'>z</div> - redo </p>
+      <p>
+      <div class='key'>ctrl</div> + <div class='key'>+</div> - zoom in </p>
+      <p>
+      <p>
+      <div class='key'>ctrl</div> + <div class='key'>-</div> - zoom out </p>
+      <p>
+      <div class='key'>ctrl</div> + <div class='key'>mousewheel</div> - control brush size </p>
+      <p>alpha 0.0001 version.</p>
+      `,
       [
         {
           text: "Ok",
@@ -173,6 +203,15 @@ export class UIController {
                 Core.brushController.selectBrush("GrainyBrush");
               },
             },
+            {
+              isActive: Core.brushController.brush.type === "SprayBrush",
+              title: "Spray",
+              image: sprayBrush,
+              type: "brush",
+              onClick: () => {
+                Core.brushController.selectBrush("SprayBrush");
+              },
+            },
           ],
         },
         {
@@ -200,5 +239,20 @@ export class UIController {
   setLoading(b: boolean) {
     if (b) this.loadingModal.render();
     else this.loadingModal.remove();
+  }
+  appendUser(id: string, pos: Vector2 = new Vector2(0, 0)) {
+    this.userTags[id] = new UserTag(id, pos);
+  }
+  updateUser(id: string, pos: Vector2) {
+    const user = this.userTags[id];
+    if (user) {
+      user.updatePos(pos);
+      return;
+    }
+    this.appendUser(id, pos);
+  }
+  removeUser(id: string) {
+    this.userTags[id].remove();
+    delete this.userTags[id];
   }
 }
