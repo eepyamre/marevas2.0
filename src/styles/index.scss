@@ -319,3 +319,11 @@ button {
   padding: 4px 12px;
   border-radius: 4px;
 }
+
+iframe.chat {
+  position: fixed;
+  bottom: 0;
+  left: 8px;
+  z-index: 1000;
+  height: 375px;
+}
