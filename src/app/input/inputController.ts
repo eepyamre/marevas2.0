@@ -160,7 +160,9 @@ export class InputController {
 
   private pointerup = (e: PointerEvent) => {
     e.preventDefault();
-    Core.bufferController.drawingCanvasEl.releasePointerCapture(e.pointerId);
+    try {
+      Core.bufferController.drawingCanvasEl.releasePointerCapture(e.pointerId);
+    } catch (e) {}
     if (this.shouldDraw && !this.spacePressed) {
       Core.bufferController.endDraw();
       this.shouldDraw = false;

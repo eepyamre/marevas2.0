@@ -107,8 +107,6 @@ export class NetworkController {
       },
       pos: new Vector2(+arr[5], +arr[6]),
     };
-    console.log(arr[4]);
-
     Core.uiController.updateUser(layerId, decoded.pos);
     Core.bufferController.remoteDraw(decoded);
   };

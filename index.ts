@@ -24,7 +24,7 @@ addEventListener("DOMContentLoaded", () => {
   const appRoot = document.querySelector<HTMLDivElement>("#app");
   if (!appRoot) throw new Error("No #app found.");
   // wss://drawamare.xyz/socket/
-  Core.setup(appRoot, "wss://drawamare.xyz/socket/", {
+  Core.setup(appRoot, "ws://127.0.0.1:6969", {
     width: WIDTH,
     height: HEIGHT,
     zoom: 1,

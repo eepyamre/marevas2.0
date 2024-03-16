@@ -1,11 +1,12 @@
 main: build_dep main.c
-	gcc \
+	CFLAGS="-DVERBOSE_MODE" gcc \
 		-o server \
 		main.c \
 		-Wall \
-		-I./wsServer/include -L./wsServer -lws \
+		-I./wsServer/include -L./wsServer -lws -luuid \
 		-I /usr/local/include/hiredis -lhiredis \
 		-pthread \
+		-std=gnu99 \
 		-O3
 
 build_dep: 
@@ -14,11 +15,12 @@ build_dep:
 	make install -C ./hiredis
 
 no_dep: 
-	gcc \
+	CFLAGS="-DVERBOSE_MODE" gcc \
 		-o server \
 		main.c \
 		-Wall \
-		-I./wsServer/include -L./wsServer -lws \
+		-I./wsServer/include -L./wsServer -lws -luuid \
 		-I /usr/local/include/hiredis -lhiredis \
 		-pthread \
+		-std=gnu99 \
 		-O3

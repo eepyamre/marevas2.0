@@ -3,65 +3,47 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <uuid/uuid.h>
 #include <hiredis/hiredis.h>
 #include <ws.h>
 
+#define _GNU_SOURCE
 #define PORT 6969
-#define DISABLE_VERBOSE
-// TODO: MOVE TO REDIS TOO
-char layers[1000][40];
-int iota = 0;
 redisContext *c;
-
-// https://stackoverflow.com/a/71826534
-char* gen_uuid() {
-    char v[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
-    //3fb17ebc-bc38-4939-bc8b-74f2443281d4
-    //8 dash 4 dash 4 dash 4 dash 12
-    static char buf[37] = {0};
-
-    //gen random for all spaces because lazy
-    for(int i = 0; i < 36; ++i) {
-        buf[i] = v[rand()%16];
-    }
-
-    //put dashes in place
-    buf[8] = '-';
-    buf[13] = '-';
-    buf[18] = '-';
-    buf[23] = '-';
-
-    //needs end byte
-    buf[36] = '\0';
-
-    return buf;
-}
-
 void onopen(ws_cli_conn_t *client)
 {
 	char *cli, *port;
 	cli  = ws_getaddress(client);
 	port = ws_getport(client);
+	#ifndef DISABLE_VERBOSE
+		printf("Connection opened, addr: %s, port: %s\n", cli, port);
+	#endif
+	uuid_t binuuid;
+	uuid_generate_random(binuuid);
+	char *uuid = malloc(37);
+	uuid_unparse_upper(binuuid, uuid);
+	redisCommand(c, "LPUSH layers %s", uuid);
 	char message [50];
-	char *uuid = gen_uuid();
-	snprintf(message, 100, "%s\ninit", uuid);
-	strcpy(layers[iota++], uuid);
-#ifndef DISABLE_VERBOSE
-	printf("Connection opened, addr: %s, port: %s\n", cli, port);
-#endif
+	snprintf(message, 50, "%s\ninit", uuid);
 	ws_sendframe_txt(client, message);
-	for (int i = 0; i < 1000; i++){
-		if(layers[i][0] == '\0'){ break; }
-		redisReply *reply;
-		reply = redisCommand(c, "GET %s", layers[i]);
-		if(reply != NULL && reply->type == REDIS_REPLY_STRING){
-			ws_sendframe_txt(client, reply->str);
-			freeReplyObject(reply);
+	redisReply *reply;
+	reply = redisCommand(c, "LRANGE layers 0 -1");
+	if (reply->type == REDIS_REPLY_ARRAY) {
+		for (int i = 0; i < reply->elements; i++) {
+			redisReply *reply1;
+			reply1 = redisCommand(c, "GET %s", reply->element[i]->str);
+			if(reply1 != NULL && reply1->type == REDIS_REPLY_STRING){
+				ws_sendframe_txt(client, reply1->str);
+				freeReplyObject(reply1);
+			} else if(reply1 == NULL || reply1->type == REDIS_REPLY_ERROR){
+				printf("Redis Error!\n");
+				exit(1);
+			}
 		}
-		if(reply == NULL || reply->type == REDIS_REPLY_ERROR){
-			printf("Redis Error!\n");
-			exit(1);
-		}
+		freeReplyObject(reply);
+	} else if(reply == NULL || reply->type == REDIS_REPLY_ERROR){
+		printf("Redis Error!\n");
+		exit(1);
 	}
 }
 
@@ -77,9 +59,10 @@ void onclose(ws_cli_conn_t *client)
 void onmessage(ws_cli_conn_t *client,
 	const unsigned char *msg, uint64_t size, int type)
 {
-	char *cli, *port;
+	char *cli; 
+	// char *port;
 	cli = ws_getaddress(client);
-	port = ws_getport(client);
+	// port = ws_getport(client);
 
 #ifndef DISABLE_VERBOSE
 	printf("I receive a message: %s (size: %" PRId64 ", type: %d), from: %s\n",
