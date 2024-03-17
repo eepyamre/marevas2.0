@@ -5,3 +5,4 @@ dist
 package-lock.json
 todos.md
 .github
+*.rdb

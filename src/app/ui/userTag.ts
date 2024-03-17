@@ -5,9 +5,9 @@ export class UserTag {
   el: HTMLDivElement;
   pos: Vector2;
   timer: any;
-  id: string;
-  constructor(id: string, pos: Vector2) {
-    this.id = id;
+  username: string;
+  constructor(username: string, pos: Vector2) {
+    this.username = username;
     this.pos = pos;
     this.render();
   }
@@ -26,7 +26,7 @@ export class UserTag {
   render() {
     this.el = document.createElement("div");
     this.el.classList.add("user");
-    this.el.textContent = "Anon";
+    this.el.textContent = this.username;
     this.el.style.left = this.pos.x + 24 + "px";
     this.el.style.top = this.pos.y + 24 + "px";
     const app = document.querySelector("#app");
@@ -39,7 +39,7 @@ export class UserTag {
     if (this.el) {
       this.el.remove();
       this.el = undefined;
-      Core.uiController.removeUser(this.id);
+      Core.uiController.removeUser(this.username);
     }
   }
 }

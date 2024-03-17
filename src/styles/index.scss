@@ -27,6 +27,30 @@ body {
 }
 
 #ui {
+  .top {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: #333;
+    z-index: 10;
+    padding: 4px;
+    &_button {
+      background-color: #999;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      cursor: pointer;
+      user-select: none;
+      font-weight: 500;
+      &:hover {
+        opacity: 0.9;
+      }
+      &:active {
+        opacity: 0.8;
+      }
+    }
+  }
   .sidebar {
     flex-direction: column;
     color: #e6e6e6;
@@ -246,9 +270,9 @@ body {
   max-width: 450px;
   .title {
     font-size: 1.4rem;
+    margin-bottom: 8px;
   }
   p {
-    margin-top: 8px;
     font-size: 1rem;
     line-height: 120%;
   }
@@ -256,7 +280,31 @@ body {
     display: flex;
     justify-content: end;
     margin-top: 8px;
+    gap: 8px;
   }
+  &.info {
+    > div:first-of-type {
+      display: flex;
+      gap: 4px;
+      flex-direction: column;
+    }
+  }
+  &.login {
+    > div:first-of-type {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      input {
+        width: 100%;
+      }
+    }
+  }
+}
+input {
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 4px;
 }
 
 button {

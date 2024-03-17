@@ -1,0 +1,10 @@
+history\n<layerId>\n<historydata>
+generateusername\n<username>
+checkusernameerror
+checkusernamesuccess
+createlayer\n<username>\n<title>\n<layerid>
+position\n<username>\n<posx>\n<posy>
+start\n<username>\n<layerId>
+stop\n<username>\n<layerId>
+image\n<username>\n<layerId>\n<image>
+<layerId>\n<username>\n<brushtype>\n<brushsize>\n<pressure>\n<color>\n<posx>\n<posy>

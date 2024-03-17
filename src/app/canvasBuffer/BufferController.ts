@@ -55,7 +55,7 @@ export class BufferController {
     Core.historyController.pushNewHistory();
     Core.historyController.pushToActiveHistoryItem(historyItem);
     historyItem.run();
-    Core.networkController.sendStart();
+    Core.networkController.sendStart(Core.layerController.activeLayer.id);
   }
   draw(pos: Vector2, pressure: number) {
     if (!Core.networkController.socket.readyState) return;
@@ -125,12 +125,16 @@ export class BufferController {
     };
     Core.historyController.pushToActiveHistoryItem(historyItem);
     historyItem.run();
-    Core.networkController.sendStop();
-    Core.networkController.sendImage(this.mainCanvas.canvas.toDataURL());
+    Core.networkController.sendStop(Core.layerController.activeLayer.id);
+    Core.networkController.sendImage(
+      Core.layerController.activeLayer.id,
+      this.mainCanvas.canvas.toDataURL()
+    );
   }
 
   pushData(pos: Vector2, pressure: number) {
-    const packet: Pick<Packet, "brushSettings" | "pos"> = {
+    const packet: Pick<Packet, "brushSettings" | "pos" | "layerId"> = {
+      layerId: Core.layerController.activeLayer.id,
       brushSettings: {
         color: Core.brushController.brush.color,
         size: Core.brushController.brush.size,
@@ -151,33 +155,6 @@ export class BufferController {
         opacity: "1",
         brushController: new BrushController(),
       };
-    }
-  }
-  stopRemoteDrawing(id: string) {
-    const tempId = id + "_temp";
-    if (this.remoteDrawings[tempId]) {
-      if (!this.remoteDrawings[id]) {
-        const canvasBuffer = new CanvasBuffer();
-        this.remoteDrawings[id] = { canvasBuffer: canvasBuffer, opacity: "1" };
-        Core.layerController.addLayer({
-          id: id,
-          buffer: canvasBuffer,
-          title: id,
-          visibility: true,
-        });
-      }
-      this.remoteDrawings[id].canvasBuffer.ctx.globalAlpha =
-        +this.remoteDrawings[tempId].opacity;
-      this.remoteDrawings[id].canvasBuffer.ctx.globalAlpha =
-        +this.remoteDrawings[tempId].opacity;
-      this.remoteDrawings[id].canvasBuffer.ctx.drawImage(
-        this.remoteDrawings[tempId].canvasBuffer.canvas,
-        0,
-        0
-      );
-      this.remoteDrawings[id].canvasBuffer.ctx.globalAlpha = 1;
-      this.remoteDrawings[tempId].canvasBuffer.remove();
-      delete this.remoteDrawings[tempId];
     }
   }
   remoteDraw(data: Packet) {
@@ -226,22 +203,43 @@ export class BufferController {
       );
     }
   }
-
+  stopRemoteDrawing(id: string) {
+    const tempId = id + "_temp";
+    if (this.remoteDrawings[tempId]) {
+      if (!this.remoteDrawings[id]) {
+        const layer = Core.layerController.layers.find(
+          (item) => item.id === id
+        );
+        this.remoteDrawings[id] = {
+          canvasBuffer: layer.buffer,
+          opacity: "1",
+        };
+      }
+      this.remoteDrawings[id].canvasBuffer.ctx.globalAlpha =
+        +this.remoteDrawings[tempId].opacity;
+      this.remoteDrawings[id].canvasBuffer.ctx.globalAlpha =
+        +this.remoteDrawings[tempId].opacity;
+      this.remoteDrawings[id].canvasBuffer.ctx.drawImage(
+        this.remoteDrawings[tempId].canvasBuffer.canvas,
+        0,
+        0
+      );
+      this.remoteDrawings[id].canvasBuffer.ctx.globalAlpha = 1;
+      this.remoteDrawings[tempId].canvasBuffer.remove();
+      delete this.remoteDrawings[tempId];
+    }
+  }
   remoteImage(id: string, dataString: string) {
     const img = new Image();
     const onload = () => {
       if (!this.remoteDrawings[id]) {
-        const canvasBuffer = new CanvasBuffer();
+        const layer = Core.layerController.layers.find(
+          (item) => item.id === id
+        );
         this.remoteDrawings[id] = {
-          canvasBuffer: canvasBuffer,
+          canvasBuffer: layer.buffer,
           opacity: "1",
         };
-        Core.layerController.addLayer({
-          id: id,
-          buffer: canvasBuffer,
-          title: id,
-          visibility: true,
-        });
       }
       this.remoteDrawings[id].canvasBuffer.ctx.clearRect(
         0,
@@ -288,19 +286,17 @@ export class BufferController {
     this.mainCanvasEl = this.remoteDrawings[id].canvasBuffer.canvas;
   }
 
-  saveMain() {
-    if (!Core.networkController.layerId) return;
+  newLayer(id: string, title: string, userName: string) {
+    const canvasBuffer = new CanvasBuffer();
     Core.layerController.addLayer({
-      id: Core.networkController.layerId,
-      buffer: this.mainCanvas,
-      title: "Layer 1",
+      id,
+      buffer: canvasBuffer,
+      title,
       visibility: true,
+      userName,
     });
-    this.remoteDrawings[Core.networkController.layerId] = {
-      canvasBuffer: this.mainCanvas,
-      opacity: "1",
-    };
   }
+
   exportPNG() {
     const exportCanvas = new CanvasBuffer();
     Object.keys(this.remoteDrawings).forEach((key) => {

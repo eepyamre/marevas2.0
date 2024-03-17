@@ -1,25 +1,32 @@
 type ModalButton = {
   text: string;
-  onClick: () => void;
+  onClick: (e: MouseEvent) => void;
 };
 export class Modal {
   backdrop: HTMLDivElement;
   el: HTMLDivElement;
   title: string;
-  text: string;
+  html: string;
   buttons: ModalButton[];
   closable: boolean;
+  class: string;
 
   constructor(
     title: string,
-    text?: string,
+    html?: string,
     buttons?: ModalButton[],
-    closable: boolean = true
+    options: {
+      closable?: boolean;
+      class?: string;
+    } = {
+      closable: true,
+    }
   ) {
     this.title = title;
-    this.text = text;
+    this.html = html;
     this.buttons = buttons;
-    this.closable = closable;
+    this.closable = options.closable !== undefined ? options.closable : true;
+    this.class = options.class;
   }
   render() {
     if (this.el === undefined) {
@@ -27,14 +34,17 @@ export class Modal {
       this.backdrop.classList.add("modalBg");
       this.el = document.createElement("div");
       this.el.classList.add("modal");
+      if (this.class) {
+        this.el.classList.add(this.class);
+      }
       const title = document.createElement("h4");
       title.classList.add("title");
       title.textContent = this.title;
       this.el.append(title);
-      if (this.text) {
-        const text = document.createElement("p");
-        text.innerHTML = this.text;
-        this.el.append(text);
+      if (this.html) {
+        const html = document.createElement("div");
+        html.innerHTML = this.html;
+        this.el.append(html);
       }
       if (this.buttons && this.buttons.length) {
         const wrapper = document.createElement("div");
@@ -55,9 +65,11 @@ export class Modal {
     }
   }
   remove() {
-    this.el.remove();
-    this.backdrop.remove();
-    this.el = undefined;
-    this.backdrop = undefined;
+    if (this.el) {
+      this.el.remove();
+      this.backdrop.remove();
+      this.el = undefined;
+      this.backdrop = undefined;
+    }
   }
 }

@@ -13,6 +13,78 @@ import slicedBrush from "../../assets/brushes/sliced_brush.png";
 import sprayBrush from "../../assets/brushes/spay_brush.png";
 import { Vector2 } from "../../helpers/vectors";
 
+const infoModalHTML = `
+<p>Hotkeys:</p>
+<div>
+  <div class="key">e</div>
+  - eraser
+</div>
+<div>
+  <div class="key">[</div>
+  or
+  <div class="key">+</div>
+  - reduce brush size
+</div>
+<div>
+  <div class="key">]</div>
+  or
+  <div class="key">-</div>
+  - increse brush size
+</div>
+<div>
+  <div class="key">mousewheel</div>
+  - control zoom
+</div>
+<div>
+  <div class="key">ctrl</div>
+  +
+  <div class="key">s</div>
+  - export as png
+</div>
+<div>
+  <div class="key">ctrl</div>
+  +
+  <div class="key">z</div>
+  - undo
+</div>
+<div>
+  <div class="key">ctrl</div>
+  +
+  <div class="key">shift</div>
+  +
+  <div class="key">z</div>
+  - redo
+</div>
+<div>
+  <div class="key">ctrl</div>
+  +
+  <div class="key">+</div>
+  - zoom in
+</div>
+<div>
+  <div class="key">ctrl</div>
+  +
+  <div class="key">-</div>
+  - zoom out
+</div>
+<div>
+  <div class="key">ctrl</div>
+  +
+  <div class="key">mousewheel</div>
+  - control brush size
+</div>
+<p>alpha 0.0001 version.</p>
+`;
+
+const loginModalHTML = `
+<label>
+  <input class="log" placeholder="name"/>
+</label>
+<label>
+  <input class="pass" placeholder="password"/>
+</label>
+`;
+
 export class UIController {
   controlsRoot: HTMLDivElement;
   sizeSlider: Slider;
@@ -24,6 +96,7 @@ export class UIController {
   activeTab: string = "Brushes";
   loadingModal: Modal;
   infoModal: Modal;
+  loginModal: Modal;
   userTags: {
     [key: string]: UserTag;
   } = {};
@@ -100,36 +173,12 @@ export class UIController {
       "Connecting, please wait...",
       undefined,
       undefined,
-      false
+      { closable: false }
     );
     this.setLoading(true);
     this.infoModal = new Modal(
       "Info",
-      `
-      <p>Hotkeys:</p>
-      <p>
-      <div class='key'>e</div> - eraser </p>
-      <p>
-      <div class='key'>[</div> or <div class='key'>+</div> - reduce brush size </p>
-      <p>
-      <div class='key'>]</div> or <div class='key'>-</div> - increse brush size </p>
-      <p>
-      <div class='key'>mousewheel</div> - control zoom </p>
-      <p>
-      <div class='key'>ctrl</div> + <div class='key'>s</div> - export as png </p>
-      <p>
-      <div class='key'>ctrl</div> + <div class='key'>z</div> - undo </p>
-      <p>
-      <div class='key'>ctrl</div> + <div class='key'>shift</div> + <div class='key'>z</div> - redo </p>
-      <p>
-      <div class='key'>ctrl</div> + <div class='key'>+</div> - zoom in </p>
-      <p>
-      <p>
-      <div class='key'>ctrl</div> + <div class='key'>-</div> - zoom out </p>
-      <p>
-      <div class='key'>ctrl</div> + <div class='key'>mousewheel</div> - control brush size </p>
-      <p>alpha 0.0001 version.</p>
-      `,
+      infoModalHTML,
       [
         {
           text: "Ok",
@@ -137,13 +186,51 @@ export class UIController {
             this.infoModal.remove();
           },
         },
-      ]
+      ],
+      {
+        class: "info",
+      }
     );
 
+    this.loginModal = new Modal(
+      "Login",
+      loginModalHTML,
+      [
+        {
+          text: "Cancel",
+          onClick: () => {
+            this.loginModal.remove();
+          },
+        },
+        {
+          text: "Login",
+          onClick: (e) => {
+            const login: HTMLInputElement = document.querySelector(
+              ".modal.login input.log"
+            );
+            const pass: HTMLInputElement = document.querySelector(
+              ".modal.login input.pass"
+            );
+            if (login.value && pass.value) {
+              this.loginModal.remove();
+            }
+          },
+        },
+      ],
+      {
+        class: "login",
+      }
+    );
     const infoBtn = document.querySelector(".header");
+    const loginBtn = document.querySelector("#ui .top .login_btn");
     if (infoBtn) {
       infoBtn.addEventListener("click", () => {
         this.infoModal.render();
+      });
+    }
+    if (loginBtn) {
+      loginBtn.addEventListener("click", () => {
+        this.loginModal.render();
       });
     }
   }
@@ -240,16 +327,16 @@ export class UIController {
     if (b) this.loadingModal.render();
     else this.loadingModal.remove();
   }
-  appendUser(id: string, pos: Vector2 = new Vector2(0, 0)) {
-    this.userTags[id] = new UserTag(id, pos);
+  appendUser(username: string, pos: Vector2 = new Vector2(0, 0)) {
+    this.userTags[username] = new UserTag(username, pos);
   }
-  updateUser(id: string, pos: Vector2) {
-    const user = this.userTags[id];
+  updateUser(username: string, pos: Vector2) {
+    const user = this.userTags[username];
     if (user) {
       user.updatePos(pos);
       return;
     }
-    this.appendUser(id, pos);
+    this.appendUser(username, pos);
   }
   removeUser(id: string) {
     this.userTags[id].remove();

@@ -1,6 +1,7 @@
 import { Color } from "../helpers/color";
 import { Vector2 } from "../helpers/vectors";
 import { Core } from "./core";
+import { v4 as uuid } from "uuid";
 
 export type Packet = {
   layerId: string;
@@ -11,6 +12,7 @@ export type Packet = {
     pressure: number;
   };
   pos: Vector2;
+  user: string;
 };
 interface WsMessageEvent extends Event {
   data: string;
@@ -19,13 +21,15 @@ interface WsMessageEvent extends Event {
 export class NetworkController {
   url: string;
   socket: WebSocket;
-  layerId: string;
+  username: string;
+  userKey: string;
   constructor(url: string) {
     this.url = url;
     this.createSocket();
   }
 
   private createSocket = () => {
+    // TODO: CLEAR ALL
     this.socket = new WebSocket(this.url);
     console.log("Connecting to the socket...");
     this.socket.addEventListener("error", this.socketError);
@@ -52,7 +56,7 @@ export class NetworkController {
   };
   private socketOpen = () => {
     console.log("Connection Established");
-    Core.uiController.setLoading(false);
+    this.getUsername();
     addEventListener("beforeunload", () => {
       this.socket.close();
     });
@@ -60,9 +64,8 @@ export class NetworkController {
   private socketMessage = (event: WsMessageEvent) => {
     const data = event.data;
     const arr = data.split("\n");
-    const layerId = arr[0];
-    if (arr[1] === "history") {
-      if (arr[0] === this.layerId) {
+    if (arr[0] === "history") {
+      if (arr[1] === Core.layerController.activeLayer.id) {
         Core.historyController.pushFromRemoteHistory(
           arr
             .slice(4)
@@ -72,66 +75,94 @@ export class NetworkController {
       }
       return;
     }
-    if (arr[1] === "init") {
-      this.layerId = layerId;
-      Core.bufferController.saveMain();
-      return;
-    }
-    if (arr[0] === this.layerId) return;
-    if (arr[1] === "position") {
-      Core.uiController.updateUser(arr[0], new Vector2(+arr[2], +arr[3]));
-      return;
-    }
-    if (arr[1] === "start") {
-      Core.bufferController.startRemoteDrawing(layerId);
-      return;
-    }
-    if (arr[1] === "stop") {
-      Core.bufferController.stopRemoteDrawing(layerId);
-      return;
-    }
-    if (arr[1] === "image") {
-      Core.bufferController.remoteImage(
-        layerId,
-        data.slice(arr[0].length + 1 + arr[1].length + 1)
+    if (arr[0] === "generateusername") {
+      this.username = arr[1];
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          key: this.userKey,
+          name: this.username,
+        })
       );
+      this.createLayer();
+      Core.uiController.setLoading(false);
       return;
     }
+    if (arr[0] === "checkusernameerror") {
+      this.userKey = this.username = undefined;
+      localStorage.removeItem("user");
+      this.getUsername();
+      return;
+    }
+    if (arr[0] === "checkusernamesuccess") {
+      this.createLayer();
+      Core.uiController.setLoading(false);
+      return;
+    }
+    if (arr[0] === "createlayer") {
+      Core.bufferController.newLayer(arr[3], arr[2], arr[1]);
+      if (arr[1] === this.username) {
+        Core.layerController.selectLayer(arr[3]);
+      }
+      return;
+    }
+    if (arr[1] === this.username) return;
+    if (arr[0] === "position") {
+      Core.uiController.updateUser(arr[1], new Vector2(+arr[2], +arr[3]));
+      return;
+    }
+    if (arr[0] === "start") {
+      Core.bufferController.startRemoteDrawing(arr[2]);
+      return;
+    }
+    if (arr[0] === "stop") {
+      Core.bufferController.stopRemoteDrawing(arr[2]);
+      return;
+    }
+    if (arr[0] === "image") {
+      Core.bufferController.remoteImage(arr[2], arr[3]);
+      return;
+    }
+
     const decoded: Packet = {
-      layerId: layerId,
+      layerId: arr[0],
+      user: arr[1],
       brushSettings: {
-        type: arr[1],
-        size: +arr[2],
-        pressure: +arr[3],
-        color: new Color(arr[4]),
+        type: arr[2],
+        size: +arr[3],
+        pressure: +arr[4],
+        color: new Color(arr[5]),
       },
-      pos: new Vector2(+arr[5], +arr[6]),
+      pos: new Vector2(+arr[6], +arr[7]),
     };
-    Core.uiController.updateUser(layerId, decoded.pos);
+    Core.uiController.updateUser(decoded.user, decoded.pos);
     Core.bufferController.remoteDraw(decoded);
   };
-  sendStart() {
+  sendStart(layerId: string) {
     if (!this.socket.readyState) return;
-    this.socket.send(this.layerId + "\nstart");
+    this.socket.send("start\n" + this.username + "\n" + layerId);
   }
-  sendStop() {
+  sendStop(layerId: string) {
     if (!this.socket.readyState) return;
-    this.socket.send(this.layerId + "\nstop");
+    this.socket.send("stop\n" + this.username + "\n" + layerId);
   }
-  sendImage(imageData: string) {
+  sendImage(layerId: string, imageData: string) {
     if (!this.socket.readyState) return;
-    this.socket.send(this.layerId + "\nimage\n" + imageData);
+    this.socket.send(
+      "image\n" + this.username + "\n" + layerId + "\n" + imageData
+    );
   }
   pushPosition(pos: Vector2) {
     if (!this.socket.readyState) return;
-    const arr: (number | string)[] = [this.layerId, "position", pos.x, pos.y];
+    const arr: (number | string)[] = ["position", this.username, pos.x, pos.y];
 
     this.socket.send(arr.join("\n"));
   }
-  pushData(packet: Pick<Packet, "brushSettings" | "pos">) {
+  pushData(packet: Pick<Packet, "brushSettings" | "pos" | "layerId">) {
     if (!this.socket.readyState) return;
     const arr: (number | string)[] = [
-      this.layerId,
+      packet.layerId,
+      this.username,
       packet.brushSettings.type,
       packet.brushSettings.size,
       packet.brushSettings.pressure,
@@ -145,7 +176,21 @@ export class NetworkController {
     if (!id) {
       throw new Error("No ID provided");
     }
-    this.layerId = id;
-    this.socket.send(this.layerId + "\ngethistory\n" + this.layerId);
+    this.socket.send("gethistory\n" + id);
+  }
+  getUsername() {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user || !user.key || !user.name) {
+      this.userKey = uuid();
+      this.socket.send("generateusername\n" + this.userKey);
+      localStorage.setItem("user", JSON.stringify({ key: this.userKey }));
+    } else {
+      this.userKey = user.key;
+      this.username = user.name;
+      this.socket.send("checkusername\n" + user.name + "\n" + user.key);
+    }
+  }
+  createLayer() {
+    this.socket.send("createlayer\n" + this.username);
   }
 }

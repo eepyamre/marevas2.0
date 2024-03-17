@@ -137,6 +137,7 @@ export class HistoryController {
 
   private sendData() {
     Core.networkController.sendImage(
+      Core.layerController.activeLayer.id,
       Core.bufferController.mainCanvasEl.toDataURL()
     );
   }
