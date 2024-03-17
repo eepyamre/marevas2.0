@@ -88,7 +88,6 @@ void onmessage(ws_cli_conn_t *client,
 	strcpy(for_strtok, msg);
 	char *action = strtok(for_strtok, "\n");
 	char *username = strtok(NULL, "\n");
-	// FIXME:
 	if (strcmp(action, "gethistory") == 0)
 	{
 		char *history_layer_id = username;

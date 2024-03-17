@@ -66,10 +66,10 @@ export class NetworkController {
     const arr = data.split("\n");
     if (arr[0] === "history") {
       if (arr[1] === Core.layerController.activeLayer.id) {
-        const actualData = arr.slice(4);
+        const actualData = arr.slice(5);
         if (actualData.length) {
           Core.historyController.pushFromRemoteHistory(
-            actualData.filter((_, i) => i % 3 === 0).reverse()
+            actualData.filter((_, i) => i % 4 === 0).reverse()
           );
         }
       }
