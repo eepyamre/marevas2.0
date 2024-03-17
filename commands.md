@@ -2,7 +2,7 @@ history\n<layerId>\n<historydata>
 generateusername\n<username>
 checkusernameerror
 checkusernamesuccess
-createlayer\n<username>\n<title>\n<layerid>
+createlayer\n<username>\n<title>\n<layerid>\n<imagedata?>
 position\n<username>\n<posx>\n<posy>
 start\n<username>\n<layerId>
 stop\n<username>\n<layerId>

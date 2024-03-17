@@ -229,25 +229,25 @@ export class BufferController {
       delete this.remoteDrawings[tempId];
     }
   }
-  remoteImage(id: string, dataString: string) {
+  remoteImage(layerId: string, dataString: string) {
     const img = new Image();
     const onload = () => {
-      if (!this.remoteDrawings[id]) {
+      if (!this.remoteDrawings[layerId]) {
         const layer = Core.layerController.layers.find(
-          (item) => item.id === id
+          (item) => item.id === layerId
         );
-        this.remoteDrawings[id] = {
+        this.remoteDrawings[layerId] = {
           canvasBuffer: layer.buffer,
           opacity: "1",
         };
       }
-      this.remoteDrawings[id].canvasBuffer.ctx.clearRect(
+      this.remoteDrawings[layerId].canvasBuffer.ctx.clearRect(
         0,
         0,
-        this.remoteDrawings[id].canvasBuffer.width,
-        this.remoteDrawings[id].canvasBuffer.height
+        this.remoteDrawings[layerId].canvasBuffer.width,
+        this.remoteDrawings[layerId].canvasBuffer.height
       );
-      this.remoteDrawings[id].canvasBuffer.ctx.drawImage(img, 0, 0);
+      this.remoteDrawings[layerId].canvasBuffer.ctx.drawImage(img, 0, 0);
       img.removeEventListener("load", onload);
     };
     img.addEventListener("load", onload);

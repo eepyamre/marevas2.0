@@ -66,12 +66,12 @@ export class NetworkController {
     const arr = data.split("\n");
     if (arr[0] === "history") {
       if (arr[1] === Core.layerController.activeLayer.id) {
-        Core.historyController.pushFromRemoteHistory(
-          arr
-            .slice(4)
-            .filter((_, i) => i % 3 === 0)
-            .reverse()
-        );
+        const actualData = arr.slice(4);
+        if (actualData.length) {
+          Core.historyController.pushFromRemoteHistory(
+            actualData.filter((_, i) => i % 3 === 0).reverse()
+          );
+        }
       }
       return;
     }
@@ -103,6 +103,9 @@ export class NetworkController {
       Core.bufferController.newLayer(arr[3], arr[2], arr[1]);
       if (arr[1] === this.username) {
         Core.layerController.selectLayer(arr[3]);
+      }
+      if (arr[4] && arr[4] !== "(null)") {
+        Core.bufferController.remoteImage(arr[3], arr[7]);
       }
       return;
     }
