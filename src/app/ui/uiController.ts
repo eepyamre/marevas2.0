@@ -12,6 +12,7 @@ import grainyBrush from "../../assets/brushes/grainy_brush.png";
 import slicedBrush from "../../assets/brushes/sliced_brush.png";
 import sprayBrush from "../../assets/brushes/spay_brush.png";
 import { Vector2 } from "../../helpers/vectors";
+import { ImageBrush } from "../brushes/imageBrush";
 
 const infoModalHTML = `
 <p>Hotkeys:</p>
@@ -90,6 +91,7 @@ export class UIController {
   sizeSlider: Slider;
   opacitySlider: Slider;
   stabilizerSlider: Slider;
+  spacingSlider: Slider;
   colorPalette: ColorPicker;
   tabs: TabsWrapper;
   eraserBtn: IconButton;
@@ -145,6 +147,19 @@ export class UIController {
         min: 5,
         postfix: "%",
         title: "Stabilizer",
+      }
+    );
+    this.spacingSlider = new Slider(
+      this.controlsRoot,
+      (val: string) => {
+        Core.brushController.setSpacing(+val);
+      },
+      {
+        default: 5,
+        max: 100,
+        min: 1,
+        postfix: "px",
+        title: "Spacing",
       }
     );
 
@@ -252,6 +267,11 @@ export class UIController {
   rerenderTabs() {
     this.tabs.el.remove();
     const sidebar: HTMLDivElement = document.querySelector(".sidebar")!;
+    if (Core.brushController.brush instanceof ImageBrush) {
+      this.spacingSlider.show();
+    } else {
+      this.spacingSlider.hide();
+    }
     const layers = Core.layerController.layers;
     this.tabs = new TabsWrapper(
       sidebar,
@@ -283,6 +303,7 @@ export class UIController {
               image: softBrush,
               type: "brush",
               onClick: () => {
+                this.spacingSlider.setValue(1);
                 Core.brushController.selectBrush("SoftBrush", true);
               },
             },
@@ -292,6 +313,7 @@ export class UIController {
               image: grainyBrush,
               type: "brush",
               onClick: () => {
+                this.spacingSlider.setValue(5);
                 Core.brushController.selectBrush("GrainyBrush", true);
               },
             },
@@ -319,9 +341,12 @@ export class UIController {
               Core.networkController.getRemoteHistory(item.id);
               Core.bufferController.changeMain(item.id);
             },
-            onDelete: () => {
-              Core.networkController.deleteLayer(item.id);
-            },
+            onDelete:
+              item.userName === Core.networkController.username
+                ? () => {
+                    Core.networkController.deleteLayer(item.id);
+                  }
+                : undefined,
           })),
         },
       ],

@@ -1,6 +1,7 @@
 import { Vector2 } from "../../helpers/vectors";
 import { BasicBrush } from "../brushes/basicBrush";
 import { BrushController } from "../brushes/brushController";
+import { ImageBrush } from "../brushes/imageBrush";
 import { Core } from "../core";
 import { HistoryDrawingData } from "../historyController";
 import { Layer } from "../layerController";
@@ -37,12 +38,16 @@ export class BufferController {
       size: Core.brushController.brush.size,
       brush: Core.brushController.brush
         .type as keyof typeof Core.brushController.brushesTypes,
+      spacing:
+        Core.brushController.brush instanceof ImageBrush &&
+        Core.brushController.brush.spacing,
       run: () => {
         Core.brushController.selectBrush(historyItem.brush, false);
         Core.brushController.setBrushSize(historyItem.size);
         if (historyItem.color)
           Core.brushController.setBrushColor(historyItem.color);
-
+        if (historyItem.spacing)
+          Core.brushController.setSpacing(historyItem.spacing);
         Core.brushController.startDraw(
           this.drawingCanvas.ctx,
           Core.layerController.activeLayer,

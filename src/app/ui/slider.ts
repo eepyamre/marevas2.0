@@ -9,7 +9,7 @@ export class Slider {
   private wrapper: HTMLLabelElement;
   private el: HTMLDivElement;
   private valueEl: HTMLSpanElement;
-  private value: string;
+  public value: string;
   private bg: HTMLDivElement;
   private postfix = "";
   private min = 0;
@@ -108,6 +108,7 @@ export class Slider {
 
   setValue = (value: number) => {
     this.valueEl.textContent = value + this.postfix;
+    this.value = value.toString();
     this.bg.style.width = (+value / +this.max) * 100 + "%";
   };
 

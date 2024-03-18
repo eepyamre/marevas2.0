@@ -161,12 +161,18 @@ void onmessage(ws_cli_conn_t *client,
 	else if (strcmp(action, "deletelayer") == 0)
 	{
 		char *layer_id = strtok(NULL, "\n");
-		redisCommand(c, "SREM layers %s", layer_id);
-		redisCommand(c, "DEL layer-%s", layer_id);
-		redisCommand(c, "DEL layer-%s-history", layer_id);
-		char message[200];
-		snprintf(message, 200, "deletelayer\n%s\n%s", username, layer_id);
-		ws_sendframe_txt_bcast(PORT, message);
+		redisReply *owner;
+		owner = redisCommand(c, "HGET layer-%s owner", layer_id);
+		redisErrorCheck(owner);
+		if(strcmp(owner->str, username) == 0){
+			redisCommand(c, "SREM layers %s", layer_id);
+			redisCommand(c, "DEL layer-%s", layer_id);
+			redisCommand(c, "DEL layer-%s-history", layer_id);
+			char message[200];
+			snprintf(message, 200, "deletelayer\n%s\n%s", username, layer_id);
+			ws_sendframe_txt_bcast(PORT, message);
+		}
+		freeReplyObject(owner);
 	}
 	else if (strcmp(action, "setlayerowner") == 0)
 	{

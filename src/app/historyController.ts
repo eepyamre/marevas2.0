@@ -11,6 +11,7 @@ export interface HistoryDrawingData extends HistoryData {
   color?: ColorRGBA;
   brush?: keyof typeof Core.brushController.brushesTypes;
   size?: number;
+  spacing?: number;
 }
 type HistoryList = {
   id: string;

@@ -27,9 +27,9 @@ export class TabsLayer {
     const icon = document.createElement("img");
     icon.src = eyeIcon;
     const delicon = document.createElement("img");
-    delicon.classList.add("delete");
-    delicon.src = deleteIcon;
     if (onDelete) {
+      delicon.classList.add("delete");
+      delicon.src = deleteIcon;
       const fn = (e: Event) => {
         e.preventDefault();
         e.stopPropagation();
@@ -41,6 +41,9 @@ export class TabsLayer {
       this.el.classList.add("active");
     }
     this.el.addEventListener("click", onClick);
-    this.el.append(icon, img, textEl, delicon);
+    this.el.append(icon, img, textEl);
+    if (onDelete) {
+      this.el.append(delicon);
+    }
   }
 }

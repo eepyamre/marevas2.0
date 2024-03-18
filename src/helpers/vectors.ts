@@ -7,8 +7,8 @@ export class Vector2 {
   }
 
   calculateAngle = (vec2: Vector2) => {
-    var dx = vec2.x - this.x;
-    var dy = vec2.y - this.y;
+    const dx = vec2.x - this.x;
+    const dy = vec2.y - this.y;
     return Math.atan2(dx, dy);
   };
 }

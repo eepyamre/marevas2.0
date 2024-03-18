@@ -5,12 +5,13 @@ import { Core } from "../core";
 import { Layer } from "../layerController";
 import { BasicBrush } from "./basicBrush";
 import { GrainyBrush } from "./grainyBrush";
+import { ImageBrush } from "./imageBrush";
 import { SlicedBrush } from "./slicedBrush";
 import { SoftBrush } from "./softBrush";
 import { SprayBrush } from "./sprayBrush";
 
 export class BrushController {
-  brush: BasicBrush;
+  brush: BasicBrush | ImageBrush | SlicedBrush;
   mode: "draw" | "erase" = "draw";
   brushesTypes = {
     BasicBrush: BasicBrush,
@@ -82,6 +83,12 @@ export class BrushController {
     this.brush.color.color.a = opacity;
     if (updateUI) {
       Core.uiController.rerenderTabs();
+    }
+  }
+
+  setSpacing(n: number) {
+    if (this.brush instanceof ImageBrush) {
+      this.brush.setSpacing(n);
     }
   }
 }

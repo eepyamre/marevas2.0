@@ -3,7 +3,7 @@ import { ImageBrush } from "./imageBrush";
 
 export class SoftBrush extends ImageBrush {
   type = "SoftBrush";
-  constructor(color: string, size: number) {
-    super(color, size, softBrush);
+  constructor(color: string, size: number, spacing: number = 1) {
+    super(color, size, softBrush, 1, spacing);
   }
 }

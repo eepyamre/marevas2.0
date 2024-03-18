@@ -4,7 +4,7 @@ import { Core } from "./core";
 export type Layer = {
   id: string;
   title: string;
-  userName?: string;
+  userName: string;
   visibility: boolean;
   buffer: CanvasBuffer;
   opacity: number;
