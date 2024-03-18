@@ -26,6 +26,10 @@ body {
   }
 }
 
+*.hidden {
+  display: none !important;
+}
+
 #ui {
   .top {
     display: flex;
@@ -212,7 +216,14 @@ body {
       max-height: calc(100vh - 79px - 66px - 250px - 53px);
       overflow: auto;
       gap: 1px;
+      padding-bottom: 150px;
       display: none;
+      .input_wrapper {
+        position: sticky;
+        top: 0;
+        background-color: #333;
+        padding: 4px;
+      }
       &.active {
         display: flex;
       }
@@ -233,6 +244,7 @@ body {
         }
       }
       &__item.layer {
+        flex-shrink: 0;
         .text {
           display: flex;
           flex-direction: column;

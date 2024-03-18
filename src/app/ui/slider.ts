@@ -6,6 +6,7 @@ type SliderOptions = {
   title: string;
 };
 export class Slider {
+  private wrapper: HTMLLabelElement;
   private el: HTMLDivElement;
   private valueEl: HTMLSpanElement;
   private value: string;
@@ -13,8 +14,10 @@ export class Slider {
   private postfix = "";
   private min = 0;
   private max = 100;
+  private title: string;
   private handlePointer = false;
   private onChange: (value: string) => unknown;
+  private parent: HTMLElement;
   constructor(
     parent: HTMLElement,
     onChange: (value: string) => unknown,
@@ -26,32 +29,15 @@ export class Slider {
       title: "[title]",
     }
   ) {
+    this.parent = parent;
     this.postfix = options.postfix || "";
     this.min = options.min || 0;
     this.max = options.max || 100;
     this.value = (options.default || 0).toString();
+    this.title = options.title;
     this.onChange = onChange;
 
-    const wrapper = document.createElement("label");
-    wrapper.classList.add("input_wrapper", "input_wrapper_range");
-    const title = document.createElement("span");
-    title.textContent = options.title || "";
-    this.el = document.createElement("div");
-    this.el.classList.add("slider");
-    this.bg = document.createElement("div");
-    this.bg.classList.add("bg");
-    this.bg.style.width = (+this.value / +this.max) * 100 + "%";
-    this.valueEl = document.createElement("span");
-    this.valueEl.classList.add("value");
-    this.valueEl.textContent = this.value + this.postfix;
-    this.el.append(this.bg, this.valueEl);
-    wrapper.append(title, this.el);
-    parent.append(wrapper);
-    this.el.addEventListener("pointerdown", this.onPointerDown);
-    this.el.addEventListener("pointermove", this.onPointerMove);
-    this.el.addEventListener("pointerup", this.onPointerUp);
-    this.el.addEventListener("pointerleave", this.onPointerUp);
-    this.el.addEventListener("wheel", this.onWheel);
+    this.render();
   }
 
   private onPointerDown = (e: Event) => {
@@ -123,5 +109,36 @@ export class Slider {
   setValue = (value: number) => {
     this.valueEl.textContent = value + this.postfix;
     this.bg.style.width = (+value / +this.max) * 100 + "%";
+  };
+
+  private render = () => {
+    this.wrapper = document.createElement("label");
+    this.wrapper.classList.add("input_wrapper", "input_wrapper_range");
+    const title = document.createElement("span");
+    title.textContent = this.title || "";
+    this.el = document.createElement("div");
+    this.el.classList.add("slider");
+    this.bg = document.createElement("div");
+    this.bg.classList.add("bg");
+    this.bg.style.width = (+this.value / +this.max) * 100 + "%";
+    this.valueEl = document.createElement("span");
+    this.valueEl.classList.add("value");
+    this.valueEl.textContent = this.value + this.postfix;
+    this.el.append(this.bg, this.valueEl);
+    this.wrapper.append(title, this.el);
+    this.parent.append(this.wrapper);
+    this.el.addEventListener("pointerdown", this.onPointerDown);
+    this.el.addEventListener("pointermove", this.onPointerMove);
+    this.el.addEventListener("pointerup", this.onPointerUp);
+    this.el.addEventListener("pointerleave", this.onPointerUp);
+    this.el.addEventListener("wheel", this.onWheel);
+  };
+
+  hide = () => {
+    this.wrapper.classList.add("hidden");
+  };
+
+  show = () => {
+    this.wrapper.classList.remove("hidden");
   };
 }

@@ -1,3 +1,6 @@
+import { mapNumRange } from "../../../helpers/utils";
+import { Core } from "../../core";
+import { Slider } from "../slider";
 import { TabsBrush } from "./tabsBrush";
 import { TabsButton } from "./tabsButton";
 import { TabsLayer } from "./tabsLayer";
@@ -20,6 +23,7 @@ type ITabsBrush = {
 export type TabsItem = ITabsBrush | ITabsLayer;
 export class TabsWrapper {
   el: HTMLDivElement;
+  layerOpacity: Slider;
   constructor(
     root: HTMLDivElement,
     tabs: {
@@ -33,7 +37,7 @@ export class TabsWrapper {
     const btns = document.createElement("div");
     btns.classList.add("tabs__buttons");
     const lists: HTMLDivElement[] = [];
-    tabs.forEach((tab, i) => {
+    tabs.forEach((tab) => {
       const btn = new TabsButton(tab.title);
       btns.append(btn.el);
       const list = document.createElement("div");
@@ -42,6 +46,22 @@ export class TabsWrapper {
       if (tab.title === activeTab) {
         list.classList.add("active");
         btn.el.classList.add("active");
+      }
+      if (tab.items[0]?.type === "layer") {
+        this.layerOpacity = new Slider(
+          list,
+          (val: string) => {
+            const n = mapNumRange(+val, 0, 100, 0, 1);
+            Core.layerController.setOpacity(n);
+          },
+          {
+            default: 100,
+            max: 100,
+            min: 0,
+            postfix: "%",
+            title: "Opacity",
+          }
+        );
       }
       tab.items.forEach((item, i) => {
         if (item.type === "brush") {

@@ -1,5 +1,6 @@
 import { Color, ColorHex } from "../../helpers/color";
 import { Vector2 } from "../../helpers/vectors";
+import { Core } from "../core";
 
 export class BasicBrush {
   color: Color;
@@ -18,7 +19,6 @@ export class BasicBrush {
   startDraw(ctx: CanvasRenderingContext2D, pressure: number) {
     ctx.strokeStyle = this.color.toCanvasSrting();
     ctx.fillStyle = this.color.toCanvasSrting();
-    ctx.canvas.style.opacity = this.color.color.a.toString();
     ctx.lineJoin = this.lineJoin;
     ctx.lineCap = this.lineCap;
     this.prevSize = this.size * pressure;

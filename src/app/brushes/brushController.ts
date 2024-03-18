@@ -24,10 +24,13 @@ export class BrushController {
     this.brush = new BasicBrush("0x000000", 16);
     this.setBrushColor({ r: 0, g: 0, b: 0 });
     this.setBrushSize(16);
-    this.setBrushOpacity(0);
+    this.setBrushOpacity(100);
   }
 
   startDraw(ctx: CanvasRenderingContext2D, pressure: number) {
+    ctx.canvas.style.opacity = (
+      this.brush.color.color.a * Core.layerController.activeLayer.opacity
+    ).toString();
     this.brush.startDraw(ctx, pressure);
   }
 
@@ -57,7 +60,7 @@ export class BrushController {
 
   setBrushOpacity(opacity: number) {
     const run = () => {
-      this.brush.color.color.a = mapNumRange(opacity, 100, 0, 0, 1);
+      this.brush.color.color.a = mapNumRange(opacity, 0, 100, 0, 1);
       Core.uiController.changeOpacity(opacity);
     };
     run();
@@ -69,11 +72,13 @@ export class BrushController {
     this.brush.color.color.b = color.b;
   }
 
-  selectBrush(type: keyof typeof this.brushesTypes) {
+  selectBrush(type: keyof typeof this.brushesTypes, shouldRerender?: boolean) {
     const opacity = this.brush.color.color.a;
     const color = this.brush.color.toHex();
     this.brush = new this.brushesTypes[type](color, this.brush.size);
     this.brush.color.color.a = opacity;
-    Core.uiController.rerenderTabs();
+    if (shouldRerender) {
+      Core.uiController.rerenderTabs();
+    }
   }
 }

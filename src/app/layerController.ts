@@ -7,6 +7,7 @@ export type Layer = {
   userName?: string;
   visibility: boolean;
   buffer: CanvasBuffer;
+  opacity: number;
 };
 export class LayerController {
   activeLayer: Layer;
@@ -27,5 +28,10 @@ export class LayerController {
   }
   visibilityChange() {
     throw new Error("TODO!");
+  }
+  setOpacity(n: number) {
+    this.activeLayer.opacity = n;
+    this.activeLayer.buffer.canvas.style.opacity =
+      this.activeLayer.opacity.toString();
   }
 }

@@ -260,7 +260,7 @@ export class UIController {
               image: basicBrush,
               type: "brush",
               onClick: () => {
-                Core.brushController.selectBrush("BasicBrush");
+                Core.brushController.selectBrush("BasicBrush", true);
               },
             },
             {
@@ -269,7 +269,7 @@ export class UIController {
               image: slicedBrush,
               type: "brush",
               onClick: () => {
-                Core.brushController.selectBrush("SlicedBrush");
+                Core.brushController.selectBrush("SlicedBrush", true);
               },
             },
             {
@@ -278,7 +278,7 @@ export class UIController {
               image: softBrush,
               type: "brush",
               onClick: () => {
-                Core.brushController.selectBrush("SoftBrush");
+                Core.brushController.selectBrush("SoftBrush", true);
               },
             },
             {
@@ -287,7 +287,7 @@ export class UIController {
               image: grainyBrush,
               type: "brush",
               onClick: () => {
-                Core.brushController.selectBrush("GrainyBrush");
+                Core.brushController.selectBrush("GrainyBrush", true);
               },
             },
             {
@@ -296,7 +296,7 @@ export class UIController {
               image: sprayBrush,
               type: "brush",
               onClick: () => {
-                Core.brushController.selectBrush("SprayBrush");
+                Core.brushController.selectBrush("SprayBrush", true);
               },
             },
           ],

@@ -103,6 +103,7 @@ export class NetworkController {
       Core.bufferController.newLayer(arr[3], arr[2], arr[1]);
       if (arr[1] === this.username) {
         Core.layerController.selectLayer(arr[3]);
+        Core.bufferController.changeMain(arr[3]);
       }
       if (arr[4] && arr[4] !== "(null)") {
         Core.bufferController.remoteImage(arr[3], arr[7]);

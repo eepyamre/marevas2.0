@@ -20,9 +20,6 @@ export class BufferController {
   } = {};
   mainCopy: CanvasBuffer;
   constructor() {
-    this.mainCanvas = new CanvasBuffer();
-    this.mainCanvasEl = this.mainCanvas.canvas;
-    this.mainCanvasEl.style.zIndex = "1";
     this.drawingCanvas = new CanvasBuffer();
     this.drawingCanvasEl = this.drawingCanvas.canvas;
     this.drawingCanvasEl.style.zIndex = "2";
@@ -30,6 +27,7 @@ export class BufferController {
 
   startDraw(pressure: number) {
     if (!Core.networkController.socket.readyState) return;
+
     const historyItem: HistoryDrawingData = {
       type: "draw",
       mode: Core.brushController.mode,
@@ -38,7 +36,7 @@ export class BufferController {
       brush: Core.brushController.brush
         .type as keyof typeof Core.brushController.brushesTypes,
       run: () => {
-        Core.brushController.selectBrush(historyItem.brush);
+        Core.brushController.selectBrush(historyItem.brush, false);
         Core.brushController.setBrushSize(historyItem.size);
         if (historyItem.color)
           Core.brushController.setBrushColor(historyItem.color);
@@ -171,7 +169,8 @@ export class BufferController {
         this.remoteDrawings[tempId].brush = brushClass;
         this.remoteDrawings[tempId].brushController.selectBrush(
           data.brushSettings
-            .type as keyof typeof Core.brushController.brushesTypes
+            .type as keyof typeof Core.brushController.brushesTypes,
+          false
         );
         this.remoteDrawings[tempId].brushController.setBrushSize(
           data.brushSettings.size
@@ -294,7 +293,12 @@ export class BufferController {
       title,
       visibility: true,
       userName,
+      opacity: 1,
     });
+    this.remoteDrawings[id] = {
+      canvasBuffer: canvasBuffer,
+      opacity: "1",
+    };
   }
 
   exportPNG() {
