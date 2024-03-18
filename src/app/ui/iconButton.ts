@@ -3,11 +3,19 @@ export class IconButton {
   img: string;
   onClick: () => void;
   active: boolean = false;
-  constructor(parent: Element, img: string, onClick: () => void) {
+  saveActiveState: boolean;
+  constructor(
+    parent: Element,
+    img: string,
+    onClick: () => void,
+    saveActiveState?: boolean
+  ) {
     this.img = img;
+    this.saveActiveState = saveActiveState;
     this.onClick = () => {
-      this.active = !this.active;
-      this.el.classList[this.active ? "add" : "remove"]("active");
+      if (saveActiveState) {
+        this.setActive(!this.active);
+      }
       onClick();
     };
     this.el = document.createElement("img");
@@ -18,8 +26,10 @@ export class IconButton {
   }
 
   setActive(b: boolean) {
-    this.active = b;
-    this.el.classList[this.active ? "add" : "remove"]("active");
+    if (this.saveActiveState) {
+      this.active = b;
+      this.el.classList[this.active ? "add" : "remove"]("active");
+    }
   }
   // TODO: tooltip
 }

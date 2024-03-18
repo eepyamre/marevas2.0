@@ -1,9 +1,11 @@
 import { mapNumRange } from "../../../helpers/utils";
 import { Core } from "../../core";
+import { IconButton } from "../iconButton";
 import { Slider } from "../slider";
 import { TabsBrush } from "./tabsBrush";
 import { TabsButton } from "./tabsButton";
 import { TabsLayer } from "./tabsLayer";
+import newLayer from "../../../assets/icons/newlayer.png";
 
 type ITabsLayer = {
   isActive: boolean;
@@ -24,6 +26,7 @@ export type TabsItem = ITabsBrush | ITabsLayer;
 export class TabsWrapper {
   el: HTMLDivElement;
   layerOpacity: Slider;
+  newLayerBtn: IconButton;
   constructor(
     root: HTMLDivElement,
     tabs: {
@@ -48,6 +51,12 @@ export class TabsWrapper {
         btn.el.classList.add("active");
       }
       if (tab.items[0]?.type === "layer") {
+        const btns = document.createElement("div");
+        btns.classList.add("btns");
+        list.append(btns);
+        this.newLayerBtn = new IconButton(btns, newLayer, () => {
+          Core.networkController.createLayer();
+        });
         this.layerOpacity = new Slider(
           list,
           (val: string) => {
@@ -55,7 +64,8 @@ export class TabsWrapper {
             Core.layerController.setOpacity(n);
           },
           {
-            default: 100,
+            default:
+              Math.round(Core.layerController.activeLayer.opacity * 100) || 100,
             max: 100,
             min: 0,
             postfix: "%",

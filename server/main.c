@@ -37,15 +37,18 @@ void onopen(ws_cli_conn_t *client)
 			redisReply *title;
 			redisReply *owner;
 			redisReply *data;
+			redisReply *opacity;
 			title = redisCommand(c, "HGET layer-%s title", reply->element[i]->str);
 			owner = redisCommand(c, "HGET layer-%s owner", reply->element[i]->str);
 			data = redisCommand(c, "HGET layer-%s data", reply->element[i]->str);
+			opacity = redisCommand(c, "HGET layer-%s opacity", reply->element[i]->str);
 			redisErrorCheck(title);
 			redisErrorCheck(owner);
 			redisErrorCheck(data);
+			redisErrorCheck(opacity);
 			char *message;
-			int size = asprintf(&message, "createlayer\n%s\n%s\n%s\n%s", owner->str, 
-			title->str, reply->element[i]->str, data->str);
+			int size = asprintf(&message, "createlayer\n%s\n%s\n%s\n%s\n%s", owner->str, 
+			title->str, reply->element[i]->str, data->str, opacity->str);
 			if (size == -1)
 			{
 				freeReplyObject(reply);
@@ -137,14 +140,23 @@ void onmessage(ws_cli_conn_t *client,
 		redisReply *reply;
 		reply = redisCommand(c, "SCARD layers");
 		redisErrorCheck(reply);
-		redisCommand(c, "HSET layer-%s id %s title Layer-%d owner %s", uuid, uuid, reply->integer, username);
+		redisCommand(c, "HSET layer-%s id %s title Layer-%d owner %s opacity 1", uuid, uuid, reply->integer, username);
 		char message[100];
 		snprintf(message, 100, "createlayer\n%s\nLayer-%d\n%s", username, reply->integer, uuid);
 		freeReplyObject(reply);
 		ws_sendframe_txt_bcast(PORT, message);
 	}
-	else if (strcmp(action, "changelayerprops") == 0)
+	else if (strcmp(action, "setlayeropacity") == 0)
 	{
+		char *layer_id = strtok(NULL, "\n");
+		char *opacity = strtok(NULL, "\n");
+		redisReply *reply;
+		reply = redisCommand(c, "HSET layer-%s opacity %s", layer_id, opacity);
+		redisErrorCheck(reply);
+		freeReplyObject(reply);
+		char message[200];
+		snprintf(message, 200, "setlayeropacity\n%s\n%s\n%s", username, layer_id, opacity);
+		ws_sendframe_txt_bcast(PORT, message);
 	}
 	else if (strcmp(action, "deletelayer") == 0)
 	{
@@ -198,7 +210,7 @@ void onmessage(ws_cli_conn_t *client,
 		if (ptr != NULL)
 		{
 			char copy[size];
-			strcpy(copy, msg);
+			strcpy(copy, ptr);
 			redisReply *reply;
 			reply = redisCommand(c, "HSET layer-%s data %s", layer_id, copy);
 			freeReplyObject(reply);

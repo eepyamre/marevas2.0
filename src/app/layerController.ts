@@ -21,6 +21,7 @@ export class LayerController {
     if (!this.activeLayer) {
       this.activeLayer = layer;
     }
+    layer.buffer.canvas.style.opacity = layer.opacity.toString();
     Core.uiController.rerenderTabs();
   }
   removeLayer() {
@@ -33,5 +34,13 @@ export class LayerController {
     this.activeLayer.opacity = n;
     this.activeLayer.buffer.canvas.style.opacity =
       this.activeLayer.opacity.toString();
+    Core.networkController.setLayerOpacity(this.activeLayer.id, n);
+  }
+  setOpacityById(id: string, opacity: number) {
+    const layer = this.layers.find((item) => item.id === id);
+    if (layer) {
+      layer.opacity = opacity;
+      layer.buffer.canvas.style.opacity = opacity.toString();
+    }
   }
 }

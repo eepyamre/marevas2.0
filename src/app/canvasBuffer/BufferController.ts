@@ -3,6 +3,7 @@ import { BasicBrush } from "../brushes/basicBrush";
 import { BrushController } from "../brushes/brushController";
 import { Core } from "../core";
 import { HistoryDrawingData } from "../historyController";
+import { Layer } from "../layerController";
 import { Packet } from "../networkController";
 import { CanvasBuffer } from "./canvasBuffer";
 export class BufferController {
@@ -15,6 +16,7 @@ export class BufferController {
       canvasBuffer: CanvasBuffer;
       opacity: string;
       brushController?: BrushController;
+      layer: Layer;
       brush?: keyof typeof Core.brushController.brushesTypes;
     };
   } = {};
@@ -41,7 +43,11 @@ export class BufferController {
         if (historyItem.color)
           Core.brushController.setBrushColor(historyItem.color);
 
-        Core.brushController.startDraw(this.drawingCanvas.ctx, pressure);
+        Core.brushController.startDraw(
+          this.drawingCanvas.ctx,
+          Core.layerController.activeLayer,
+          pressure
+        );
         if (historyItem.mode === "erase") {
           delete this.mainCopy;
           this.mainCopy = new CanvasBuffer(false);
@@ -148,10 +154,12 @@ export class BufferController {
     const tempId = id + "_temp";
     if (!this.remoteDrawings[tempId]) {
       const canvasBuffer = new CanvasBuffer();
+      const layer = Core.layerController.layers.find((item) => item.id === id);
       this.remoteDrawings[tempId] = {
         canvasBuffer: canvasBuffer,
         opacity: "1",
         brushController: new BrushController(),
+        layer,
       };
     }
   }
@@ -176,24 +184,23 @@ export class BufferController {
           data.brushSettings.size
         );
 
-        this.remoteDrawings[tempId].brushController.setBrushOpacity(
-          data.brushSettings.color.color.a
-        );
+        this.remoteDrawings[tempId].brushController.brush.color.color.a =
+          data.brushSettings.color.color.a;
         this.remoteDrawings[tempId].brushController.setBrushColor(
           data.brushSettings.color.color
         );
         this.remoteDrawings[tempId].brushController.startDraw(
           ctx,
+          this.remoteDrawings[data.layerId].layer,
           data.brushSettings.pressure
         );
       }
 
       const brush = this.remoteDrawings[tempId].brushController.brush;
-      this.remoteDrawings[tempId].canvasBuffer.canvas.style.opacity =
-        brush.color.color.a.toString();
       this.remoteDrawings[tempId].opacity = brush.color.color.a.toString();
-      this.remoteDrawings[tempId].canvasBuffer.canvas.style.opacity =
-        brush.color.color.a.toString();
+      this.remoteDrawings[tempId].canvasBuffer.canvas.style.opacity = (
+        +brush.color.color.a * +this.remoteDrawings[data.layerId].layer.opacity
+      ).toString();
 
       this.remoteDrawings[tempId].brushController.draw(
         ctx,
@@ -212,6 +219,7 @@ export class BufferController {
         this.remoteDrawings[id] = {
           canvasBuffer: layer.buffer,
           opacity: "1",
+          layer,
         };
       }
       this.remoteDrawings[id].canvasBuffer.ctx.globalAlpha =
@@ -238,6 +246,7 @@ export class BufferController {
         this.remoteDrawings[layerId] = {
           canvasBuffer: layer.buffer,
           opacity: "1",
+          layer,
         };
       }
       this.remoteDrawings[layerId].canvasBuffer.ctx.clearRect(
@@ -285,19 +294,21 @@ export class BufferController {
     this.mainCanvasEl = this.remoteDrawings[id].canvasBuffer.canvas;
   }
 
-  newLayer(id: string, title: string, userName: string) {
+  newLayer(id: string, title: string, userName: string, opacity: string) {
     const canvasBuffer = new CanvasBuffer();
+
     Core.layerController.addLayer({
       id,
       buffer: canvasBuffer,
       title,
       visibility: true,
       userName,
-      opacity: 1,
+      opacity: +opacity,
     });
     this.remoteDrawings[id] = {
       canvasBuffer: canvasBuffer,
       opacity: "1",
+      layer: Core.layerController.layers.find((item) => item.id === id),
     };
   }
 

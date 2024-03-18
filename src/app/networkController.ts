@@ -64,6 +64,7 @@ export class NetworkController {
   private socketMessage = (event: WsMessageEvent) => {
     const data = event.data;
     const arr = data.split("\n");
+
     if (arr[0] === "history") {
       if (arr[1] === Core.layerController.activeLayer.id) {
         const actualData = arr.slice(5);
@@ -100,17 +101,23 @@ export class NetworkController {
       return;
     }
     if (arr[0] === "createlayer") {
-      Core.bufferController.newLayer(arr[3], arr[2], arr[1]);
+      Core.bufferController.newLayer(arr[3], arr[2], arr[1], arr[5] || "1");
       if (arr[1] === this.username) {
         Core.layerController.selectLayer(arr[3]);
         Core.bufferController.changeMain(arr[3]);
       }
       if (arr[4] && arr[4] !== "(null)") {
-        Core.bufferController.remoteImage(arr[3], arr[7]);
+        Core.bufferController.remoteImage(arr[3], arr[4]);
       }
       return;
     }
     if (arr[1] === this.username) return;
+    if (arr[0] === "setlayeropacity") {
+      const layerId = arr[2];
+      const opacity = arr[3];
+      Core.layerController.setOpacityById(layerId, +opacity);
+      return;
+    }
     if (arr[0] === "position") {
       Core.uiController.updateUser(arr[1], new Vector2(+arr[2], +arr[3]));
       return;
@@ -196,5 +203,10 @@ export class NetworkController {
   }
   createLayer() {
     this.socket.send("createlayer\n" + this.username);
+  }
+  setLayerOpacity(layerId: string, opacity: number) {
+    this.socket.send(
+      "setlayeropacity\n" + this.username + "\n" + layerId + "\n" + opacity
+    );
   }
 }

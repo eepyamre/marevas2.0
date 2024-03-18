@@ -149,11 +149,16 @@ export class UIController {
     );
 
     const iconButtons = document.querySelector(".icon_buttons");
-    this.eraserBtn = new IconButton(iconButtons, eraser, () => {
-      Core.brushController.setMode(
-        Core.brushController.mode === "draw" ? "erase" : "draw"
-      );
-    });
+    this.eraserBtn = new IconButton(
+      iconButtons,
+      eraser,
+      () => {
+        Core.brushController.setMode(
+          Core.brushController.mode === "draw" ? "erase" : "draw"
+        );
+      },
+      true
+    );
     const sidebar: HTMLDivElement = document.querySelector(".sidebar")!;
     this.tabs = new TabsWrapper(
       sidebar,
