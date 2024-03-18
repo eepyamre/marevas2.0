@@ -1,4 +1,6 @@
 import eyeIcon from "../../../assets/icons/eye.png";
+import deleteIcon from "../../../assets/icons/delete.png";
+
 export class TabsLayer {
   el: HTMLDivElement;
   constructor(
@@ -6,7 +8,8 @@ export class TabsLayer {
     imgSrc: string,
     user: string,
     isActive: boolean,
-    onClick: () => void
+    onClick: () => void,
+    onDelete: () => void
   ) {
     this.el = document.createElement("div");
     const title = document.createElement("span");
@@ -23,10 +26,21 @@ export class TabsLayer {
     textEl.append(title, userEl);
     const icon = document.createElement("img");
     icon.src = eyeIcon;
+    const delicon = document.createElement("img");
+    delicon.classList.add("delete");
+    delicon.src = deleteIcon;
+    if (onDelete) {
+      const fn = (e: Event) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onDelete();
+      };
+      delicon.addEventListener("click", fn);
+    }
     if (isActive) {
       this.el.classList.add("active");
     }
     this.el.addEventListener("click", onClick);
-    this.el.append(icon, img, textEl);
+    this.el.append(icon, img, textEl, delicon);
   }
 }

@@ -13,6 +13,7 @@ type ITabsLayer = {
   image: string;
   user: string;
   onClick: () => void;
+  onDelete: () => void;
   type: "layer";
 };
 type ITabsBrush = {
@@ -50,7 +51,8 @@ export class TabsWrapper {
         list.classList.add("active");
         btn.el.classList.add("active");
       }
-      if (tab.items[0]?.type === "layer") {
+
+      if (tab.title === "Layers" && Core.layerController) {
         const btns = document.createElement("div");
         btns.classList.add("btns");
         list.append(btns);
@@ -64,8 +66,9 @@ export class TabsWrapper {
             Core.layerController.setOpacity(n);
           },
           {
-            default:
-              Math.round(Core.layerController.activeLayer.opacity * 100) || 100,
+            default: Math.round(
+              (Core.layerController.activeLayer.opacity || 1) * 100
+            ),
             max: 100,
             min: 0,
             postfix: "%",
@@ -88,7 +91,8 @@ export class TabsWrapper {
             item.image,
             item.user,
             item.isActive,
-            item.onClick
+            item.onClick,
+            item.onDelete
           ).el;
           list.append(el);
         }

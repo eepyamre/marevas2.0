@@ -319,6 +319,9 @@ export class UIController {
               Core.networkController.getRemoteHistory(item.id);
               Core.bufferController.changeMain(item.id);
             },
+            onDelete: () => {
+              Core.networkController.deleteLayer(item.id);
+            },
           })),
         },
       ],

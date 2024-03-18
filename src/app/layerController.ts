@@ -24,8 +24,13 @@ export class LayerController {
     layer.buffer.canvas.style.opacity = layer.opacity.toString();
     Core.uiController.rerenderTabs();
   }
-  removeLayer() {
-    throw new Error("TODO!");
+  removeLayer(layerId: string) {
+    const removable = this.layers.find((item) => item.id === layerId);
+    if (removable) {
+      removable.buffer.remove();
+      this.layers = this.layers.filter((item) => item.id !== layerId);
+      Core.uiController.rerenderTabs();
+    }
   }
   visibilityChange() {
     throw new Error("TODO!");

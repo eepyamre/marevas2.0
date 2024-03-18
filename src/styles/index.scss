@@ -222,6 +222,14 @@ body {
         padding: 0 8px;
         border-bottom: 1px solid #444;
         cursor: pointer;
+        position: relative;
+        .delete {
+          position: absolute;
+          right: 6px;
+          cursor: pointer;
+          height: 24px;
+          width: auto;
+        }
         &.active {
           background-color: #666;
         }

@@ -165,6 +165,7 @@ export class BufferController {
   }
   remoteDraw(data: Packet) {
     const tempId = data.layerId + "_temp";
+    if (!this.remoteDrawings[data.layerId]) return;
     if (this.remoteDrawings[tempId]) {
       const ctx = this.remoteDrawings[tempId].canvasBuffer.ctx;
       if (!this.remoteDrawings[tempId].brush) {
@@ -194,13 +195,14 @@ export class BufferController {
           this.remoteDrawings[data.layerId].layer,
           data.brushSettings.pressure
         );
+        this.remoteDrawings[tempId].canvasBuffer.canvas.style.opacity = (
+          +this.remoteDrawings[tempId].brushController.brush.color.color.a *
+          +this.remoteDrawings[data.layerId].layer.opacity
+        ).toString();
       }
 
       const brush = this.remoteDrawings[tempId].brushController.brush;
       this.remoteDrawings[tempId].opacity = brush.color.color.a.toString();
-      this.remoteDrawings[tempId].canvasBuffer.canvas.style.opacity = (
-        +brush.color.color.a * +this.remoteDrawings[data.layerId].layer.opacity
-      ).toString();
 
       this.remoteDrawings[tempId].brushController.draw(
         ctx,

@@ -111,6 +111,10 @@ export class NetworkController {
       }
       return;
     }
+    if (arr[0] === "deletelayer") {
+      Core.layerController.removeLayer(arr[2]);
+      return;
+    }
     if (arr[1] === this.username) return;
     if (arr[0] === "setlayeropacity") {
       const layerId = arr[2];
@@ -208,5 +212,8 @@ export class NetworkController {
     this.socket.send(
       "setlayeropacity\n" + this.username + "\n" + layerId + "\n" + opacity
     );
+  }
+  deleteLayer(layerId: string) {
+    this.socket.send("deletelayer\n" + this.username + "\n" + layerId);
   }
 }
