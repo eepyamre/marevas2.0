@@ -100,6 +100,7 @@ export class UIController {
   infoModal: Modal;
   loginModal: Modal;
   loginErrorModal: Modal;
+  loginBtn: HTMLElement;
   userTags: {
     [key: string]: UserTag;
   } = {};
@@ -255,14 +256,14 @@ export class UIController {
       ]
     );
     const infoBtn = document.querySelector(".header");
-    const loginBtn = document.querySelector("#ui .top .login_btn");
+    this.loginBtn = document.querySelector("#ui .top .login_btn");
     if (infoBtn) {
       infoBtn.addEventListener("click", () => {
         this.infoModal.render();
       });
     }
-    if (loginBtn) {
-      loginBtn.addEventListener("click", () => {
+    if (this.loginBtn) {
+      this.loginBtn.addEventListener("click", () => {
         this.loginModal.render();
       });
     }
@@ -278,6 +279,7 @@ export class UIController {
     this.eraserBtn.setActive(b);
   }
   rerenderTabs() {
+    this.loginBtn.textContent = Core.networkController.username;
     this.tabs.el.remove();
     const sidebar: HTMLDivElement = document.querySelector(".sidebar")!;
     if (Core.brushController.brush instanceof ImageBrush) {
