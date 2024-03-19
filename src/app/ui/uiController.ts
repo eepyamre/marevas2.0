@@ -74,7 +74,7 @@ const infoModalHTML = `
   <div class="key">mousewheel</div>
   - control brush size
 </div>
-<p>alpha 0.0001 version.</p>
+<p>last upd 19.03.24</p>
 `;
 
 const loginModalHTML = `
