@@ -31,11 +31,16 @@
         <div class="icon_buttons"></div>
       </div>
     </div>
-    <iframe
-      class="chat"
-      src="https://drawamare.xyz/chat"
-      frameborder="0"
-    ></iframe>
+    <div class="chat hide">
+      <div class="header">
+        <img src="./src/assets/icons/hide.png" alt="hide" />
+      </div>
+      <div class="message_list"></div>
+      <div class="input_wrapper">
+        <input type="text" placeholder="Write a message" />
+        <img src="./src/assets/icons/send.png" alt="send" />
+      </div>
+    </div>
     <script type="module" src="/index.ts"></script>
   </body>
 </html>

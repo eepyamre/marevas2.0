@@ -16,7 +16,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 import { Core } from "./src/app/core";
-
+import { chatInit } from "./src/app/chat/chat";
 const WIDTH = 2400;
 const HEIGHT = 1440;
 
@@ -31,4 +31,5 @@ addEventListener("DOMContentLoaded", () => {
     offsetX: 0,
     offsetY: 0,
   });
+  chatInit();
 });

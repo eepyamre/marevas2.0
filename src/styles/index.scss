@@ -375,14 +375,6 @@ button {
   border-radius: 4px;
 }
 
-iframe.chat {
-  position: fixed;
-  bottom: 0;
-  left: 8px;
-  z-index: 1000;
-  height: 375px;
-}
-
 .icon_buttons {
   display: flex;
   width: 100%;
@@ -403,4 +395,119 @@ iframe.chat {
   &:active {
     background-color: #222;
   }
+}
+
+.chat {
+  background-color: #333;
+  width: 300px;
+  height: 375px;
+  position: relative;
+  overflow: auto;
+  position: fixed;
+  transition: all 0.5s;
+  position: fixed;
+  left: 8px;
+  bottom: 0;
+  z-index: 1000;
+}
+
+.chat.hide {
+  height: 30px;
+}
+
+.chat .header {
+  height: 30px;
+  background-color: #222;
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.chat .header img {
+  position: absolute;
+  right: 8px;
+  width: 32px;
+  top: 8px;
+  cursor: pointer;
+  transition: all 0.5s;
+}
+
+.chat.hide .header img {
+  transform: rotate(180deg);
+}
+
+.chat .header img:hover {
+  opacity: 0.7;
+}
+
+.chat .header img:active {
+  opacity: 0.5;
+}
+
+.chat .message_list {
+  padding-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 8px;
+  padding-right: 8px;
+  min-height: 295px;
+}
+
+.chat .message_wrapper {
+  display: flex;
+  gap: 8px;
+}
+
+.chat .message_wrapper .avatar {
+  width: 32px;
+  height: 32px;
+  background-color: #25c125;
+  flex-shrink: 0;
+  border-radius: 4px;
+}
+
+.chat .message_wrapper .message {
+  background-color: #fff;
+  padding: 8px;
+  border-radius: 4px;
+  width: 100%;
+}
+
+.chat .message_wrapper .message .user {
+  font-size: 0.8rem;
+}
+
+.chat .input_wrapper {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+}
+
+.chat .input_wrapper img {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  height: 50px;
+  cursor: pointer;
+}
+
+.chat .input_wrapper input {
+  height: 50px;
+  padding: 0 8px;
+  width: 100%;
+  padding-right: 54px;
+}
+
+.chat .input_wrapper img:hover {
+  opacity: 0.7;
+}
+
+.chat .input_wrapper img:active {
+  opacity: 0.5;
 }
