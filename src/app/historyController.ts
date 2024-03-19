@@ -28,7 +28,7 @@ export class HistoryController {
   constructor() {
     this.clearHistory();
   }
-  private clearHistory() {
+  clearHistory() {
     this.historyStart = this.history = {
       id: uuid(),
       data: [{ type: "draw", run: () => {} }],

@@ -204,12 +204,21 @@ body {
         display: flex;
         height: 35px;
         padding: 4px;
-      }
-      .input_wrapper {
         position: sticky;
         top: 0;
         background-color: #333;
+        z-index: 1;
+        img {
+          height: 27px;
+          width: auto;
+        }
+      }
+      .input_wrapper {
+        position: sticky;
+        top: 35px;
+        background-color: #333;
         padding: 4px;
+        z-index: 1;
       }
       &.active {
         display: flex;
@@ -409,6 +418,11 @@ button {
   left: 8px;
   bottom: 0;
   z-index: 1000;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .chat.hide {

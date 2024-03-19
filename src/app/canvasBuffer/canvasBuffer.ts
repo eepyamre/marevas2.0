@@ -13,7 +13,7 @@ export class CanvasBuffer {
     if (shouldAppend) {
       Core.appRoot.append(this.canvas);
     }
-    const ctx = this.canvas.getContext("2d");
+    const ctx = this.canvas.getContext("2d", { willReadFrequently: true });
     if (!ctx) {
       throw new Error("No canvas context available!");
     }

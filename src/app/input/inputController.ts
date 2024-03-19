@@ -31,6 +31,8 @@ export class InputController {
     }
   };
   private keyEvents = (e: KeyboardEvent) => {
+    if ((e.target as HTMLElement).tagName === "INPUT") return;
+
     if (e.key === "e") {
       e.preventDefault();
       Core.brushController.setMode(
@@ -159,7 +161,7 @@ export class InputController {
     }
     const avgX = sumX / this.pointerBuffer.length;
     const avgY = sumY / this.pointerBuffer.length;
-    return new Vector2(Math.round(avgX) + 0.5, Math.round(avgY) + 0.5);
+    return new Vector2(Math.round(avgX), Math.round(avgY));
   }
 
   private pointerup = (e: PointerEvent) => {

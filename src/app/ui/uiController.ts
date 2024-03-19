@@ -82,7 +82,7 @@ const loginModalHTML = `
   <input class="log" placeholder="name"/>
 </label>
 <label>
-  <input class="pass" placeholder="password"/>
+  <input class="pass" type="password" placeholder="password"/>
 </label>
 `;
 
@@ -99,6 +99,7 @@ export class UIController {
   loadingModal: Modal;
   infoModal: Modal;
   loginModal: Modal;
+  loginErrorModal: Modal;
   userTags: {
     [key: string]: UserTag;
   } = {};
@@ -232,7 +233,7 @@ export class UIController {
               ".modal.login input.pass"
             );
             if (login.value && pass.value) {
-              this.loginModal.remove();
+              Core.networkController.login(login.value, pass.value);
             }
           },
         },
@@ -240,6 +241,18 @@ export class UIController {
       {
         class: "login",
       }
+    );
+    this.loginErrorModal = new Modal(
+      "Error",
+      `<p>login or password is incorrect</p>`,
+      [
+        {
+          text: "Ok",
+          onClick: () => {
+            this.loginErrorModal.remove();
+          },
+        },
+      ]
     );
     const infoBtn = document.querySelector(".header");
     const loginBtn = document.querySelector("#ui .top .login_btn");
@@ -337,9 +350,11 @@ export class UIController {
             title: item.title,
             user: item.userName || item.id,
             onClick: () => {
-              Core.layerController.selectLayer(item.id);
-              Core.networkController.getRemoteHistory(item.id);
-              Core.bufferController.changeMain(item.id);
+              if (item.userName === Core.networkController.username) {
+                Core.layerController.selectLayer(item.id);
+                Core.networkController.getRemoteHistory(item.id);
+                Core.bufferController.changeMain(item.id);
+              }
             },
             onDelete:
               item.userName === Core.networkController.username

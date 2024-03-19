@@ -136,7 +136,7 @@ export class BufferController {
     Core.historyController.pushToActiveHistoryItem(historyItem);
     historyItem.run();
     Core.networkController.sendStop(Core.layerController.activeLayer.id);
-    Core.networkController.sendImage(
+    Core.networkController.saveImage(
       Core.layerController.activeLayer.id,
       this.mainCanvas.canvas.toDataURL()
     );

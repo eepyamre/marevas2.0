@@ -1,3 +1,4 @@
+import * as md5 from "md5";
 import { Color } from "../helpers/color";
 import { Vector2 } from "../helpers/vectors";
 import { Core } from "./core";
@@ -24,13 +25,27 @@ export class NetworkController {
   socket: WebSocket;
   username: string;
   userKey: string;
+  timer: any;
   constructor(url: string) {
     this.url = url;
     this.createSocket();
   }
 
+  private keepAlive = () => {
+    clearTimeout(this.timer);
+    this.socket.send("ping");
+    this.timer = setTimeout(this.keepAlive, 30000);
+  };
+
+  private clearAll = () => {
+    Core.historyController.clearHistory();
+    try {
+      Core.uiController.rerenderTabs();
+    } catch (e) {}
+    Core.layerController.removeLayers();
+  };
+
   private createSocket = () => {
-    // TODO: CLEAR ALL
     this.socket = new WebSocket(this.url);
     console.log("Connecting to the socket...");
     this.socket.addEventListener("error", this.socketError);
@@ -57,15 +72,40 @@ export class NetworkController {
   };
   private socketOpen = () => {
     console.log("Connection Established");
+    this.clearAll();
     this.getUsername();
+    this.keepAlive();
     addEventListener("beforeunload", () => {
+      this.socket.onclose = undefined;
       this.socket.close();
     });
   };
   private socketMessage = (event: WsMessageEvent) => {
     const data = event.data;
     const arr = data.split("\n");
-
+    if (arr[0] === "ping") {
+      return;
+    }
+    if (arr[0] === "layerownerchange") {
+      Core.layerController.setLayerOwner(arr[2], arr[1]);
+      Core.uiController.rerenderTabs();
+      return;
+    }
+    if (arr[0] === "loginsuccess") {
+      this.username = arr[1];
+      this.userKey = arr[2];
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ key: this.userKey, name: this.username })
+      );
+      Core.uiController.rerenderTabs();
+      Core.uiController.loginModal.remove();
+      return;
+    }
+    if (arr[0] === "loginerror") {
+      Core.uiController.loginErrorModal.render();
+      return;
+    }
     if (arr[0] === "history") {
       if (arr[1] === Core.layerController.activeLayer.id) {
         const actualData = arr.slice(5);
@@ -163,6 +203,12 @@ export class NetworkController {
     if (!this.socket.readyState) return;
     this.socket.send("stop\n" + this.username + "\n" + layerId);
   }
+  saveImage(layerId: string, imageData: string) {
+    if (!this.socket.readyState) return;
+    this.socket.send(
+      "saveimage\n" + this.username + "\n" + layerId + "\n" + imageData
+    );
+  }
   sendImage(layerId: string, imageData: string) {
     if (!this.socket.readyState) return;
     this.socket.send(
@@ -218,5 +264,10 @@ export class NetworkController {
   }
   deleteLayer(layerId: string) {
     this.socket.send("deletelayer\n" + this.username + "\n" + layerId);
+  }
+  login(name: string, pass: string) {
+    this.socket.send(
+      "login\n" + name + "\n" + md5(pass) + "\n" + uuid() + "\n" + this.username
+    );
   }
 }

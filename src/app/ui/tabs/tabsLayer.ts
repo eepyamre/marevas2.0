@@ -39,6 +39,9 @@ export class TabsLayer {
     }
     if (isActive) {
       this.el.classList.add("active");
+      setTimeout(() => {
+        this.el.scrollIntoView();
+      }, 0);
     }
     this.el.addEventListener("click", onClick);
     this.el.append(icon, img, textEl);

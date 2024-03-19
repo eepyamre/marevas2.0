@@ -199,13 +199,71 @@ void onmessage(ws_cli_conn_t *client,
 		snprintf(message, 100, "generateusername\n%s", username_new);
 		ws_sendframe_txt(client, message);
 	}
+	else if (strcmp(action, "login") == 0){
+		char *pass = strtok(NULL, "\n");
+		char *key = strtok(NULL, "\n");
+		char *prev_username = strtok(NULL, "\n");
+		redisReply *reply;
+		reply = redisCommand(c, "HGET %s pass", username);
+		redisErrorCheck(reply);
+		int b = 0;
+		if (reply->type == REDIS_REPLY_NIL)
+		{
+			b = 1;
+			redisCommand(c, "HSET %s pass %s key %s", username, pass, key);
+		}
+		else if (strcmp(reply->str, pass) == 0)
+		{
+			b = 1;
+			redisCommand(c, "HSET %s key %s", username, key);
+		} else {
+			ws_sendframe_txt(client, "loginerror");
+		}
+		freeReplyObject(reply);
+		if(b == 1){
+			char *message;
+			int size = asprintf(&message, "loginsuccess\n%s\n%s", username, key);
+			if (size == -1)
+			{
+				printf("Cant allocate memory.");
+				return;
+			}
+			ws_sendframe_txt(client, message);
+			redisReply *layers;
+			layers = redisCommand(c, "SMEMBERS layers");
+			redisErrorCheck(layers);
+			if (layers->type == REDIS_REPLY_ARRAY)
+			{
+				for (int i = 0; i < layers->elements; i++)
+				{
+					redisReply *owner;
+					owner = redisCommand(c, "HGET layer-%s owner", layers->element[i]->str);
+					redisErrorCheck(owner);
+					if(strcmp(owner->str, prev_username) == 0){
+						redisCommand(c, "HSET layer-%s owner %s", layers->element[i]->str, username);
+						char *message;
+						int size = asprintf(&message, "layerownerchange\n%s\n%s", username, layers->element[i]->str);
+						if (size == -1)
+						{
+							freeReplyObject(owner);
+							printf("Cant allocate memory.");
+							continue;
+						}
+						ws_sendframe_txt_bcast(PORT, message);
+					}
+					freeReplyObject(owner);
+				}
+				freeReplyObject(layers);
+			}
+		}
+	}
 	else if (strcmp(action, "checkusername") == 0)
 	{
 		char *key = strtok(NULL, "\n");
 		redisReply *reply;
 		reply = redisCommand(c, "HGET %s key", username);
 		redisErrorCheck(reply);
-		if (reply->type != REDIS_REPLY_NIL && strcmp(reply->str, key) != 0)
+		if (reply->type == REDIS_REPLY_NIL || strcmp(reply->str, key) != 0)
 		{
 			ws_sendframe_txt(client, "checkusernameerror");
 		}
@@ -217,7 +275,9 @@ void onmessage(ws_cli_conn_t *client,
 	}
 	else
 	{
-		ws_sendframe_bcast(PORT, (char *)msg, size, type);
+		if(strcmp(action, "saveimage") != 0){
+			ws_sendframe_bcast(PORT, (char *)msg, size, type);
+		}
 		char *layer_id = strtok(NULL, "\n");
 		char *ptr = strstr(msg, "data:image/");
 		if (ptr != NULL)

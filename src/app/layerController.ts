@@ -48,4 +48,14 @@ export class LayerController {
       layer.buffer.canvas.style.opacity = opacity.toString();
     }
   }
+  setLayerOwner(id: string, owner: string) {
+    const layer = this.layers.find((item) => item.id === id);
+    if (layer) {
+      layer.userName = owner;
+    }
+  }
+  removeLayers() {
+    this.layers.length = 0;
+    this.activeLayer = undefined;
+  }
 }
