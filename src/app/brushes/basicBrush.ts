@@ -16,12 +16,19 @@ export class BasicBrush {
     this.prevSize = size;
   }
 
-  startDraw(ctx: CanvasRenderingContext2D, pressure: number) {
+  startDraw(ctx: CanvasRenderingContext2D, pos: Vector2, pressure: number) {
     ctx.strokeStyle = this.color.toCanvasSrting();
     ctx.fillStyle = this.color.toCanvasSrting();
     ctx.lineJoin = this.lineJoin;
     ctx.lineCap = this.lineCap;
     this.prevSize = this.size * pressure;
+    this.points[0] = pos;
+    ctx.lineWidth = this.prevSize;
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    ctx.closePath();
   }
   draw(ctx: CanvasRenderingContext2D, pos: Vector2, pressure: number) {
     this.points[0] = this.points[1];

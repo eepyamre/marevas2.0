@@ -107,7 +107,11 @@ export class InputController {
       this.shouldDraw = false;
       return;
     }
-    Core.bufferController.startDraw(e.pointerType === "pen" ? e.pressure : 1);
+    const pos = new Vector2(e.offsetX, e.offsetY);
+    Core.bufferController.startDraw(
+      pos,
+      e.pointerType === "pen" ? e.pressure : 1
+    );
     this.shouldDraw = true;
   };
 

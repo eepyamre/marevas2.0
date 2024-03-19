@@ -29,11 +29,16 @@ export class BrushController {
     this.setBrushOpacity(100);
   }
 
-  startDraw(ctx: CanvasRenderingContext2D, layer: Layer, pressure: number) {
+  startDraw(
+    ctx: CanvasRenderingContext2D,
+    layer: Layer,
+    pos: Vector2,
+    pressure: number
+  ) {
     ctx.canvas.style.opacity = (
       this.brush.color.color.a * layer.opacity
     ).toString();
-    this.brush.startDraw(ctx, pressure);
+    this.brush.startDraw(ctx, pos, pressure);
   }
 
   draw(ctx: CanvasRenderingContext2D, pos: Vector2, pressure: number) {

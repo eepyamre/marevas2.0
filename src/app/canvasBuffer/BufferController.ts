@@ -28,7 +28,7 @@ export class BufferController {
     this.drawingCanvasEl.style.zIndex = "2";
   }
 
-  startDraw(pressure: number) {
+  startDraw(pos: Vector2, pressure: number) {
     if (!Core.networkController.socket.readyState) return;
 
     const historyItem: HistoryDrawingData = {
@@ -51,6 +51,7 @@ export class BufferController {
         Core.brushController.startDraw(
           this.drawingCanvas.ctx,
           Core.layerController.activeLayer,
+          pos,
           pressure
         );
         if (historyItem.mode === "erase") {
@@ -205,6 +206,7 @@ export class BufferController {
         this.remoteDrawings[tempId].brushController.startDraw(
           ctx,
           this.remoteDrawings[data.layerId].layer,
+          data.pos,
           data.brushSettings.pressure
         );
         this.remoteDrawings[tempId].canvasBuffer.canvas.style.opacity = (

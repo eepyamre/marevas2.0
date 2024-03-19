@@ -7,13 +7,36 @@ export class SlicedBrush extends BasicBrush {
     super(color, size);
   }
 
-  startDraw(ctx: CanvasRenderingContext2D, pressure: number) {
+  startDraw(ctx: CanvasRenderingContext2D, pos: Vector2, pressure: number) {
     ctx.strokeStyle = this.color.toCanvasSrting();
     ctx.fillStyle = this.color.toCanvasSrting();
     ctx.canvas.style.opacity = this.color.color.a.toString();
     ctx.lineJoin = this.lineJoin;
     ctx.lineCap = this.lineCap;
     this.prevSize = (this.size * pressure) / 2;
+
+    ctx.beginPath();
+    const size75 = this.prevSize * 0.4;
+    const size66 = this.prevSize * 0.2;
+    ctx.moveTo(pos.x, pos.y);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+
+    ctx.moveTo(pos.x - size75, pos.y - size75);
+    ctx.lineTo(pos.x - size75, pos.y - size75);
+    ctx.stroke();
+
+    ctx.moveTo(pos.x - size66, pos.y - size66);
+    ctx.lineTo(pos.x - size66, pos.y - size66);
+    ctx.stroke();
+
+    ctx.moveTo(pos.x + size66, pos.y + size66);
+    ctx.lineTo(pos.x + size66, pos.y + size66);
+    ctx.stroke();
+
+    ctx.moveTo(pos.x + size75, pos.y + size75);
+    ctx.lineTo(pos.x + size75, pos.y + size75);
+    ctx.stroke();
   }
 
   draw(ctx: CanvasRenderingContext2D, pos: Vector2, pressure: number) {

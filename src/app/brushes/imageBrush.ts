@@ -21,6 +21,28 @@ export class ImageBrush extends BasicBrush {
     this.aspectRatio = aspectRatio;
     this.spacing = spacing;
   }
+  startDraw(
+    ctx: CanvasRenderingContext2D,
+    pos: Vector2,
+    pressure: number
+  ): void {
+    ctx.strokeStyle = this.color.toCanvasSrting();
+    ctx.fillStyle = this.color.toCanvasSrting();
+    ctx.lineJoin = this.lineJoin;
+    ctx.lineCap = this.lineCap;
+    this.prevSize = this.size * pressure;
+    this.prevPos = pos;
+    this.image.width = this.prevSize;
+    this.image.height = this.prevSize;
+    const posDelta = -this.prevSize / 2;
+    ctx.drawImage(
+      this.image,
+      pos.x + posDelta,
+      pos.y + posDelta,
+      this.image.width,
+      this.image.height
+    );
+  }
   draw(ctx: CanvasRenderingContext2D, pos: Vector2, pressure: number): void {
     if (!this.prevPos) {
       this.prevPos = pos;
