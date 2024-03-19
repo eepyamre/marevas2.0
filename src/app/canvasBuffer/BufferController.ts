@@ -149,6 +149,10 @@ export class BufferController {
         size: Core.brushController.brush.size,
         pressure,
         type: Core.brushController.brush.type,
+        spacing:
+          Core.brushController.brush instanceof ImageBrush
+            ? Core.brushController.brush.spacing
+            : 1,
       },
       pos: pos,
     };
@@ -194,6 +198,9 @@ export class BufferController {
           data.brushSettings.color.color.a;
         this.remoteDrawings[tempId].brushController.setBrushColor(
           data.brushSettings.color.color
+        );
+        this.remoteDrawings[tempId].brushController.setSpacing(
+          data.brushSettings.spacing
         );
         this.remoteDrawings[tempId].brushController.startDraw(
           ctx,

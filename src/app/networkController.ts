@@ -10,6 +10,7 @@ export type Packet = {
     color: Color;
     type: string;
     pressure: number;
+    spacing: number;
   };
   pos: Vector2;
   user: string;
@@ -147,8 +148,9 @@ export class NetworkController {
         size: +arr[3],
         pressure: +arr[4],
         color: new Color(arr[5]),
+        spacing: +arr[6],
       },
-      pos: new Vector2(+arr[6], +arr[7]),
+      pos: new Vector2(+arr[7], +arr[8]),
     };
     Core.uiController.updateUser(decoded.user, decoded.pos);
     Core.bufferController.remoteDraw(decoded);
@@ -182,6 +184,7 @@ export class NetworkController {
       packet.brushSettings.size,
       packet.brushSettings.pressure,
       packet.brushSettings.color.toHex(),
+      packet.brushSettings.spacing,
       packet.pos.x,
       packet.pos.y,
     ];
