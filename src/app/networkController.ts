@@ -4,6 +4,28 @@ import { Vector2 } from "../helpers/vectors";
 import { Core } from "./core";
 import { v4 as uuid } from "uuid";
 
+const ACTION_TYPES = {
+  GET_HISTORY: "1",
+  CREATE_LAYER: "2",
+  SET_LAYER_OPACITY: "3",
+  DELETE_LAYER: "4",
+  SET_LAYER_OWNER: "5",
+  GENERATE_USER_NAME: "6",
+  LOGIN: "7",
+  CHECK_USERNAME: "8",
+  SAVE_IMAGE: "9",
+  HISTORY: "10",
+  LAYER_OWNER_CHAGNGE: "11",
+  LOGIN_SUCCESS: "12",
+  LOGIN_ERROR: "13",
+  CHECK_USERNAME_ERROR: "14",
+  CHECK_USERNAME_SUCCESS: "15",
+  POSITION: "16",
+  START: "17",
+  STOP: "18",
+  IMAGE: "19",
+} as const;
+
 export type Packet = {
   layerId: string;
   brushSettings: {
@@ -86,12 +108,12 @@ export class NetworkController {
     if (arr[0] === "ping") {
       return;
     }
-    if (arr[0] === "layerownerchange") {
+    if (arr[0] === ACTION_TYPES.LAYER_OWNER_CHAGNGE) {
       Core.layerController.setLayerOwner(arr[2], arr[1]);
       Core.uiController.rerenderTabs();
       return;
     }
-    if (arr[0] === "loginsuccess") {
+    if (arr[0] === ACTION_TYPES.LOGIN_SUCCESS) {
       this.username = arr[1];
       this.userKey = arr[2];
       localStorage.setItem(
@@ -102,11 +124,11 @@ export class NetworkController {
       Core.uiController.loginModal.remove();
       return;
     }
-    if (arr[0] === "loginerror") {
+    if (arr[0] === ACTION_TYPES.LOGIN_ERROR) {
       Core.uiController.loginErrorModal.render();
       return;
     }
-    if (arr[0] === "history") {
+    if (arr[0] === ACTION_TYPES.HISTORY) {
       if (arr[1] === Core.layerController.activeLayer.id) {
         const actualData = arr.slice(5);
         if (actualData.length) {
@@ -117,7 +139,7 @@ export class NetworkController {
       }
       return;
     }
-    if (arr[0] === "generateusername") {
+    if (arr[0] === ACTION_TYPES.GENERATE_USER_NAME) {
       this.username = arr[1];
       localStorage.setItem(
         "user",
@@ -130,18 +152,18 @@ export class NetworkController {
       Core.uiController.setLoading(false);
       return;
     }
-    if (arr[0] === "checkusernameerror") {
+    if (arr[0] === ACTION_TYPES.CHECK_USERNAME_ERROR) {
       this.userKey = this.username = undefined;
       localStorage.removeItem("user");
       this.getUsername();
       return;
     }
-    if (arr[0] === "checkusernamesuccess") {
+    if (arr[0] === ACTION_TYPES.CHECK_USERNAME_SUCCESS) {
       this.createLayer();
       Core.uiController.setLoading(false);
       return;
     }
-    if (arr[0] === "createlayer") {
+    if (arr[0] === ACTION_TYPES.CREATE_LAYER) {
       Core.bufferController.newLayer(arr[3], arr[2], arr[1], arr[5] || "1");
       if (arr[1] === this.username) {
         Core.layerController.selectLayer(arr[3]);
@@ -152,30 +174,30 @@ export class NetworkController {
       }
       return;
     }
-    if (arr[0] === "deletelayer") {
+    if (arr[0] === ACTION_TYPES.DELETE_LAYER) {
       Core.layerController.removeLayer(arr[2]);
       return;
     }
     if (arr[1] === this.username) return;
-    if (arr[0] === "setlayeropacity") {
+    if (arr[0] === ACTION_TYPES.SET_LAYER_OPACITY) {
       const layerId = arr[2];
       const opacity = arr[3];
       Core.layerController.setOpacityById(layerId, +opacity);
       return;
     }
-    if (arr[0] === "position") {
+    if (arr[0] === ACTION_TYPES.POSITION) {
       Core.uiController.updateUser(arr[1], new Vector2(+arr[2], +arr[3]));
       return;
     }
-    if (arr[0] === "start") {
+    if (arr[0] === ACTION_TYPES.START) {
       Core.bufferController.startRemoteDrawing(arr[2]);
       return;
     }
-    if (arr[0] === "stop") {
+    if (arr[0] === ACTION_TYPES.STOP) {
       Core.bufferController.stopRemoteDrawing(arr[2]);
       return;
     }
-    if (arr[0] === "image") {
+    if (arr[0] === ACTION_TYPES.IMAGE) {
       Core.bufferController.remoteImage(arr[2], arr[3]);
       return;
     }
@@ -197,27 +219,46 @@ export class NetworkController {
   };
   sendStart(layerId: string) {
     if (!this.socket.readyState) return;
-    this.socket.send("start\n" + this.username + "\n" + layerId);
+    this.socket.send(
+      ACTION_TYPES.START + "\n" + this.username + "\n" + layerId
+    );
   }
   sendStop(layerId: string) {
     if (!this.socket.readyState) return;
-    this.socket.send("stop\n" + this.username + "\n" + layerId);
+    this.socket.send(ACTION_TYPES.STOP + "\n" + this.username + "\n" + layerId);
   }
   saveImage(layerId: string, imageData: string) {
     if (!this.socket.readyState) return;
     this.socket.send(
-      "saveimage\n" + this.username + "\n" + layerId + "\n" + imageData
+      ACTION_TYPES.SAVE_IMAGE +
+        "\n" +
+        this.username +
+        "\n" +
+        layerId +
+        "\n" +
+        imageData
     );
   }
   sendImage(layerId: string, imageData: string) {
     if (!this.socket.readyState) return;
     this.socket.send(
-      "image\n" + this.username + "\n" + layerId + "\n" + imageData
+      ACTION_TYPES.IMAGE +
+        "\n" +
+        this.username +
+        "\n" +
+        layerId +
+        "\n" +
+        imageData
     );
   }
   pushPosition(pos: Vector2) {
     if (!this.socket.readyState) return;
-    const arr: (number | string)[] = ["position", this.username, pos.x, pos.y];
+    const arr: (number | string)[] = [
+      ACTION_TYPES.POSITION,
+      this.username,
+      pos.x,
+      pos.y,
+    ];
 
     this.socket.send(arr.join("\n"));
   }
@@ -240,34 +281,52 @@ export class NetworkController {
     if (!id) {
       throw new Error("No ID provided");
     }
-    this.socket.send("gethistory\n" + id);
+    this.socket.send(ACTION_TYPES.GET_HISTORY + "\n" + id);
   }
   getUsername() {
     const user = JSON.parse(localStorage.getItem("user"));
     if (!user || !user.key || !user.name) {
       this.userKey = uuid();
-      this.socket.send("generateusername\n" + this.userKey);
+      this.socket.send(ACTION_TYPES.GENERATE_USER_NAME + "\n" + this.userKey);
       localStorage.setItem("user", JSON.stringify({ key: this.userKey }));
     } else {
       this.userKey = user.key;
       this.username = user.name;
-      this.socket.send("checkusername\n" + user.name + "\n" + user.key);
+      this.socket.send(
+        ACTION_TYPES.CHECK_USERNAME + "\n" + user.name + "\n" + user.key
+      );
     }
   }
   createLayer() {
-    this.socket.send("createlayer\n" + this.username);
+    this.socket.send(ACTION_TYPES.CREATE_LAYER + "\n" + this.username);
   }
   setLayerOpacity(layerId: string, opacity: number) {
     this.socket.send(
-      "setlayeropacity\n" + this.username + "\n" + layerId + "\n" + opacity
+      ACTION_TYPES.SET_LAYER_OPACITY +
+        "\n" +
+        this.username +
+        "\n" +
+        layerId +
+        "\n" +
+        opacity
     );
   }
   deleteLayer(layerId: string) {
-    this.socket.send("deletelayer\n" + this.username + "\n" + layerId);
+    this.socket.send(
+      ACTION_TYPES.DELETE_LAYER + "\n" + this.username + "\n" + layerId
+    );
   }
   login(name: string, pass: string) {
     this.socket.send(
-      "login\n" + name + "\n" + md5(pass) + "\n" + uuid() + "\n" + this.username
+      ACTION_TYPES.LOGIN +
+        "\n" +
+        name +
+        "\n" +
+        md5(pass) +
+        "\n" +
+        uuid() +
+        "\n" +
+        this.username
     );
   }
 }

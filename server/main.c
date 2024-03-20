@@ -9,6 +9,28 @@
 
 #define _GNU_SOURCE
 #define PORT 6969
+
+// actions
+#define ACTION_GET_HISTORY "1"
+#define ACTION_CREATE_LAYER "2"
+#define ACTION_SET_LAYER_OPACITY "3"
+#define ACTION_DELETE_LAYER "4"
+#define ACTION_SET_LAYER_OWNER "5"
+#define ACTION_GENERATE_USER_NAME "6"
+#define ACTION_LOGIN "7"
+#define ACTION_CHECK_USERNAME "8"
+#define ACTION_SAVE_IMAGE "9"
+#define ACTION_HISTORY "10"
+#define ACTION_LAYER_OWNER_CHAGNGE "11"
+#define ACTION_LOGIN_SUCCESS "12"
+#define ACTION_LOGIN_ERROR "13"
+#define ACTION_CHECK_USERNAME_ERROR "14"
+#define ACTION_CHECK_USERNAME_SUCCESS "15"
+#define ACTION_POSITION "16"
+#define ACTION_START "17"
+#define ACTION_STOP "18"
+#define ACTION_IMAGE "19"
+
 redisContext *c;
 
 void redisErrorCheck(redisReply *reply)
@@ -47,7 +69,7 @@ void onopen(ws_cli_conn_t *client)
 			redisErrorCheck(data);
 			redisErrorCheck(opacity);
 			char *message;
-			int size = asprintf(&message, "createlayer\n%s\n%s\n%s\n%s\n%s", owner->str, 
+			int size = asprintf(&message, "%s\n%s\n%s\n%s\n%s\n%s", ACTION_CREATE_LAYER, owner->str, 
 			title->str, reply->element[i]->str, data->str, opacity->str);
 			if (size == -1)
 			{
@@ -91,7 +113,7 @@ void onmessage(ws_cli_conn_t *client,
 	strcpy(for_strtok, msg);
 	char *action = strtok(for_strtok, "\n");
 	char *username = strtok(NULL, "\n");
-	if (strcmp(action, "gethistory") == 0)
+	if (strcmp(action, ACTION_GET_HISTORY) == 0)
 	{
 		char *history_layer_id = username;
 		redisReply *reply;
@@ -100,7 +122,7 @@ void onmessage(ws_cli_conn_t *client,
 		if (reply->type == REDIS_REPLY_ARRAY)
 		{
 			char *res;
-			int size = asprintf(&res, "history\n%s", history_layer_id);
+			int size = asprintf(&res, "%s\n%s", ACTION_HISTORY, history_layer_id);
 			if (size == -1)
 			{
 				freeReplyObject(reply);
@@ -130,7 +152,7 @@ void onmessage(ws_cli_conn_t *client,
 		freeReplyObject(reply);
 		return;
 	}
-	else if (strcmp(action, "createlayer") == 0)
+	else if (strcmp(action, ACTION_CREATE_LAYER) == 0)
 	{
 		uuid_t binuuid;
 		uuid_generate_random(binuuid);
@@ -142,11 +164,11 @@ void onmessage(ws_cli_conn_t *client,
 		redisErrorCheck(reply);
 		redisCommand(c, "HSET layer-%s id %s title Layer-%d owner %s opacity 1", uuid, uuid, reply->integer, username);
 		char message[100];
-		snprintf(message, 100, "createlayer\n%s\nLayer-%d\n%s", username, reply->integer, uuid);
+		snprintf(message, 100, "%s\n%s\nLayer-%d\n%s", ACTION_CREATE_LAYER, username, reply->integer, uuid);
 		freeReplyObject(reply);
 		ws_sendframe_txt_bcast(PORT, message);
 	}
-	else if (strcmp(action, "setlayeropacity") == 0)
+	else if (strcmp(action, ACTION_SET_LAYER_OPACITY) == 0)
 	{
 		char *layer_id = strtok(NULL, "\n");
 		char *opacity = strtok(NULL, "\n");
@@ -155,10 +177,10 @@ void onmessage(ws_cli_conn_t *client,
 		redisErrorCheck(reply);
 		freeReplyObject(reply);
 		char message[200];
-		snprintf(message, 200, "setlayeropacity\n%s\n%s\n%s", username, layer_id, opacity);
+		snprintf(message, 200, "%s\n%s\n%s\n%s", ACTION_SET_LAYER_OPACITY, username, layer_id, opacity);
 		ws_sendframe_txt_bcast(PORT, message);
 	}
-	else if (strcmp(action, "deletelayer") == 0)
+	else if (strcmp(action, ACTION_DELETE_LAYER) == 0)
 	{
 		char *layer_id = strtok(NULL, "\n");
 		redisReply *owner;
@@ -169,15 +191,15 @@ void onmessage(ws_cli_conn_t *client,
 			redisCommand(c, "DEL layer-%s", layer_id);
 			redisCommand(c, "DEL layer-%s-history", layer_id);
 			char message[200];
-			snprintf(message, 200, "deletelayer\n%s\n%s", username, layer_id);
+			snprintf(message, 200, "%s\n%s\n%s", ACTION_DELETE_LAYER, username, layer_id);
 			ws_sendframe_txt_bcast(PORT, message);
 		}
 		freeReplyObject(owner);
 	}
-	else if (strcmp(action, "setlayerowner") == 0)
+	else if (strcmp(action, ACTION_SET_LAYER_OWNER) == 0)
 	{
 	}
-	else if (strcmp(action, "generateusername") == 0)
+	else if (strcmp(action, ACTION_GENERATE_USER_NAME) == 0)
 	{
 		char *id = username;
 		char username_new[50];
@@ -196,10 +218,10 @@ void onmessage(ws_cli_conn_t *client,
 		freeReplyObject(reply);
 
 		char message[100];
-		snprintf(message, 100, "generateusername\n%s", username_new);
+		snprintf(message, 100, "%s\n%s", ACTION_GENERATE_USER_NAME, username_new);
 		ws_sendframe_txt(client, message);
 	}
-	else if (strcmp(action, "login") == 0){
+	else if (strcmp(action, ACTION_LOGIN) == 0){
 		char *pass = strtok(NULL, "\n");
 		char *key = strtok(NULL, "\n");
 		char *prev_username = strtok(NULL, "\n");
@@ -217,12 +239,12 @@ void onmessage(ws_cli_conn_t *client,
 			b = 1;
 			redisCommand(c, "HSET %s key %s", username, key);
 		} else {
-			ws_sendframe_txt(client, "loginerror");
+			ws_sendframe_txt(client, ACTION_LOGIN_ERROR);
 		}
 		freeReplyObject(reply);
 		if(b == 1){
 			char *message;
-			int size = asprintf(&message, "loginsuccess\n%s\n%s", username, key);
+			int size = asprintf(&message, "%s\n%s\n%s", ACTION_LOGIN_SUCCESS, username, key);
 			if (size == -1)
 			{
 				printf("Cant allocate memory.");
@@ -242,7 +264,7 @@ void onmessage(ws_cli_conn_t *client,
 					if(strcmp(owner->str, prev_username) == 0){
 						redisCommand(c, "HSET layer-%s owner %s", layers->element[i]->str, username);
 						char *message;
-						int size = asprintf(&message, "layerownerchange\n%s\n%s", username, layers->element[i]->str);
+						int size = asprintf(&message, "%s\n%s\n%s",ACTION_LAYER_OWNER_CHAGNGE, username, layers->element[i]->str);
 						if (size == -1)
 						{
 							freeReplyObject(owner);
@@ -257,7 +279,7 @@ void onmessage(ws_cli_conn_t *client,
 			}
 		}
 	}
-	else if (strcmp(action, "checkusername") == 0)
+	else if (strcmp(action, ACTION_CHECK_USERNAME) == 0)
 	{
 		char *key = strtok(NULL, "\n");
 		redisReply *reply;
@@ -265,17 +287,17 @@ void onmessage(ws_cli_conn_t *client,
 		redisErrorCheck(reply);
 		if (reply->type == REDIS_REPLY_NIL || strcmp(reply->str, key) != 0)
 		{
-			ws_sendframe_txt(client, "checkusernameerror");
+			ws_sendframe_txt(client, ACTION_CHECK_USERNAME_ERROR);
 		}
 		else
 		{
-			ws_sendframe_txt(client, "checkusernamesuccess");
+			ws_sendframe_txt(client, ACTION_CHECK_USERNAME_SUCCESS);
 		}
 		freeReplyObject(reply);
 	}
 	else
 	{
-		if(strcmp(action, "saveimage") != 0){
+		if(strcmp(action, ACTION_SAVE_IMAGE) != 0){
 			ws_sendframe_bcast(PORT, (char *)msg, size, type);
 		}
 		char *layer_id = strtok(NULL, "\n");
