@@ -6,12 +6,10 @@ import { TabsBrush } from "./tabsBrush";
 import { TabsButton } from "./tabsButton";
 import { TabsLayer } from "./tabsLayer";
 import newLayer from "../../../assets/icons/newlayer.png";
+import { Layer } from "../../layerController";
 
 type ITabsLayer = {
-  isActive: boolean;
-  title: string;
-  image: string;
-  user: string;
+  layer: Layer;
   onClick: () => void;
   onDelete: () => void;
   type: "layer";
@@ -28,6 +26,7 @@ export class TabsWrapper {
   el: HTMLDivElement;
   layerOpacity: Slider;
   newLayerBtn: IconButton;
+  dragElement: TabsLayer;
   constructor(
     root: HTMLDivElement,
     tabs: {
@@ -75,6 +74,8 @@ export class TabsWrapper {
             title: "Opacity",
           }
         );
+
+        list.addEventListener("dragover", this.layersDragover.bind(this));
       }
       tab.items.forEach((item, i) => {
         if (item.type === "brush") {
@@ -87,12 +88,12 @@ export class TabsWrapper {
           list.append(el);
         } else if (item.type === "layer") {
           const el = new TabsLayer(
-            item.title,
-            item.image,
-            item.user,
-            item.isActive,
+            item.layer,
             item.onClick,
-            item.onDelete
+            item.onDelete,
+            (el) => {
+              this.dragElement = el;
+            }
           ).el;
           list.append(el);
         }
@@ -102,4 +103,29 @@ export class TabsWrapper {
     this.el.append(btns, ...lists);
     root.append(this.el);
   }
+  layersDragover = (e: DragEvent) => {
+    if (!this.dragElement) return;
+    let target = e.target as HTMLElement;
+    if (!target.classList.contains("layer")) {
+      target = target.closest("layer");
+    }
+    if (target && target !== this.dragElement.el && target.dataset.id) {
+      const targetLayer = Core.layerController.layers.find(
+        (item) => target.dataset.id === item.id
+      );
+      if (targetLayer) {
+        if (targetLayer.position === Core.layerController.layers.length - 1) {
+          target.after(this.dragElement.el);
+        } else {
+          target.before(this.dragElement.el);
+        }
+
+        targetLayer.buffer.canvas.before(this.dragElement.layer.buffer.canvas);
+        const oldPos = this.dragElement.layer.position;
+        const newPos = targetLayer.position;
+
+        Core.layerController.layersReorder(oldPos, newPos);
+      }
+    }
+  };
 }

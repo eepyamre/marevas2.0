@@ -87,7 +87,7 @@ export class BrushController {
     this.brush = new this.brushesTypes[type](color, this.brush.size);
     this.brush.color.color.a = opacity;
     if (updateUI) {
-      Core.uiController.rerenderTabs();
+      Core.uiController.rerender();
     }
   }
 

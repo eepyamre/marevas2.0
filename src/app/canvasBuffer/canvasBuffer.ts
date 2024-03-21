@@ -11,7 +11,7 @@ export class CanvasBuffer {
   private initCanvas(shouldAppend: boolean) {
     this.canvas = document.createElement("canvas");
     if (shouldAppend) {
-      Core.appRoot.append(this.canvas);
+      Core.appRoot.prepend(this.canvas);
     }
     const ctx = this.canvas.getContext("2d", { willReadFrequently: true });
     if (!ctx) {

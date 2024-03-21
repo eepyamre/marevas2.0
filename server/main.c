@@ -9,6 +9,7 @@
 
 #define _GNU_SOURCE
 #define PORT 6969
+#define REDIS_PORT 7777
 
 // actions
 #define ACTION_GET_HISTORY "1"
@@ -30,6 +31,7 @@
 #define ACTION_START "17"
 #define ACTION_STOP "18"
 #define ACTION_IMAGE "19"
+#define ACTION_UPDATE_CANVAS_POS "20"
 
 redisContext *c;
 
@@ -51,7 +53,7 @@ void onopen(ws_cli_conn_t *client)
 	printf("Connection opened, addr: %s, port: %s\n", cli, port);
 #endif
 	redisReply *reply;
-	reply = redisCommand(c, "SMEMBERS layers");
+	reply = redisCommand(c, "ZRANGE layers -inf +inf BYSCORE");
 	if (reply->type == REDIS_REPLY_ARRAY)
 	{
 		for (int i = 0; i < reply->elements; i++)
@@ -158,9 +160,13 @@ void onmessage(ws_cli_conn_t *client,
 		uuid_generate_random(binuuid);
 		char *uuid = malloc(37);
 		uuid_unparse_upper(binuuid, uuid);
-		redisCommand(c, "SADD layers %s", uuid);
+		redisReply *count;
+		count = redisCommand(c, "ZCARD layers");
+		redisErrorCheck(count);
+		redisCommand(c, "ZADD layers nx %d %s", count->integer, uuid);
+		freeReplyObject(count);
 		redisReply *reply;
-		reply = redisCommand(c, "SCARD layers");
+		reply = redisCommand(c, "ZCARD layers");
 		redisErrorCheck(reply);
 		redisCommand(c, "HSET layer-%s id %s title Layer-%d owner %s opacity 1", uuid, uuid, reply->integer, username);
 		char message[100];
@@ -187,7 +193,7 @@ void onmessage(ws_cli_conn_t *client,
 		owner = redisCommand(c, "HGET layer-%s owner", layer_id);
 		redisErrorCheck(owner);
 		if(strcmp(owner->str, username) == 0){
-			redisCommand(c, "SREM layers %s", layer_id);
+			redisCommand(c, "ZREM layers %s", layer_id);
 			redisCommand(c, "DEL layer-%s", layer_id);
 			redisCommand(c, "DEL layer-%s-history", layer_id);
 			char message[200];
@@ -252,7 +258,7 @@ void onmessage(ws_cli_conn_t *client,
 			}
 			ws_sendframe_txt(client, message);
 			redisReply *layers;
-			layers = redisCommand(c, "SMEMBERS layers");
+			layers = redisCommand(c, "ZRANGE layers -inf +inf BYSCORE");
 			redisErrorCheck(layers);
 			if (layers->type == REDIS_REPLY_ARRAY)
 			{
@@ -295,6 +301,42 @@ void onmessage(ws_cli_conn_t *client,
 		}
 		freeReplyObject(reply);
 	}
+	else if (strcmp(action, ACTION_UPDATE_CANVAS_POS) == 0){
+		char *layer_id = strtok(NULL, "\n");
+		char *old_pos_str = strtok(NULL, "\n");
+		char *new_pos_str = strtok(NULL, "\n");
+		long int old_pos, new_pos;
+		old_pos = strtol(old_pos_str, NULL, 10);
+		new_pos = strtol(new_pos_str, NULL, 10);
+		redisReply *layers;
+		if(old_pos > new_pos){
+			layers = redisCommand(c, "ZRANGE layers %d %d BYSCORE", new_pos, old_pos);
+			redisErrorCheck(layers);
+			for (int i = 0; i < layers->elements; i++)
+			{
+ 				redisCommand(c, "ZADD layers XX %d %s", new_pos+i+1, layers->element[i]->str);
+			}
+ 			redisCommand(c, "ZADD layers XX %d %s", new_pos, layer_id);
+			freeReplyObject(layers);
+		} else {
+			layers = redisCommand(c, "ZRANGE layers %d %d BYSCORE", old_pos, new_pos);
+			redisErrorCheck(layers);
+			for (int i = 0; i < layers->elements; i++)
+			{
+ 				redisCommand(c, "ZADD layers XX %d %s", old_pos+i-1, layers->element[i]->str);
+			}
+ 			redisCommand(c, "ZADD layers XX %d %s", new_pos, layer_id);
+			freeReplyObject(layers);
+		}
+		char *message;
+		int size = asprintf(&message, "%s\n%s\n%d\n%d", ACTION_UPDATE_CANVAS_POS, username, old_pos, new_pos);
+		if (size == -1)
+		{
+			printf("Cant allocate memory.");
+			return;
+		}
+		ws_sendframe_txt_bcast(PORT, message);
+	}
 	else
 	{
 		if(strcmp(action, ACTION_SAVE_IMAGE) != 0){
@@ -324,7 +366,7 @@ void onmessage(ws_cli_conn_t *client,
 
 int main(void)
 {
-	c = redisConnect("127.0.0.1", 7777);
+	c = redisConnect("127.0.0.1", REDIS_PORT);
 	if (c->err)
 	{
 		printf("error: %s\n", c->errstr);

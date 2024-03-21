@@ -320,6 +320,7 @@ export class BufferController {
       visibility: true,
       userName,
       opacity: +opacity,
+      position: Core.layerController.layers.length,
     });
     this.remoteDrawings[id] = {
       canvasBuffer: canvasBuffer,
@@ -339,5 +340,14 @@ export class BufferController {
     });
     window.open(exportCanvas.canvas.toDataURL("image/png", 1), "_blank");
     exportCanvas.remove();
+  }
+
+  rerenderCanvases() {
+    const arr = Core.layerController.layers.sort(
+      (a, b) => b.position - a.position
+    );
+    arr.forEach((item) => {
+      this.drawingCanvasEl.before(item.buffer.canvas);
+    });
   }
 }

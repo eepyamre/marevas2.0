@@ -278,7 +278,7 @@ export class UIController {
   setEraser(b: boolean) {
     this.eraserBtn.setActive(b);
   }
-  rerenderTabs() {
+  rerender() {
     this.loginBtn.textContent = Core.networkController.username;
     this.tabs.el.remove();
     const sidebar: HTMLDivElement = document.querySelector(".sidebar")!;
@@ -287,7 +287,9 @@ export class UIController {
     } else {
       this.spacingSlider.hide();
     }
-    const layers = Core.layerController.layers;
+    const layers = Core.layerController.layers.sort(
+      (a, b) => a.position - b.position
+    );
     this.tabs = new TabsWrapper(
       sidebar,
       [
@@ -347,10 +349,7 @@ export class UIController {
           title: "Layers",
           items: layers.map((item) => ({
             type: "layer",
-            isActive: item.id === Core.layerController.activeLayer?.id,
-            image: basicBrush,
-            title: item.title,
-            user: item.userName || item.id,
+            layer: item,
             onClick: () => {
               if (item.userName === Core.networkController.username) {
                 Core.layerController.selectLayer(item.id);
@@ -369,6 +368,7 @@ export class UIController {
       ],
       this.activeTab
     );
+    Core.bufferController.rerenderCanvases();
   }
   setActiveTab(tab: string) {
     this.activeTab = tab;

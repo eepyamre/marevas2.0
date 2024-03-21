@@ -239,12 +239,18 @@ body {
           height: 24px;
           width: auto;
         }
+        &.dragactive,
         &.active {
           background-color: #666;
         }
+        canvas,
         img {
           width: 32px;
           height: 32px;
+        }
+        canvas {
+          background: url("../assets//icons/empty_pattern.png");
+          background-size: contain;
         }
       }
       &__item.layer {

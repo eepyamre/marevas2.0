@@ -8,13 +8,14 @@ export type Layer = {
   visibility: boolean;
   buffer: CanvasBuffer;
   opacity: number;
+  position: number;
 };
 export class LayerController {
   activeLayer: Layer;
   layers: Layer[] = [];
   selectLayer(id: string) {
     this.activeLayer = this.layers.find((item) => item.id === id);
-    Core.uiController.rerenderTabs();
+    Core.uiController.rerender();
   }
   addLayer(layer: Layer) {
     this.layers.push(layer);
@@ -22,14 +23,14 @@ export class LayerController {
       this.activeLayer = layer;
     }
     layer.buffer.canvas.style.opacity = layer.opacity.toString();
-    Core.uiController.rerenderTabs();
+    Core.uiController.rerender();
   }
   removeLayer(layerId: string) {
     const removable = this.layers.find((item) => item.id === layerId);
     if (removable) {
       removable.buffer.remove();
       this.layers = this.layers.filter((item) => item.id !== layerId);
-      Core.uiController.rerenderTabs();
+      Core.uiController.rerender();
     }
   }
   visibilityChange() {
@@ -57,5 +58,19 @@ export class LayerController {
   removeLayers() {
     this.layers.length = 0;
     this.activeLayer = undefined;
+  }
+  layersReorder(oldPos: number, newPos: number) {
+    const sortedArr = [
+      ...Core.layerController.layers.sort((a, b) => a.position - b.position),
+    ];
+    if (oldPos === newPos) {
+      return;
+    }
+    const item = sortedArr[oldPos];
+    sortedArr.splice(oldPos, 1);
+    sortedArr.splice(newPos, 0, item);
+    sortedArr.forEach((item, idx) => {
+      item.position = idx;
+    });
   }
 }

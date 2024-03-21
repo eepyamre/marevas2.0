@@ -24,6 +24,7 @@ const ACTION_TYPES = {
   START: "17",
   STOP: "18",
   IMAGE: "19",
+  UPDATE_CANVAS_POS: "20",
 } as const;
 
 export type Packet = {
@@ -62,7 +63,7 @@ export class NetworkController {
   private clearAll = () => {
     Core.historyController.clearHistory();
     try {
-      Core.uiController.rerenderTabs();
+      Core.uiController.rerender();
     } catch (e) {}
     Core.layerController.removeLayers();
   };
@@ -110,7 +111,7 @@ export class NetworkController {
     }
     if (arr[0] === ACTION_TYPES.LAYER_OWNER_CHAGNGE) {
       Core.layerController.setLayerOwner(arr[2], arr[1]);
-      Core.uiController.rerenderTabs();
+      Core.uiController.rerender();
       return;
     }
     if (arr[0] === ACTION_TYPES.LOGIN_SUCCESS) {
@@ -120,7 +121,7 @@ export class NetworkController {
         "user",
         JSON.stringify({ key: this.userKey, name: this.username })
       );
-      Core.uiController.rerenderTabs();
+      Core.uiController.rerender();
       Core.uiController.loginModal.remove();
       return;
     }
@@ -199,6 +200,11 @@ export class NetworkController {
     }
     if (arr[0] === ACTION_TYPES.IMAGE) {
       Core.bufferController.remoteImage(arr[2], arr[3]);
+      return;
+    }
+    if (arr[0] === ACTION_TYPES.UPDATE_CANVAS_POS) {
+      Core.layerController.layersReorder(+arr[2], +arr[3]);
+      Core.uiController.rerender();
       return;
     }
 
@@ -327,6 +333,19 @@ export class NetworkController {
         uuid() +
         "\n" +
         this.username
+    );
+  }
+  updateCanvasPos(layerId: string, oldPos: number, newPos: number) {
+    this.socket.send(
+      ACTION_TYPES.UPDATE_CANVAS_POS +
+        "\n" +
+        this.username +
+        "\n" +
+        layerId +
+        "\n" +
+        oldPos +
+        "\n" +
+        newPos
     );
   }
 }
