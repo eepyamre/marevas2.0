@@ -7,6 +7,7 @@ import { TabsButton } from "./tabsButton";
 import { TabsLayer } from "./tabsLayer";
 import newLayer from "../../../assets/icons/newlayer.png";
 import { Layer } from "../../layerController";
+import { Vector2 } from "../../../helpers/vectors";
 
 type ITabsLayer = {
   layer: Layer;
@@ -96,6 +97,21 @@ export class TabsWrapper {
             }
           ).el;
           list.append(el);
+
+          el.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            if (
+              Core.uiController.layersContextMenu.isOpen &&
+              Core.uiController.layersContextMenu.layerId === item.layer.id
+            ) {
+              Core.uiController.layersContextMenu.close();
+              return;
+            }
+            if (Core.networkController.username !== item.layer.userName) return;
+            const rect = el.getBoundingClientRect();
+            const pos = new Vector2(rect.left, rect.bottom);
+            Core.uiController.layersContextMenu.open(item.layer.id, pos);
+          });
         }
       });
     });

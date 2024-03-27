@@ -25,6 +25,7 @@ const ACTION_TYPES = {
   STOP: "18",
   IMAGE: "19",
   UPDATE_CANVAS_POS: "20",
+  ABADON_LAYER: "21",
 } as const;
 
 export type Packet = {
@@ -109,6 +110,11 @@ export class NetworkController {
     if (arr[0] === "ping") {
       return;
     }
+    if (arr[0] === ACTION_TYPES.ABADON_LAYER) {
+      Core.layerController.setLayerOwner(arr[2], null);
+      Core.uiController.rerender();
+      return;
+    }
     if (arr[0] === ACTION_TYPES.LAYER_OWNER_CHAGNGE) {
       Core.layerController.setLayerOwner(arr[2], arr[1]);
       Core.uiController.rerender();
@@ -165,7 +171,12 @@ export class NetworkController {
       return;
     }
     if (arr[0] === ACTION_TYPES.CREATE_LAYER) {
-      Core.bufferController.newLayer(arr[3], arr[2], arr[1], arr[5] || "1");
+      Core.bufferController.newLayer(
+        arr[3],
+        arr[2],
+        arr[1] === "(null)" ? null : arr[1],
+        arr[5] || "1"
+      );
       if (arr[1] === this.username) {
         Core.layerController.selectLayer(arr[3]);
         Core.bufferController.changeMain(arr[3]);
@@ -207,7 +218,6 @@ export class NetworkController {
       Core.uiController.rerender();
       return;
     }
-
     const decoded: Packet = {
       layerId: arr[0],
       user: arr[1],
@@ -346,6 +356,11 @@ export class NetworkController {
         oldPos +
         "\n" +
         newPos
+    );
+  }
+  abadonLayer(layerId: string) {
+    this.socket.send(
+      ACTION_TYPES.ABADON_LAYER + "\n" + this.username + "\n" + layerId
     );
   }
 }

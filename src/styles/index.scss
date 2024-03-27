@@ -277,6 +277,29 @@ body {
       }
     }
   }
+
+  .context_menu {
+    position: fixed;
+    z-index: 1000;
+    background-color: #333;
+    top: 0;
+    left: 0;
+    box-shadow: 0 0 5px #121212;
+    &__item {
+      padding: 6px 12px;
+      color: #fff;
+      border-top: 1px solid #121212;
+      width: 120px;
+      user-select: none;
+      cursor: pointer;
+      &:hover {
+        background-color: #222;
+      }
+      &:active {
+        background-color: #111;
+      }
+    }
+  }
 }
 .modal {
   position: fixed;

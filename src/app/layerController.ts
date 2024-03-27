@@ -49,7 +49,7 @@ export class LayerController {
       layer.buffer.canvas.style.opacity = opacity.toString();
     }
   }
-  setLayerOwner(id: string, owner: string) {
+  setLayerOwner(id: string, owner: string | null) {
     const layer = this.layers.find((item) => item.id === id);
     if (layer) {
       layer.userName = owner;

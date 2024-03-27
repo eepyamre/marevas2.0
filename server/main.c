@@ -32,6 +32,7 @@
 #define ACTION_STOP "18"
 #define ACTION_IMAGE "19"
 #define ACTION_UPDATE_CANVAS_POS "20"
+#define ACTION_ABADON_LAYER "21"
 
 redisContext *c;
 
@@ -115,6 +116,7 @@ void onmessage(ws_cli_conn_t *client,
 	strcpy(for_strtok, msg);
 	char *action = strtok(for_strtok, "\n");
 	char *username = strtok(NULL, "\n");
+	if(strcmp(action, "ping") == 0) { return; }
 	if (strcmp(action, ACTION_GET_HISTORY) == 0)
 	{
 		char *history_layer_id = username;
@@ -336,6 +338,11 @@ void onmessage(ws_cli_conn_t *client,
 			return;
 		}
 		ws_sendframe_txt_bcast(PORT, message);
+	}
+	else if (strcmp(action, ACTION_ABADON_LAYER) == 0){
+		ws_sendframe_bcast(PORT, (char *)msg, size, type);
+		char *layer_id = strtok(NULL, "\n");
+		redisCommand(c, "HDEL layer-%s owner", layer_id);
 	}
 	else
 	{

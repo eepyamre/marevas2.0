@@ -13,6 +13,7 @@ import slicedBrush from "../../assets/brushes/sliced_brush.png";
 import sprayBrush from "../../assets/brushes/spay_brush.png";
 import { Vector2 } from "../../helpers/vectors";
 import { ImageBrush } from "../brushes/imageBrush";
+import { LayerContextMenu } from "./layerContextMenu";
 
 const infoModalHTML = `
 <p>Hotkeys:</p>
@@ -101,6 +102,7 @@ export class UIController {
   loginModal: Modal;
   loginErrorModal: Modal;
   loginBtn: HTMLElement;
+  layersContextMenu: LayerContextMenu;
   userTags: {
     [key: string]: UserTag;
   } = {};
@@ -267,6 +269,15 @@ export class UIController {
         this.loginModal.render();
       });
     }
+    this.layersContextMenu = new LayerContextMenu();
+    this.controlsRoot.append(this.layersContextMenu.el);
+    addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (this.layersContextMenu.isOpen) {
+        this.layersContextMenu.close();
+      }
+    });
   }
 
   changeSize(size: number) {
