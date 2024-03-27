@@ -362,6 +362,10 @@ export class UIController {
             type: "layer",
             layer: item,
             onClick: () => {
+              if (item.userName === null) {
+                Core.networkController.ownLayer(item.id);
+                item.userName = Core.networkController.username;
+              }
               if (item.userName === Core.networkController.username) {
                 Core.layerController.selectLayer(item.id);
                 Core.networkController.getRemoteHistory(item.id);

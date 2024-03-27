@@ -26,6 +26,7 @@ const ACTION_TYPES = {
   IMAGE: "19",
   UPDATE_CANVAS_POS: "20",
   ABADON_LAYER: "21",
+  OWN_LAYER: "22",
 } as const;
 
 export type Packet = {
@@ -112,6 +113,11 @@ export class NetworkController {
     }
     if (arr[0] === ACTION_TYPES.ABADON_LAYER) {
       Core.layerController.setLayerOwner(arr[2], null);
+      Core.uiController.rerender();
+      return;
+    }
+    if (arr[0] === ACTION_TYPES.OWN_LAYER) {
+      Core.layerController.setLayerOwner(arr[2], arr[1]);
       Core.uiController.rerender();
       return;
     }
@@ -361,6 +367,11 @@ export class NetworkController {
   abadonLayer(layerId: string) {
     this.socket.send(
       ACTION_TYPES.ABADON_LAYER + "\n" + this.username + "\n" + layerId
+    );
+  }
+  ownLayer(layerId: string) {
+    this.socket.send(
+      ACTION_TYPES.OWN_LAYER + "\n" + this.username + "\n" + layerId
     );
   }
 }

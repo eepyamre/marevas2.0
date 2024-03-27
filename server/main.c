@@ -33,6 +33,7 @@
 #define ACTION_IMAGE "19"
 #define ACTION_UPDATE_CANVAS_POS "20"
 #define ACTION_ABADON_LAYER "21"
+#define ACTION_OWN_LAYER "22"
 
 redisContext *c;
 
@@ -343,6 +344,11 @@ void onmessage(ws_cli_conn_t *client,
 		ws_sendframe_bcast(PORT, (char *)msg, size, type);
 		char *layer_id = strtok(NULL, "\n");
 		redisCommand(c, "HDEL layer-%s owner", layer_id);
+	}
+	else if (strcmp(action, ACTION_OWN_LAYER) == 0){
+		ws_sendframe_bcast(PORT, (char *)msg, size, type);
+		char *layer_id = strtok(NULL, "\n");
+		redisCommand(c, "HSET layer-%s owner %s", layer_id, username);
 	}
 	else
 	{
