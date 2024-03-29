@@ -1,3 +1,4 @@
+import { ColorRGB } from "../../helpers/color";
 import { Vector2 } from "../../helpers/vectors";
 
 export class ColorPicker {
@@ -58,7 +59,7 @@ export class ColorPicker {
   }
 
   private changeColor = (e: PointerEvent) => {
-    const x = e.layerX - 5;
+    const x = e.offsetX;
     const pixel = this.ctx1.getImageData(x, 10, 1, 1).data;
     this.sliderX = x;
     this.gradientColor = `rgb(${pixel[0]},${pixel[1]},${pixel[2]})`;
@@ -87,8 +88,8 @@ export class ColorPicker {
   };
 
   private setColor = (e?: PointerEvent) => {
-    const x = e ? e.layerX : this.pos.x;
-    const y = e ? e.layerY : this.pos.y;
+    const x = e ? e.offsetX : this.pos.x;
+    const y = e ? e.offsetY : this.pos.y;
     this.pos = new Vector2(x, y);
 
     const pixel = this.ctx.getImageData(x, y, 1, 1).data;
@@ -99,5 +100,59 @@ export class ColorPicker {
         g: pixel[1],
         b: pixel[2],
       });
+  };
+
+  private colorDistance = (rgb1: ColorRGB, rgb2: ColorRGB) => {
+    const rDiff = rgb1.r - rgb2.r;
+    const gDiff = rgb1.g - rgb2.g;
+    const bDiff = rgb1.b - rgb2.b;
+    return Math.sqrt(rDiff * rDiff + gDiff * gDiff + bDiff * bDiff);
+  };
+
+  private findClosestAt = (
+    ctx: CanvasRenderingContext2D,
+    targetColor: ColorRGB
+  ) => {
+    const imageData = ctx.getImageData(
+      0,
+      0,
+      ctx.canvas.width,
+      ctx.canvas.height
+    );
+    const data = imageData.data;
+
+    let minDistance = Infinity;
+    let closestX: number, closestY: number;
+
+    for (let y = 0; y < ctx.canvas.height; y++) {
+      for (let x = 0; x < ctx.canvas.width; x++) {
+        const index = (y * ctx.canvas.width + x) * 4;
+        const pixelColor: ColorRGB = {
+          r: data[index],
+          g: data[index + 1],
+          b: data[index + 2],
+        };
+
+        const distance = this.colorDistance(pixelColor, targetColor);
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestX = x;
+          closestY = y;
+        }
+      }
+    }
+    return [closestX, closestY];
+  };
+
+  findClosestColorPosition = (targetColor: ColorRGB) => {
+    const [sliderX] = this.findClosestAt(this.ctx1, targetColor);
+    this.changeColor({
+      offsetX: sliderX,
+    } as any);
+    const [palleteX, palleteY] = this.findClosestAt(this.ctx, targetColor);
+    this.setColor({
+      offsetX: palleteX,
+      offsetY: palleteY,
+    } as any);
   };
 }

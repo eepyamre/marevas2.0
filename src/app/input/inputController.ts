@@ -104,6 +104,14 @@ export class InputController {
   private pointerdown = (e: PointerEvent) => {
     e.preventDefault();
     Core.bufferController.drawingCanvasEl.setPointerCapture(e.pointerId);
+    if (e.buttons === 2) {
+      const color = Core.bufferController.getColorAtPos(
+        new Vector2(e.offsetX, e.offsetY)
+      );
+      Core.uiController.changeColor(color);
+      Core.brushController.setBrushColor(color.color);
+      return;
+    }
     if (e.buttons === 4 || this.spacePressed) {
       this.moveCanvas = true;
       this.shouldDraw = false;

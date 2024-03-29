@@ -1,3 +1,4 @@
+import { Color } from "../../helpers/color";
 import { Vector2 } from "../../helpers/vectors";
 import { BasicBrush } from "../brushes/basicBrush";
 import { BrushController } from "../brushes/brushController";
@@ -349,5 +350,20 @@ export class BufferController {
     arr.forEach((item) => {
       this.drawingCanvasEl.before(item.buffer.canvas);
     });
+  }
+
+  getColorAtPos(pos: Vector2) {
+    const canvas = new CanvasBuffer(false);
+    const canvases = document.querySelectorAll("#app canvas");
+    Array.from(canvases).forEach((item: HTMLCanvasElement) => {
+      canvas.ctx.drawImage(item, 0, 0);
+    });
+    const [r, g, b] = canvas.ctx.getImageData(pos.x, pos.y, 1, 1).data;
+
+    return new Color(
+      `0x${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b
+        .toString(16)
+        .padStart(2, "0")}ff`
+    );
   }
 }

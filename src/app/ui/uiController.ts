@@ -14,6 +14,7 @@ import sprayBrush from "../../assets/brushes/spay_brush.png";
 import { Vector2 } from "../../helpers/vectors";
 import { ImageBrush } from "../brushes/imageBrush";
 import { LayerContextMenu } from "./layerContextMenu";
+import { Color } from "../../helpers/color";
 
 const infoModalHTML = `
 <p>Hotkeys:</p>
@@ -75,7 +76,11 @@ const infoModalHTML = `
   <div class="key">mousewheel</div>
   - control brush size
 </div>
-<p>last upd 19.03.24</p>
+<div>
+  <div class="key">right mouse button</div>
+  - eyedropper
+</div>
+<p>last upd 29.03.24</p>
 `;
 
 const loginModalHTML = `
@@ -295,6 +300,9 @@ export class UIController {
   }
   changeOpacity(opacity: number) {
     this.opacitySlider.setValue(opacity);
+  }
+  changeColor(color: Color) {
+    this.colorPalette.findClosestColorPosition(color.color);
   }
   setEraser(b: boolean) {
     this.eraserBtn.setActive(b);
