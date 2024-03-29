@@ -278,8 +278,18 @@ export class UIController {
         this.layersContextMenu.close();
       }
     });
-  }
 
+    const hideSidebarBtn = document.querySelector(".sidebar .hide_btn");
+    hideSidebarBtn.addEventListener("click", this.hideSidebar.bind(this));
+  }
+  hideSidebar() {
+    const sidebar = this.controlsRoot.parentElement;
+    if (sidebar.classList.contains("hidden")) {
+      sidebar.classList.remove("hidden");
+    } else {
+      sidebar.classList.add("hidden");
+    }
+  }
   changeSize(size: number) {
     this.sizeSlider.setValue(size);
   }

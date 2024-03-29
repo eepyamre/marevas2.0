@@ -69,7 +69,21 @@ body {
     width: 260px;
     align-items: center;
     padding: 10px;
+    transition: all 0.25s;
 
+    &.hidden {
+      right: -260px;
+      display: flex !important;
+    }
+    .hide_btn {
+      position: absolute;
+      left: -40px;
+      bottom: 50px;
+      padding: 4px 10px;
+      transform: rotate(-90deg);
+      background-color: #333;
+      cursor: pointer;
+    }
     #color_slider {
       margin-bottom: 12px;
       cursor: crosshair;
