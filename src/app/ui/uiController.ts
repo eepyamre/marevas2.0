@@ -11,8 +11,10 @@ import softBrush from "../../assets/brushes/soft_brush.png";
 import grainyBrush from "../../assets/brushes/grainy_brush.png";
 import slicedBrush from "../../assets/brushes/sliced_brush.png";
 import sprayBrush from "../../assets/brushes/spay_brush.png";
+import noiseBrush from "../../assets/brushes/noice_lines.png";
 import { Vector2 } from "../../helpers/vectors";
 import { ImageBrush } from "../brushes/imageBrush";
+import { NoiseBrush } from "../brushes/noiseBrush";
 import { LayerContextMenu } from "./layerContextMenu";
 import { Color } from "../../helpers/color";
 
@@ -311,7 +313,10 @@ export class UIController {
     this.loginBtn.textContent = Core.networkController.username;
     this.tabs.el.remove();
     const sidebar: HTMLDivElement = document.querySelector(".sidebar")!;
-    if (Core.brushController.brush instanceof ImageBrush) {
+    if (
+      Core.brushController.brush instanceof ImageBrush ||
+      Core.brushController.brush instanceof NoiseBrush
+    ) {
       this.spacingSlider.show();
     } else {
       this.spacingSlider.hide();
@@ -370,6 +375,15 @@ export class UIController {
               type: "brush",
               onClick: () => {
                 Core.brushController.selectBrush("SprayBrush", true);
+              },
+            },
+            {
+              isActive: Core.brushController.brush.type === "NoiseBrush",
+              title: "Noise Lines",
+              image: noiseBrush,
+              type: "brush",
+              onClick: () => {
+                Core.brushController.selectBrush("NoiseBrush", true);
               },
             },
           ],

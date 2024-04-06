@@ -6,6 +6,7 @@ import { Layer } from "../layerController";
 import { BasicBrush } from "./basicBrush";
 import { GrainyBrush } from "./grainyBrush";
 import { ImageBrush } from "./imageBrush";
+import { NoiseBrush } from "./noiseBrush";
 import { SlicedBrush } from "./slicedBrush";
 import { SoftBrush } from "./softBrush";
 import { SprayBrush } from "./sprayBrush";
@@ -19,6 +20,7 @@ export class BrushController {
     GrainyBrush: GrainyBrush,
     SlicedBrush: SlicedBrush,
     SprayBrush: SprayBrush,
+    NoiseBrush: NoiseBrush,
   };
   saveHistory: boolean;
   constructor(saveHistory: boolean = false) {
@@ -92,8 +94,8 @@ export class BrushController {
   }
 
   setSpacing(n: number) {
-    if (this.brush instanceof ImageBrush) {
-      this.brush.setSpacing(n);
+    if (this.brush instanceof ImageBrush || this.brush instanceof NoiseBrush) {
+      this.brush.setSpacing.bind(this.brush)(n);
     }
   }
 }

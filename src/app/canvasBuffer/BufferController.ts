@@ -3,6 +3,7 @@ import { Vector2 } from "../../helpers/vectors";
 import { BasicBrush } from "../brushes/basicBrush";
 import { BrushController } from "../brushes/brushController";
 import { ImageBrush } from "../brushes/imageBrush";
+import { NoiseBrush } from "../brushes/noiseBrush";
 import { Core } from "../core";
 import { HistoryDrawingData } from "../historyController";
 import { Layer } from "../layerController";
@@ -40,7 +41,8 @@ export class BufferController {
       brush: Core.brushController.brush
         .type as keyof typeof Core.brushController.brushesTypes,
       spacing:
-        Core.brushController.brush instanceof ImageBrush &&
+        (Core.brushController.brush instanceof ImageBrush ||
+          Core.brushController.brush instanceof NoiseBrush) &&
         Core.brushController.brush.spacing,
       run: () => {
         Core.brushController.selectBrush(historyItem.brush, false);

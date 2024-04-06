@@ -1,6 +1,5 @@
 import { BasicBrush } from "./basicBrush";
 import { Vector2 } from "../../helpers/vectors";
-import { Core } from "../core";
 
 export class ImageBrush extends BasicBrush {
   type = "ImageBrush";

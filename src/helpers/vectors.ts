@@ -11,4 +11,13 @@ export class Vector2 {
     const dy = vec2.y - this.y;
     return Math.atan2(dx, dy);
   };
+  divideVec = (that: Vector2) => {
+    return new Vector2(this.x / that.x, this.y / that.y);
+  };
+  divideNum = (n: number) => {
+    return new Vector2(this.x / n, this.y / n);
+  };
+  addNum = (n: number) => {
+    return new Vector2(this.x + n, this.y + n);
+  };
 }
