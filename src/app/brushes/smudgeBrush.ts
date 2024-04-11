@@ -25,6 +25,25 @@ export class SmudgeBrush extends BasicBrush {
   }
   draw(ctx: CanvasRenderingContext2D, pos: Vector2, pressure: number) {
     const s = this.getSize(pressure);
+    const gradient = this.copy.ctx.createRadialGradient(
+      this.points[0].x,
+      this.points[0].y,
+      s / 3,
+      this.points[0].x,
+      this.points[0].y,
+      s / 1.9
+    );
+    gradient.addColorStop(0, "rgba(0,0,0,0)");
+    gradient.addColorStop(1, "rgba(0,0,0,1)");
+    this.copy.ctx.fillStyle = gradient;
+    this.copy.ctx.globalCompositeOperation = "destination-out";
+    this.copy.ctx.fillRect(
+      this.points[0].x - s / 2,
+      this.points[0].y - s / 2,
+      s,
+      s
+    );
+    this.copy.ctx.globalCompositeOperation = "source-over";
     ctx.drawImage(
       this.copy.canvas,
       this.points[0].x - s / 2,
