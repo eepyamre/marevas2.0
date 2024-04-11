@@ -15,7 +15,15 @@ export class BasicBrush {
     this.size = size;
     this.prevSize = size;
   }
-
+  getSize(pressure: number) {
+    const targetSize = this.size * pressure;
+    let size = targetSize;
+    if (Math.abs(targetSize - this.prevSize) > 0.5) {
+      size = this.prevSize + (this.prevSize > targetSize ? -0.5 : 0.5);
+    }
+    this.prevSize = size;
+    return targetSize;
+  }
   startDraw(ctx: CanvasRenderingContext2D, pos: Vector2, pressure: number) {
     ctx.strokeStyle = this.color.toCanvasSrting();
     ctx.fillStyle = this.color.toCanvasSrting();
@@ -47,13 +55,7 @@ export class BasicBrush {
     const x1 = (p1.x + p2.x) / 2;
     const y1 = (p1.y + p2.y) / 2;
 
-    const targetSize = this.size * pressure;
-    let size = targetSize;
-    if (Math.abs(targetSize - this.prevSize) > 0.5) {
-      size = this.prevSize + (this.prevSize > targetSize ? -0.5 : 0.5);
-    }
-    this.prevSize = size;
-    ctx.lineWidth = size;
+    ctx.lineWidth = this.getSize(pressure);
     ctx.beginPath();
     ctx.moveTo(x0, y0);
     ctx.quadraticCurveTo(p1.x, p1.y, x1, y1);

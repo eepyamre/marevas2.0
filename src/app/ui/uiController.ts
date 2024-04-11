@@ -82,7 +82,7 @@ const infoModalHTML = `
   <div class="key">right mouse button</div>
   - eyedropper
 </div>
-<p>last upd 29.03.24</p>
+<p>last upd 11.04.24</p>
 `;
 
 const loginModalHTML = `
@@ -384,6 +384,15 @@ export class UIController {
               type: "brush",
               onClick: () => {
                 Core.brushController.selectBrush("NoiseBrush", true);
+              },
+            },
+            {
+              isActive: Core.brushController.brush.type === "SmudgeBrush",
+              title: "Smudge Tool",
+              image: basicBrush,
+              type: "brush",
+              onClick: () => {
+                Core.brushController.selectBrush("SmudgeBrush", true);
               },
             },
           ],

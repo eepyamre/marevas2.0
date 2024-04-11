@@ -8,6 +8,7 @@ import { GrainyBrush } from "./grainyBrush";
 import { ImageBrush } from "./imageBrush";
 import { NoiseBrush } from "./noiseBrush";
 import { SlicedBrush } from "./slicedBrush";
+import { SmudgeBrush } from "./smudgeBrush";
 import { SoftBrush } from "./softBrush";
 import { SprayBrush } from "./sprayBrush";
 
@@ -21,6 +22,7 @@ export class BrushController {
     SlicedBrush: SlicedBrush,
     SprayBrush: SprayBrush,
     NoiseBrush: NoiseBrush,
+    SmudgeBrush: SmudgeBrush,
   };
   saveHistory: boolean;
   constructor(saveHistory: boolean = false) {
