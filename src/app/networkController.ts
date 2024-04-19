@@ -172,7 +172,14 @@ export class NetworkController {
       return;
     }
     if (arr[0] === ACTION_TYPES.CHECK_USERNAME_SUCCESS) {
-      this.createLayer();
+      const userLayer = Core.layerController.layers.find(
+        (item) => item.userName === this.username
+      );
+      if (!userLayer) {
+        this.createLayer();
+      } else {
+        Core.layerController.selectLayer(userLayer.id);
+      }
       Core.uiController.setLoading(false);
       return;
     }
