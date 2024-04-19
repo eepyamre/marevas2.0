@@ -21,8 +21,17 @@ body {
     top: 0;
     right: 0;
     bottom: 0;
-    cursor: crosshair;
     // image-rendering: crisp-edges;
+  }
+  &.crosshair {
+    canvas {
+      cursor: crosshair;
+    }
+  }
+  &.move {
+    canvas {
+      cursor: move;
+    }
   }
 }
 
@@ -430,6 +439,7 @@ button {
 .icon_buttons {
   display: flex;
   width: 100%;
+  gap: 8px;
   .icon_button {
     width: 42px;
   }

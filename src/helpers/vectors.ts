@@ -14,6 +14,9 @@ export class Vector2 {
   divideVec = (that: Vector2) => {
     return new Vector2(this.x / that.x, this.y / that.y);
   };
+  subVec = (that: Vector2) => {
+    return new Vector2(this.x - that.x, this.y - that.y);
+  };
   divideNum = (n: number) => {
     return new Vector2(this.x / n, this.y / n);
   };

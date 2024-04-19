@@ -7,6 +7,7 @@ import { Modal } from "./modal";
 import { UserTag } from "./userTag";
 import basicBrush from "../../assets/brushes/basic_brush.png";
 import eraser from "../../assets/brushes/eraser.png";
+import move from "../../assets/icons/move.png";
 import softBrush from "../../assets/brushes/soft_brush.png";
 import grainyBrush from "../../assets/brushes/grainy_brush.png";
 import slicedBrush from "../../assets/brushes/sliced_brush.png";
@@ -94,6 +95,11 @@ const loginModalHTML = `
 </label>
 `;
 
+const Cursors = {
+  Crosshair: "crosshair",
+  Move: "move",
+} as const;
+
 export class UIController {
   controlsRoot: HTMLDivElement;
   sizeSlider: Slider;
@@ -103,6 +109,7 @@ export class UIController {
   colorPalette: ColorPicker;
   tabs: TabsWrapper;
   eraserBtn: IconButton;
+  moveBtn: IconButton;
   activeTab: string = "Brushes";
   loadingModal: Modal;
   infoModal: Modal;
@@ -110,11 +117,13 @@ export class UIController {
   loginErrorModal: Modal;
   loginBtn: HTMLElement;
   layersContextMenu: LayerContextMenu;
+  cursor: (typeof Cursors)[keyof typeof Cursors] = Cursors.Crosshair;
   userTags: {
     [key: string]: UserTag;
   } = {};
   constructor() {
     this.controlsRoot = document.querySelector(".controls")!;
+    Core.appRoot.classList.add(this.cursor);
     if (!this.controlsRoot) {
       throw new Error("Cant find control items!");
     }
@@ -179,9 +188,28 @@ export class UIController {
       iconButtons,
       eraser,
       () => {
+        this.cursor = Cursors.Crosshair;
         Core.brushController.setMode(
-          Core.brushController.mode === "draw" ? "erase" : "draw"
+          Core.brushController.mode === "erase" ? "draw" : "erase"
         );
+        this.updateCursor();
+        this.moveBtn.setActive(false);
+      },
+      true
+    );
+    this.moveBtn = new IconButton(
+      iconButtons,
+      move,
+      () => {
+        if (this.cursor === Cursors.Move) {
+          this.cursor = Cursors.Crosshair;
+          Core.brushController.setMode("draw");
+        } else {
+          this.cursor = Cursors.Move;
+          Core.brushController.setMode("move");
+        }
+        this.updateCursor();
+        this.eraserBtn.setActive(false);
       },
       true
     );
@@ -447,5 +475,11 @@ export class UIController {
   removeUser(id: string) {
     this.userTags[id].remove();
     delete this.userTags[id];
+  }
+  updateCursor() {
+    Object.keys(Cursors).forEach((item) => {
+      Core.appRoot.classList.remove(Cursors[item]);
+    });
+    Core.appRoot.classList.add(this.cursor);
   }
 }

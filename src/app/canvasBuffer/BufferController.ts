@@ -22,6 +22,7 @@ export class BufferController {
     };
   } = {};
   mainCopy: CanvasBuffer;
+  startPos: Vector2;
   constructor() {
     this.drawingCanvas = new CanvasBuffer();
     this.drawingCanvasEl = this.drawingCanvas.canvas;
@@ -30,7 +31,13 @@ export class BufferController {
 
   startDraw(pos: Vector2, pressure: number) {
     if (!Core.networkController.socket.readyState) return;
-
+    this.startPos = pos;
+    if (Core.brushController.mode === "move") {
+      delete this.mainCopy;
+      this.mainCopy = new CanvasBuffer(false);
+      this.mainCopy.ctx.drawImage(this.mainCanvasEl, 0, 0);
+      return;
+    }
     Core.brushController.startDraw(
       this.drawingCanvas.ctx,
       Core.layerController.activeLayer,
@@ -47,15 +54,16 @@ export class BufferController {
   }
   draw(pos: Vector2, pressure: number) {
     if (!Core.networkController.socket.readyState) return;
+    if (Core.brushController.mode === "move") {
+      this.clearMain();
+      const newPos = pos.subVec(this.startPos);
+      this.mainCanvas.ctx.drawImage(this.mainCopy.canvas, newPos.x, newPos.y);
+      return;
+    }
 
     Core.brushController.draw(this.drawingCanvas.ctx, pos, pressure);
     if (Core.brushController.mode === "erase") {
-      this.mainCanvas.ctx.clearRect(
-        0,
-        0,
-        this.mainCanvas.width,
-        this.mainCanvas.height
-      );
+      this.clearMain();
       this.mainCanvas.ctx.drawImage(this.mainCopy.canvas, 0, 0);
       this.mainCanvas.ctx.globalCompositeOperation = "destination-out";
       this.mainCanvas.ctx.globalAlpha =
@@ -70,14 +78,21 @@ export class BufferController {
   }
   endDraw() {
     if (!Core.networkController.socket.readyState) return;
+    if (Core.brushController.mode === "move") {
+      const dataurl = this.mainCanvasEl.toDataURL();
+      Core.historyController.pushNewHistory({
+        layer: Core.layerController.activeLayer,
+        image: dataurl,
+      });
+      Core.networkController.saveImage(
+        Core.layerController.activeLayer.id,
+        dataurl
+      );
+      return;
+    }
     Core.brushController.endDraw(this.drawingCanvas.ctx);
     if (Core.brushController.mode === "erase") {
-      this.mainCanvas.ctx.clearRect(
-        0,
-        0,
-        this.mainCanvas.width,
-        this.mainCanvas.height
-      );
+      this.clearMain();
       this.mainCanvas.ctx.drawImage(this.mainCopy.canvas, 0, 0);
       delete this.mainCopy;
       this.mainCanvas.ctx.globalCompositeOperation = "destination-out";
