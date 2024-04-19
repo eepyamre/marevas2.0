@@ -175,6 +175,7 @@ export class NetworkController {
         this.createLayer();
       } else {
         Core.layerController.selectLayer(userLayer.id);
+        this.getRemoteHistory(userLayer.id);
       }
       Core.uiController.setLoading(false);
       return;
