@@ -143,12 +143,8 @@ export class NetworkController {
     }
     if (arr[0] === ACTION_TYPES.HISTORY) {
       if (arr[1] === Core.layerController.activeLayer.id) {
-        const actualData = arr.slice(5);
-        if (actualData.length) {
-          Core.historyController.pushFromRemoteHistory(
-            actualData.filter((_, i) => i % 4 === 0).reverse()
-          );
-        }
+        const historyData = data.split("\n").slice(2).reverse();
+        Core.historyController.pushFromRemoteHistory(historyData);
       }
       return;
     }

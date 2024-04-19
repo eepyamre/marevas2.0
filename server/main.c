@@ -7,6 +7,7 @@
 #include <hiredis/hiredis.h>
 #include <ws.h>
 
+#define DISABLE_VERBOSE
 #define _GNU_SOURCE
 #define PORT 6969
 #define REDIS_PORT 7777
@@ -81,6 +82,7 @@ void onopen(ws_cli_conn_t *client)
 				printf("Cant allocate memory to copy and send image.");
 			}
 			ws_sendframe_txt(client, message);
+			free(message);
 			freeReplyObject(title);
 			freeReplyObject(owner);
 			freeReplyObject(data);
@@ -104,7 +106,7 @@ void onclose(ws_cli_conn_t *client)
 }
 
 void onmessage(ws_cli_conn_t *client,
-							 const unsigned char *msg, uint64_t size, int type)
+							const unsigned char *msg, uint64_t size, int type)
 {
 	char *cli;
 	cli = ws_getaddress(client);
@@ -126,7 +128,7 @@ void onmessage(ws_cli_conn_t *client,
 
 		if (reply->type == REDIS_REPLY_ARRAY)
 		{
-			char *res;
+			char *res = NULL;
 			int size = asprintf(&res, "%s\n%s", ACTION_HISTORY, history_layer_id);
 			if (size == -1)
 			{
@@ -136,12 +138,16 @@ void onmessage(ws_cli_conn_t *client,
 			}
 			for (int j = 0; j < reply->elements; j++)
 			{
-				int size = asprintf(&res, "%s\n%s", res, reply->element[j]->str);
-				if (size == -1)
+				char *temp;
+				int temp_size = asprintf(&temp, "%s\n%s", res, reply->element[j]->str);
+				if (temp_size == -1)
 				{
 					printf("Cant allocate memory to copy and send history.");
-					break;
+					free(res);
+					return;
 				}
+				free(res);
+				res = temp;
 			}
 			ws_sendframe_txt(client, res);
 			if (res != NULL)
@@ -260,6 +266,7 @@ void onmessage(ws_cli_conn_t *client,
 				return;
 			}
 			ws_sendframe_txt(client, message);
+			free(message);
 			redisReply *layers;
 			layers = redisCommand(c, "ZRANGE layers -inf +inf BYSCORE");
 			redisErrorCheck(layers);
@@ -281,6 +288,7 @@ void onmessage(ws_cli_conn_t *client,
 							continue;
 						}
 						ws_sendframe_txt_bcast(PORT, message);
+						free(message);
 					}
 					freeReplyObject(owner);
 				}
@@ -339,6 +347,7 @@ void onmessage(ws_cli_conn_t *client,
 			return;
 		}
 		ws_sendframe_txt_bcast(PORT, message);
+		free(message);
 	}
 	else if (strcmp(action, ACTION_ABADON_LAYER) == 0){
 		ws_sendframe_bcast(PORT, (char *)msg, size, type);
@@ -350,12 +359,10 @@ void onmessage(ws_cli_conn_t *client,
 		char *layer_id = strtok(NULL, "\n");
 		redisCommand(c, "HSET layer-%s owner %s", layer_id, username);
 	}
-	else
+	else if(strcmp(action, ACTION_SAVE_IMAGE) == 0)
 	{
-		if(strcmp(action, ACTION_SAVE_IMAGE) != 0){
-			ws_sendframe_bcast(PORT, (char *)msg, size, type);
-		}
 		char *layer_id = strtok(NULL, "\n");
+		// printf("action: %s, username: %s, layer: %s\n", action, username, layer_id);
 		char *ptr = strstr(msg, "data:image/");
 		if (ptr != NULL)
 		{
@@ -374,6 +381,9 @@ void onmessage(ws_cli_conn_t *client,
 			}
 			freeReplyObject(reply);
 		}
+	} 
+	else {
+		ws_sendframe_bcast(PORT, (char *)msg, size, type);
 	}
 }
 
