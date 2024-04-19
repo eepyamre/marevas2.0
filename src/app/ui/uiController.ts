@@ -8,6 +8,7 @@ import { UserTag } from "./userTag";
 import basicBrush from "../../assets/brushes/basic_brush.png";
 import eraser from "../../assets/brushes/eraser.png";
 import move from "../../assets/icons/move.png";
+import select from "../../assets/icons/select.png";
 import softBrush from "../../assets/brushes/soft_brush.png";
 import grainyBrush from "../../assets/brushes/grainy_brush.png";
 import slicedBrush from "../../assets/brushes/sliced_brush.png";
@@ -110,6 +111,7 @@ export class UIController {
   tabs: TabsWrapper;
   eraserBtn: IconButton;
   moveBtn: IconButton;
+  selectBtn: IconButton;
   activeTab: string = "Brushes";
   loadingModal: Modal;
   infoModal: Modal;
@@ -194,6 +196,7 @@ export class UIController {
         );
         this.updateCursor();
         this.moveBtn.setActive(false);
+        this.selectBtn.setActive(false);
       },
       true
     );
@@ -210,6 +213,23 @@ export class UIController {
         }
         this.updateCursor();
         this.eraserBtn.setActive(false);
+        this.selectBtn.setActive(false);
+      },
+      true
+    );
+    this.selectBtn = new IconButton(
+      iconButtons,
+      select,
+      () => {
+        if (Core.brushController.mode === "select") {
+          Core.brushController.setMode("draw");
+          return;
+        }
+        this.cursor = Cursors.Crosshair;
+        Core.brushController.setMode("select");
+        this.updateCursor();
+        this.eraserBtn.setActive(false);
+        this.moveBtn.setActive(false);
       },
       true
     );

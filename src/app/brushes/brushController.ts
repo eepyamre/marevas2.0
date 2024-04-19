@@ -14,7 +14,7 @@ import { SprayBrush } from "./sprayBrush";
 
 export class BrushController {
   brush: BasicBrush | ImageBrush | SlicedBrush;
-  mode: "draw" | "erase" | "move" = "draw";
+  mode: "draw" | "erase" | "move" | "select" = "draw";
   brushesTypes = {
     BasicBrush: BasicBrush,
     SoftBrush: SoftBrush,
@@ -39,24 +39,25 @@ export class BrushController {
     pos: Vector2,
     pressure: number
   ) {
-    if (this.mode === "move") return;
+    if (this.mode !== "draw" && this.mode !== "erase") return;
     ctx.canvas.style.opacity = (
       this.brush.color.color.a * layer.opacity
     ).toString();
+    ctx.setLineDash([0]);
     this.brush.startDraw(ctx, pos, pressure);
   }
 
   draw(ctx: CanvasRenderingContext2D, pos: Vector2, pressure: number) {
-    if (this.mode === "move") return;
+    if (this.mode !== "draw" && this.mode !== "erase") return;
     this.brush.draw(ctx, pos, pressure);
   }
 
   endDraw(ctx: CanvasRenderingContext2D) {
-    if (this.mode === "move") return;
+    if (this.mode !== "draw" && this.mode !== "erase") return;
     this.brush.endDraw(ctx);
   }
 
-  setMode(mode: "draw" | "erase" | "move") {
+  setMode(mode: "draw" | "erase" | "move" | "select") {
     const run = () => {
       this.mode = mode;
     };

@@ -7,6 +7,11 @@ import { Core } from "../core";
 import { Layer } from "../layerController";
 import { Packet } from "../networkController";
 import { CanvasBuffer } from "./canvasBuffer";
+type Rect = {
+  startPos: Vector2;
+  width: number;
+  height: number;
+};
 export class BufferController {
   mainCanvas: CanvasBuffer;
   drawingCanvas: CanvasBuffer;
@@ -23,6 +28,7 @@ export class BufferController {
   } = {};
   mainCopy: CanvasBuffer;
   startPos: Vector2;
+  selectedRect: Rect;
   constructor() {
     this.drawingCanvas = new CanvasBuffer();
     this.drawingCanvasEl = this.drawingCanvas.canvas;
@@ -32,12 +38,15 @@ export class BufferController {
   startDraw(pos: Vector2, pressure: number) {
     if (!Core.networkController.socket.readyState) return;
     this.startPos = pos;
+    this.clearDrawing();
     if (Core.brushController.mode === "move") {
       delete this.mainCopy;
       this.mainCopy = new CanvasBuffer(false);
       this.mainCopy.ctx.drawImage(this.mainCanvasEl, 0, 0);
       return;
     }
+    this.selectedRect = null;
+    if (Core.brushController.mode === "select") return;
     Core.brushController.startDraw(
       this.drawingCanvas.ctx,
       Core.layerController.activeLayer,
@@ -55,12 +64,49 @@ export class BufferController {
   draw(pos: Vector2, pressure: number) {
     if (!Core.networkController.socket.readyState) return;
     if (Core.brushController.mode === "move") {
-      this.clearMain();
+      this.clearMain(this.selectedRect);
+      this.clearDrawing();
       const newPos = pos.subVec(this.startPos);
-      this.mainCanvas.ctx.drawImage(this.mainCopy.canvas, newPos.x, newPos.y);
+      if (this.selectedRect) {
+        newPos.x += this.selectedRect.startPos.x;
+        newPos.y += this.selectedRect.startPos.y;
+      }
+      if (!this.selectedRect) {
+        this.drawingCanvas.ctx.drawImage(
+          this.mainCopy.canvas,
+          newPos.x,
+          newPos.y
+        );
+      } else {
+        this.drawingCanvas.ctx.drawImage(
+          this.mainCopy.canvas,
+          this.selectedRect.startPos.x,
+          this.selectedRect.startPos.y,
+          this.selectedRect.width,
+          this.selectedRect.height,
+          newPos.x,
+          newPos.y,
+          this.selectedRect.width,
+          this.selectedRect.height
+        );
+      }
       return;
     }
-
+    if (Core.brushController.mode === "select") {
+      this.clearDrawing();
+      this.drawingCanvas.ctx.strokeStyle = "#000";
+      this.drawingCanvas.ctx.setLineDash([6]);
+      this.drawingCanvas.ctx.lineWidth = 1;
+      const w = pos.x - this.startPos.x;
+      const h = pos.y - this.startPos.y;
+      this.drawingCanvas.ctx.strokeRect(this.startPos.x, this.startPos.y, w, h);
+      this.selectedRect = {
+        startPos: this.startPos,
+        width: w,
+        height: h,
+      };
+      return;
+    }
     Core.brushController.draw(this.drawingCanvas.ctx, pos, pressure);
     if (Core.brushController.mode === "erase") {
       this.clearMain();
@@ -79,6 +125,7 @@ export class BufferController {
   endDraw() {
     if (!Core.networkController.socket.readyState) return;
     if (Core.brushController.mode === "move") {
+      this.mainCanvas.ctx.drawImage(this.drawingCanvas.canvas, 0, 0);
       const dataurl = this.mainCanvasEl.toDataURL();
       Core.historyController.pushNewHistory({
         layer: Core.layerController.activeLayer,
@@ -88,6 +135,10 @@ export class BufferController {
         Core.layerController.activeLayer.id,
         dataurl
       );
+      this.selectedRect = null;
+      return;
+    }
+    if (Core.brushController.mode === "select") {
       return;
     }
     Core.brushController.endDraw(this.drawingCanvas.ctx);
@@ -274,15 +325,31 @@ export class BufferController {
     this.mainCanvas.updateZoom();
   }
 
-  clearMain() {
+  clearMain(rect?: Rect) {
+    if (!rect) {
+      this.mainCanvas.ctx.clearRect(
+        0,
+        0,
+        this.mainCanvasEl.width,
+        this.mainCanvasEl.height
+      );
+      return;
+    }
     this.mainCanvas.ctx.clearRect(
-      0,
-      0,
-      this.mainCanvasEl.width,
-      this.mainCanvasEl.height
+      rect.startPos.x,
+      rect.startPos.y,
+      rect.width,
+      rect.height
     );
   }
-
+  clearDrawing() {
+    this.drawingCanvas.ctx.clearRect(
+      0,
+      0,
+      this.drawingCanvasEl.width,
+      this.drawingCanvasEl.height
+    );
+  }
   changeMain(id: string) {
     this.mainCanvas = this.remoteDrawings[id].canvasBuffer;
     this.mainCanvasEl = this.remoteDrawings[id].canvasBuffer.canvas;
