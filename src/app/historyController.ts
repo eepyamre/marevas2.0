@@ -75,7 +75,7 @@ export class HistoryController {
       Core.bufferController.clearMain();
       Core.bufferController.drawImage(c.data.image);
       clearTimeout(this.sendTimer);
-      this.sendTimer = setTimeout(this.sendData, 1000);
+      this.sendTimer = setTimeout(this.sendData, 100);
     }
   }
 

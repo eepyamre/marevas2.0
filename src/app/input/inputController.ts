@@ -98,6 +98,14 @@ export class InputController {
         e.preventDefault();
         Core.brushController.setBrushSize(Core.brushController.brush.size - 1);
         break;
+      case "t":
+        e.preventDefault();
+        Core.uiController.moveBtn.onClick();
+        break;
+      case "r":
+        e.preventDefault();
+        Core.uiController.selectBtn.onClick();
+        break;
     }
   };
 

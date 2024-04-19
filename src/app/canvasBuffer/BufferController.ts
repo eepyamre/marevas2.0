@@ -131,11 +131,13 @@ export class BufferController {
         layer: Core.layerController.activeLayer,
         image: dataurl,
       });
-      Core.networkController.saveImage(
+      Core.networkController.sendImage(
         Core.layerController.activeLayer.id,
         dataurl
       );
       this.selectedRect = null;
+      this.clearDrawing();
+
       return;
     }
     if (Core.brushController.mode === "select") {
