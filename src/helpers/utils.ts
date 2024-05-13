@@ -1,3 +1,4 @@
+import { ColorRGBA } from "./color";
 import { Vector2 } from "./vectors";
 
 export const mapNumRange = (
@@ -27,4 +28,16 @@ export const perlinNoiseGen = () => {
     grid.push(row);
   }
   return grid;
+};
+
+export const colorsAreClose = (
+  c1: ColorRGBA,
+  c2: ColorRGBA,
+  threshold = 50
+) => {
+  const r = c1.r - c2.r,
+    g = c1.g - c2.g,
+    b = c1.b - c2.b,
+    a = c1.a - c2.a;
+  return r * r + g * g + b * b + a * a <= Math.pow(threshold, 2.6);
 };

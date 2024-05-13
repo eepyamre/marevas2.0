@@ -1,4 +1,5 @@
 import { Color } from "../../helpers/color";
+import { colorsAreClose, mapNumRange } from "../../helpers/utils";
 import { Vector2 } from "../../helpers/vectors";
 import { BrushController } from "../brushes/brushController";
 import { ImageBrush } from "../brushes/imageBrush";
@@ -29,16 +30,97 @@ export class BufferController {
   mainCopy: CanvasBuffer;
   startPos: Vector2;
   selectedRect: Rect;
+  filledPixels = new Set<number>();
+  needToFill: Vector2[] = [];
   constructor() {
     this.drawingCanvas = new CanvasBuffer();
     this.drawingCanvasEl = this.drawingCanvas.canvas;
     this.drawingCanvasEl.style.zIndex = "2";
   }
 
+  fill(pos: Vector2, data: Uint8ClampedArray, oldColor: Uint8ClampedArray) {
+    if (pos.y === 0) pos.y = 1;
+    if (pos.x === 0) pos.x = 1;
+    const posColorIdx = (pos.y * this.mainCanvas.width + pos.x) * 4;
+    if (this.filledPixels.has(posColorIdx)) return;
+    this.filledPixels.add(posColorIdx);
+    const a = mapNumRange(
+      Core.brushController.brush.color.color.a,
+      0,
+      1,
+      0,
+      255
+    );
+    data[posColorIdx] = Core.brushController.brush.color.color.r;
+    data[posColorIdx + 1] = Core.brushController.brush.color.color.g;
+    data[posColorIdx + 2] = Core.brushController.brush.color.color.b;
+    data[posColorIdx + 3] = a;
+    for (let i = pos.y - 1; i <= pos.y + 1; i++) {
+      for (let j = pos.x - 1; j <= pos.x + 1; j++) {
+        if (i === pos.y && j === pos.x) continue;
+        const colorStartIdx = (i * this.mainCanvas.width + j) * 4;
+        const color = [
+          data[colorStartIdx],
+          data[colorStartIdx + 1],
+          data[colorStartIdx + 2],
+          data[colorStartIdx + 3],
+        ];
+        if (
+          colorsAreClose(
+            { r: color[0], g: color[1], b: color[2], a: color[3] },
+            { r: oldColor[0], g: oldColor[1], b: oldColor[2], a: oldColor[3] }
+          )
+        ) {
+          this.needToFill.push(new Vector2(j, i));
+        }
+      }
+    }
+  }
+
   startDraw(pos: Vector2, pressure: number) {
     if (!Core.networkController.socket.readyState) return;
     this.startPos = pos;
     this.clearDrawing();
+    if (Core.brushController.mode === "fill" && this.needToFill.length === 0) {
+      const imagedata = this.mainCanvas.ctx.getImageData(
+        0,
+        0,
+        this.mainCanvas.width,
+        this.mainCanvas.height
+      );
+      const data = imagedata.data;
+      const oldColor = this.mainCanvas.ctx.getImageData(
+        pos.x,
+        pos.y,
+        1,
+        1
+      ).data; // target color
+
+      this.fill(pos, data, oldColor);
+      while (this.needToFill.length) {
+        this.fill(this.needToFill.shift(), data, oldColor);
+        if (this.needToFill.length > 1000)
+          this.needToFill = this.needToFill.slice(0, 500);
+      }
+      this.needToFill = [];
+      this.filledPixels.clear();
+      this.mainCanvas.ctx.putImageData(imagedata, 0, 0);
+
+      const dataurl = this.mainCanvasEl.toDataURL();
+      Core.historyController.pushNewHistory({
+        layer: Core.layerController.activeLayer,
+        image: dataurl,
+      });
+      Core.networkController.sendImage(
+        Core.layerController.activeLayer.id,
+        dataurl
+      );
+      Core.networkController.saveImage(
+        Core.layerController.activeLayer.id,
+        dataurl
+      );
+      return;
+    }
     if (Core.brushController.mode === "move") {
       delete this.mainCopy;
       this.mainCopy = new CanvasBuffer(false);
@@ -63,6 +145,7 @@ export class BufferController {
   }
   draw(pos: Vector2, pressure: number) {
     if (!Core.networkController.socket.readyState) return;
+    if (Core.brushController.mode === "fill") return;
     if (Core.brushController.mode === "move") {
       this.clearMain(this.selectedRect);
       this.clearDrawing();
@@ -124,6 +207,7 @@ export class BufferController {
   }
   endDraw() {
     if (!Core.networkController.socket.readyState) return;
+    if (Core.brushController.mode === "fill") return;
     if (Core.brushController.mode === "move") {
       this.mainCanvas.ctx.drawImage(this.drawingCanvas.canvas, 0, 0);
       const dataurl = this.mainCanvasEl.toDataURL();

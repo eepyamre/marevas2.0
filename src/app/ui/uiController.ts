@@ -9,6 +9,7 @@ import basicBrush from "../../assets/brushes/basic_brush.png";
 import eraser from "../../assets/brushes/eraser.png";
 import move from "../../assets/icons/move.png";
 import select from "../../assets/icons/select.png";
+import fill from "../../assets/icons/fillTool.png";
 import softBrush from "../../assets/brushes/soft_brush.png";
 import grainyBrush from "../../assets/brushes/grainy_brush.png";
 import slicedBrush from "../../assets/brushes/sliced_brush.png";
@@ -112,6 +113,7 @@ export class UIController {
   eraserBtn: IconButton;
   moveBtn: IconButton;
   selectBtn: IconButton;
+  fillBtn: IconButton;
   activeTab: string = "Brushes";
   loadingModal: Modal;
   infoModal: Modal;
@@ -194,9 +196,7 @@ export class UIController {
         Core.brushController.setMode(
           Core.brushController.mode === "erase" ? "draw" : "erase"
         );
-        this.updateCursor();
-        this.moveBtn.setActive(false);
-        this.selectBtn.setActive(false);
+        this.deselectAllToolBtnsExceptOf(this.eraserBtn);
       },
       true
     );
@@ -211,9 +211,7 @@ export class UIController {
           this.cursor = Cursors.Move;
           Core.brushController.setMode("move");
         }
-        this.updateCursor();
-        this.eraserBtn.setActive(false);
-        this.selectBtn.setActive(false);
+        this.deselectAllToolBtnsExceptOf(this.moveBtn);
       },
       true
     );
@@ -227,9 +225,20 @@ export class UIController {
         }
         this.cursor = Cursors.Crosshair;
         Core.brushController.setMode("select");
-        this.updateCursor();
-        this.eraserBtn.setActive(false);
-        this.moveBtn.setActive(false);
+        this.deselectAllToolBtnsExceptOf(this.selectBtn);
+      },
+      true
+    );
+    this.fillBtn = new IconButton(
+      iconButtons,
+      fill,
+      () => {
+        this.deselectAllToolBtnsExceptOf(this.fillBtn);
+        if (Core.brushController.mode === "fill") {
+          Core.brushController.setMode("draw");
+          return;
+        }
+        Core.brushController.setMode("fill");
       },
       true
     );
@@ -336,6 +345,13 @@ export class UIController {
 
     const hideSidebarBtn = document.querySelector(".sidebar .hide_btn");
     hideSidebarBtn.addEventListener("click", this.hideSidebar.bind(this));
+  }
+  deselectAllToolBtnsExceptOf(btn?: IconButton) {
+    this.updateCursor();
+    const btns = [this.eraserBtn, this.selectBtn, this.moveBtn, this.fillBtn];
+    btns.forEach((item) => {
+      if (item !== btn) item.setActive(false);
+    });
   }
   hideSidebar() {
     const sidebar = this.controlsRoot.parentElement;

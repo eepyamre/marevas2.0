@@ -90,9 +90,14 @@ export class HistoryController {
   }
 
   private sendData() {
+    const dataurl = Core.bufferController.mainCanvasEl.toDataURL();
     Core.networkController.sendImage(
       Core.layerController.activeLayer.id,
-      Core.bufferController.mainCanvasEl.toDataURL()
+      dataurl
+    );
+    Core.networkController.saveImage(
+      Core.layerController.activeLayer.id,
+      dataurl
     );
   }
 }

@@ -12,9 +12,11 @@ import { SmudgeBrush } from "./smudgeBrush";
 import { SoftBrush } from "./softBrush";
 import { SprayBrush } from "./sprayBrush";
 
+export type BrushModes = "draw" | "erase" | "move" | "select" | "fill";
+
 export class BrushController {
   brush: BasicBrush | ImageBrush | SlicedBrush;
-  mode: "draw" | "erase" | "move" | "select" = "draw";
+  mode: BrushModes = "draw";
   brushesTypes = {
     BasicBrush: BasicBrush,
     SoftBrush: SoftBrush,
@@ -57,7 +59,7 @@ export class BrushController {
     this.brush.endDraw(ctx);
   }
 
-  setMode(mode: "draw" | "erase" | "move" | "select") {
+  setMode(mode: BrushModes) {
     const run = () => {
       this.mode = mode;
     };
