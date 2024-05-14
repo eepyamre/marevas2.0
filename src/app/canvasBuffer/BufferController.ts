@@ -411,7 +411,7 @@ export class BufferController {
     this.mainCanvas.updateZoom();
   }
 
-  clearMain(rect?: Rect) {
+  clearMain(rect?: Rect, saveAndSend: boolean = false) {
     if (!rect) {
       this.mainCanvas.ctx.clearRect(
         0,
@@ -419,14 +419,29 @@ export class BufferController {
         this.mainCanvasEl.width,
         this.mainCanvasEl.height
       );
-      return;
+    } else {
+      this.mainCanvas.ctx.clearRect(
+        rect.startPos.x,
+        rect.startPos.y,
+        rect.width,
+        rect.height
+      );
     }
-    this.mainCanvas.ctx.clearRect(
-      rect.startPos.x,
-      rect.startPos.y,
-      rect.width,
-      rect.height
-    );
+    if (saveAndSend) {
+      const dataurl = this.mainCanvasEl.toDataURL();
+      Core.historyController.pushNewHistory({
+        layer: Core.layerController.activeLayer,
+        image: dataurl,
+      });
+      Core.networkController.sendImage(
+        Core.layerController.activeLayer.id,
+        dataurl
+      );
+      Core.networkController.saveImage(
+        Core.layerController.activeLayer.id,
+        dataurl
+      );
+    }
   }
   clearDrawing() {
     this.drawingCanvas.ctx.clearRect(

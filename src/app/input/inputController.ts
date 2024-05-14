@@ -32,23 +32,11 @@ export class InputController {
   };
   private keyEvents = (e: KeyboardEvent) => {
     if ((e.target as HTMLElement).tagName === "INPUT") return;
+    e.preventDefault();
 
-    if (e.key === "e") {
-      e.preventDefault();
-      Core.brushController.setMode(
-        Core.brushController.mode === "draw" ? "erase" : "draw"
-      );
-      return;
-    }
-    if (e.key === " ") {
-      e.preventDefault();
-      this.spacePressed = true;
-      return;
-    }
     if (e.ctrlKey) {
       if (e.shiftKey && e.key.toLowerCase() === "z") {
         if (e.timeStamp < this.lastTimestamp + 100) return;
-        e.preventDefault();
         Core.historyController.redo();
         this.lastTimestamp = e.timeStamp;
         return;
@@ -56,55 +44,62 @@ export class InputController {
       switch (e.key.toLowerCase()) {
         case "z":
           if (e.timeStamp < this.lastTimestamp + 100) break;
-          e.preventDefault();
           Core.historyController.undo();
           this.lastTimestamp = e.timeStamp;
           break;
         case "s":
-          e.preventDefault();
           Core.bufferController.exportPNG();
           break;
         case "]":
-          e.preventDefault();
           Core.brushController.setBrushSize(
             Core.brushController.brush.size + 1
           );
           break;
         case "[":
-          e.preventDefault();
           Core.brushController.setBrushSize(
             Core.brushController.brush.size - 1
           );
           break;
         case "-":
-          e.preventDefault();
           Core.bufferController.updateCanvasZoom(0.9);
           break;
         case "+":
-          e.preventDefault();
           Core.bufferController.updateCanvasZoom(1.1);
           break;
       }
       return;
     }
     switch (e.key.toLowerCase()) {
+      case "e":
+        Core.brushController.setMode(
+          Core.brushController.mode === "draw" ? "erase" : "draw"
+        );
+        break;
+      case " ":
+        this.spacePressed = true;
+        break;
       case "+":
       case "]":
-        e.preventDefault();
         Core.brushController.setBrushSize(Core.brushController.brush.size + 1);
         break;
       case "-":
       case "[":
-        e.preventDefault();
         Core.brushController.setBrushSize(Core.brushController.brush.size - 1);
         break;
       case "t":
-        e.preventDefault();
         Core.uiController.moveBtn.onClick();
         break;
       case "r":
-        e.preventDefault();
         Core.uiController.selectBtn.onClick();
+        break;
+      case "f":
+        Core.uiController.fillBtn.onClick();
+        break;
+      case "delete":
+        Core.bufferController.clearMain(
+          Core.bufferController.selectedRect,
+          true
+        );
         break;
     }
   };

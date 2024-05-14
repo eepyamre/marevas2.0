@@ -3,6 +3,5 @@ dist
 .vscode
 .parcel-cache
 package-lock.json
-todos.md
 .github
 *.rdb
