@@ -15,7 +15,11 @@ export class LayerController {
   layers: Layer[] = [];
   selectLayer(id: string) {
     this.activeLayer = this.layers.find((item) => item.id === id);
-    Core.uiController.rerender();
+    if (this.activeLayer) {
+      Core.uiController.rerender();
+      return true;
+    }
+    return false;
   }
   addLayer(layer: Layer) {
     this.layers.push(layer);

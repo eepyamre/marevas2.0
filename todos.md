@@ -12,7 +12,6 @@
 - gradient
 - ability to turn off names
 - transform tool
-- hotkeys to select and move
 - draw in selected only
 
   -- need authentication

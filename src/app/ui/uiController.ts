@@ -34,6 +34,18 @@ const infoModalHTML = `
   - reduce brush size
 </div>
 <div>
+  <div class="key">t</div>
+  - move tool
+</div>
+<div>
+  <div class="key">r</div>
+  - select tool
+</div>
+<div>
+  <div class="key">f</div>
+  - fill tool
+</div>
+<div>
   <div class="key">]</div>
   or
   <div class="key">-</div>
