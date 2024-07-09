@@ -56,12 +56,16 @@ export class HistoryController {
       this.currentProccessing = this.history.id;
       let c = this.history;
       Core.bufferController.clearMain();
-      if (this.history.data) {
-        if (Core.layerController.selectLayer(c.data.layer.id)) {
-          Core.bufferController.drawImage(c.data.image);
-          clearTimeout(this.sendTimer);
-          this.sendTimer = setTimeout(this.sendData, 1000);
-        }
+      let hasLayer: boolean;
+      if (c.data === null && c.next?.data?.layer.id) {
+        hasLayer = Core.layerController.selectLayer(c.next.data.layer.id);
+      } else {
+        hasLayer = Core.layerController.selectLayer(c.data.layer.id);
+      }
+      if (hasLayer) {
+        c.data && Core.bufferController.drawImage(c.data.image);
+        clearTimeout(this.sendTimer);
+        this.sendTimer = setTimeout(this.sendData, 1000);
       }
     }
   }
@@ -76,7 +80,7 @@ export class HistoryController {
         Core.bufferController.clearMain();
         Core.bufferController.drawImage(c.data.image);
         clearTimeout(this.sendTimer);
-        this.sendTimer = setTimeout(this.sendData, 100);
+        this.sendTimer = setTimeout(this.sendData, 1000);
       }
     }
   }
