@@ -41,3 +41,7 @@ export const colorsAreClose = (
     a = c1.a - c2.a;
   return r * r + g * g + b * b + a * a <= Math.pow(threshold, 2.6);
 };
+
+export const lerp = (a: number, b: number, alpha: number) => {
+  return a + alpha * (b - a);
+};

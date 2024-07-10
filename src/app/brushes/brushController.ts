@@ -3,6 +3,7 @@ import { mapNumRange } from "../../helpers/utils";
 import { Vector2 } from "../../helpers/vectors";
 import { Core } from "../core";
 import { Layer } from "../layerController";
+import { AutoBrush } from "./autoBrush";
 import { BasicBrush } from "./basicBrush";
 import { GrainyBrush } from "./grainyBrush";
 import { ImageBrush } from "./imageBrush";
@@ -14,8 +15,19 @@ import { SprayBrush } from "./sprayBrush";
 
 export type BrushModes = "draw" | "erase" | "move" | "select" | "fill";
 
+const testSettings = {
+  size: 16,
+  ratio: 1,
+  fade: 0.5,
+  angle: 90,
+  spikes: 4,
+  density: 50,
+  spacing: 0.1,
+  shape: "circle" as "circle" | "square",
+};
+
 export class BrushController {
-  brush: BasicBrush | ImageBrush | SlicedBrush;
+  brush: BasicBrush | AutoBrush | ImageBrush | SlicedBrush;
   mode: BrushModes = "draw";
   brushesTypes = {
     BasicBrush: BasicBrush,
@@ -25,11 +37,12 @@ export class BrushController {
     SprayBrush: SprayBrush,
     NoiseBrush: NoiseBrush,
     SmudgeBrush: SmudgeBrush,
+    AutoBrush: AutoBrush,
   };
   saveHistory: boolean;
   constructor(saveHistory: boolean = false) {
     this.saveHistory = saveHistory;
-    this.brush = new BasicBrush("0x000000", 16);
+    this.brush = new AutoBrush(testSettings, "0x000000");
     this.setBrushColor({ r: 0, g: 0, b: 0 });
     this.setBrushSize(16);
     this.setBrushOpacity(100);
@@ -46,7 +59,9 @@ export class BrushController {
       this.brush.color.color.a * layer.opacity
     ).toString();
     ctx.setLineDash([0]);
-    this.brush.startDraw(ctx, pos, pressure);
+    if (!(this.brush instanceof AutoBrush)) {
+      this.brush.startDraw(ctx, pos, pressure);
+    }
   }
 
   draw(ctx: CanvasRenderingContext2D, pos: Vector2, pressure: number) {
@@ -69,7 +84,11 @@ export class BrushController {
 
   setBrushSize(size: number) {
     const run = () => {
-      this.brush.size = size;
+      if (this.brush instanceof AutoBrush) {
+        this.brush.settings.size = size;
+      } else {
+        this.brush.size = size;
+      }
       Core.uiController.changeSize(size);
     };
     run();
@@ -94,7 +113,14 @@ export class BrushController {
   selectBrush(type: keyof typeof this.brushesTypes, updateUI?: boolean) {
     const opacity = this.brush.color.color.a;
     const color = this.brush.color.toHex();
-    this.brush = new this.brushesTypes[type](color, this.brush.size);
+    if (type === "AutoBrush") {
+      this.brush = new AutoBrush(testSettings, color);
+    } else {
+      this.brush = new this.brushesTypes[type](
+        color,
+        (this.brush as BasicBrush | ImageBrush | SlicedBrush).size
+      );
+    }
     this.brush.color.color.a = opacity;
     if (updateUI) {
       Core.uiController.rerender();

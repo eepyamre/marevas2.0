@@ -407,6 +407,15 @@ export class UIController {
           title: "Brushes",
           items: [
             {
+              isActive: Core.brushController.brush.type === "AutoBrush",
+              title: "Auto Brush",
+              image: basicBrush,
+              type: "brush",
+              onClick: () => {
+                Core.brushController.selectBrush("AutoBrush", true);
+              },
+            },
+            {
               isActive: Core.brushController.brush.type === "BasicBrush",
               title: "Basic Brush",
               image: basicBrush,
