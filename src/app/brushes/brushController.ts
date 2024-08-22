@@ -1,4 +1,4 @@
-import { ColorRGB } from "../../helpers/color";
+import { Color, ColorRGB } from "../../helpers/color";
 import { mapNumRange } from "../../helpers/utils";
 import { Vector2 } from "../../helpers/vectors";
 import { Core } from "../core";
@@ -21,9 +21,9 @@ const testSettings = {
   fade: 0.5,
   angle: 90,
   spikes: 4,
-  density: 50,
-  spacing: 0.1,
-  shape: "circle" as "circle" | "square",
+  density: 0.5,
+  spacing: 2,
+  shape: "square" as "circle" | "square",
 };
 
 export class BrushController {
@@ -105,6 +105,9 @@ export class BrushController {
   }
 
   setBrushColor(color: ColorRGB) {
+    if (this.brush instanceof AutoBrush) {
+      this.brush.updateSettings(this.brush.settings, Color.fromRGB(color));
+    }
     this.brush.color.color.r = color.r;
     this.brush.color.color.g = color.g;
     this.brush.color.color.b = color.b;

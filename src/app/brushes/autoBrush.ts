@@ -33,17 +33,6 @@ const getTransformMatrix = (
   return matrix;
 };
 
-const createNoiseMask = (width: number, height: number, density: number) => {
-  const mask = new Array(width * height);
-
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      mask[y * width + x] = Math.random() < density ? 1 : 0;
-    }
-  }
-  return mask;
-};
-
 type BrushSetttings = {
   shape: "circle" | "square";
   size: number;
@@ -59,12 +48,33 @@ export class AutoBrush {
   color: Color;
   settings: BrushSetttings;
   actuallSize: number;
+  lastPos: Vector2 | null;
   type = "AutoBrush";
+
   constructor(settings: BrushSetttings, color: string) {
     this.settings = settings;
     this.color = new Color(color);
     this.actuallSize = this.settings.size;
   }
+
+  createSprayPatter(width: number, height: number, density: number) {
+    const offScreenCanvas = new OffscreenCanvas(width, height);
+    const offScreenCtx = offScreenCanvas.getContext("2d");
+    const mask = new ImageData(width, height);
+
+    for (let i = 0; i < mask.data.length; i += 4) {
+      if (Math.random() * 100 < density) {
+        mask.data[i + 0] = this.color.color.r;
+        mask.data[i + 1] = this.color.color.g;
+        mask.data[i + 2] = this.color.color.b;
+        mask.data[i + 3] = 255;
+      }
+    }
+
+    offScreenCtx.putImageData(mask, 0, 0);
+    return offScreenCtx.createPattern(offScreenCanvas, "repeat");
+  }
+
   getSize(pressure: number) {
     const targetSize = this.settings.size * pressure;
     let size = targetSize;
@@ -75,10 +85,12 @@ export class AutoBrush {
     return targetSize;
   }
 
-  updateSettings(settings: BrushSetttings) {
+  updateSettings(settings: BrushSetttings, color: Color) {
     this.settings = settings;
+    this.color = color;
   }
 
+  // TODO: UPDATE
   renderTipPreview(ctx: CanvasRenderingContext2D) {
     ctx.clearRect(0, 0, 100, 100);
     ctx.fillStyle = "#000000";
@@ -126,162 +138,156 @@ export class AutoBrush {
         pathAll.addPath(path, matrix);
       }
     }
-    const originalData = ctx.getImageData(50, 50, 100, 100);
+
     ctx.fill(pathAll);
     ctx.closePath();
-    if (this.settings.density !== 100) {
-      this.applyMask(
-        ctx,
-        originalData,
-        createNoiseMask(100, 100, this.settings.density / 100)
-      );
-    }
   }
 
   draw(ctx: CanvasRenderingContext2D, position: Vector2, pressure: number) {
+    if (!this.lastPos) {
+      this.lastPos = position;
+    }
+
+    const diffX = Math.abs(this.lastPos.x - position.x),
+      diffY = Math.abs(this.lastPos.y - position.y),
+      dist = Math.sqrt(diffX * diffX + diffY * diffY);
+    let i = this.settings.spacing;
+
+    if (dist < this.settings.spacing) {
+      return;
+    }
+
     ctx.fillStyle = this.color.toCanvasSrting();
     this.actuallSize = this.settings.size * pressure;
 
     const halfSize = this.actuallSize / 2;
-    const halfPosition = new Vector2(
-      position.x - halfSize,
-      position.y - halfSize
-    );
-    if (this.settings.fade !== 1) {
-      const gradient = ctx.createRadialGradient(
-        position.x,
-        position.y,
-        0,
-        position.x,
-        position.y,
-        this.actuallSize / 2
-      );
+    let x = position.x;
+    let y = position.y;
 
-      gradient.addColorStop(
-        0,
-        `rgba(${this.color.color.r}, ${this.color.color.g}, ${this.color.color.b}, 1)`
-      );
-      gradient.addColorStop(
-        this.settings.fade,
-        `rgba(${this.color.color.r}, ${this.color.color.g}, ${this.color.color.b}, 1)`
-      );
-      gradient.addColorStop(
-        1,
-        `rgba(${this.color.color.r}, ${this.color.color.g}, ${this.color.color.b}, 0)`
-      );
-      ctx.fillStyle = gradient;
-    }
-    ctx.beginPath();
-    const pathAll = new Path2D();
-    if (this.settings.shape === "circle") {
-      const radius = this.actuallSize / 2;
-      for (let i = 0; i < this.settings.spikes; i++) {
-        const path = new Path2D();
-        path.moveTo(0, radius);
-        path.bezierCurveTo(
+    const angle = -this.lastPos.calculateAngle(position) - Math.PI / 2;
+
+    while (i < dist) {
+      const centerPosition = new Vector2(x - halfSize, y - halfSize);
+      if (this.settings.fade !== 1) {
+        const gradient = ctx.createRadialGradient(
+          x,
+          y,
           0,
-          -radius * 0.3,
-          radius * 2,
-          -radius * 0.3,
-          radius * 2,
-          radius
+          x,
+          y,
+          this.actuallSize / 2
         );
-        const matrix = new DOMMatrix(
-          getTransformMatrix(
-            Math.round(360 / this.settings.spikes) * i + this.settings.angle,
-            this.settings.ratio,
-            1,
-            this.actuallSize,
-            halfPosition.x,
-            halfPosition.y
-          )
+
+        gradient.addColorStop(
+          0,
+          `rgba(${this.color.color.r}, ${this.color.color.g}, ${this.color.color.b}, 1)`
         );
-        pathAll.addPath(path, matrix);
+        gradient.addColorStop(
+          this.settings.fade,
+          `rgba(${this.color.color.r}, ${this.color.color.g}, ${this.color.color.b}, 1)`
+        );
+        gradient.addColorStop(
+          1,
+          `rgba(${this.color.color.r}, ${this.color.color.g}, ${this.color.color.b}, 0)`
+        );
+        ctx.fillStyle = gradient;
       }
-    } else if (this.settings.shape === "square") {
-      for (let i = 0; i < this.settings.spikes; i++) {
-        const path = new Path2D();
-        path.rect(
-          -halfSize / 2 + 15,
-          -halfSize / 2 + 15,
-          halfSize - 15,
-          halfSize - 15
-        );
-        const matrix = new DOMMatrix(
-          getTransformMatrix(
-            Math.round(360 / this.settings.spikes) * i + this.settings.angle,
-            1,
-            this.settings.ratio,
-            halfSize,
-            halfPosition.x + halfSize / 2,
-            halfPosition.y + halfSize / 2
-          )
-        );
-        pathAll.addPath(path, matrix);
+
+      ctx.beginPath();
+      const pathAll = new Path2D();
+      if (this.settings.density === 1 || (i !== 3 && i % 3 !== 0)) {
+        if (this.settings.shape === "circle") {
+          for (let spike = 0; spike < this.settings.spikes; spike++) {
+            let path = new Path2D();
+            const bezier = new Path2D();
+            path.moveTo(0, halfSize);
+            bezier.moveTo(0, halfSize);
+            bezier.bezierCurveTo(
+              0,
+              -halfSize * 0.3,
+              halfSize * 2,
+              -halfSize * 0.3,
+              halfSize * 2,
+              halfSize
+            );
+            if (this.settings.density < 1) {
+              for (let i = 0; i < this.actuallSize; i++) {
+                for (let j = 0; j < halfSize; j++) {
+                  if (
+                    ctx.isPointInPath(bezier, i, j) &&
+                    Math.random() < this.settings.density
+                  ) {
+                    path.arc(i, j, 1, 0, 2 * Math.PI);
+                    path.closePath();
+                  }
+                }
+              }
+            } else {
+              path = bezier;
+            }
+
+            const matrix = new DOMMatrix(
+              getTransformMatrix(
+                Math.round(360 / this.settings.spikes) * spike +
+                  this.settings.angle,
+                this.settings.ratio,
+                1,
+                this.actuallSize,
+                centerPosition.x,
+                centerPosition.y
+              )
+            );
+            pathAll.addPath(path, matrix);
+          }
+        } else if (this.settings.shape === "square") {
+          for (let i = 0; i < this.settings.spikes; i++) {
+            const path = new Path2D();
+            const rect = new Path2D();
+            rect.rect(
+              -halfSize / 2 + 15,
+              -halfSize / 2 + 15,
+              halfSize - 15,
+              halfSize - 15
+            );
+            for (let i = 0; i < this.actuallSize; i++) {
+              for (let j = 0; j < halfSize; j++) {
+                if (
+                  ctx.isPointInPath(rect, i, j) &&
+                  Math.random() < this.settings.density
+                ) {
+                  path.arc(i, j, 1, 0, 2 * Math.PI);
+                  path.closePath();
+                }
+              }
+            }
+            const matrix = new DOMMatrix(
+              getTransformMatrix(
+                Math.round(360 / this.settings.spikes) * i +
+                  this.settings.angle,
+                1,
+                this.settings.ratio,
+                halfSize,
+                centerPosition.x + halfSize / 2,
+                centerPosition.y + halfSize / 2
+              )
+            );
+            pathAll.addPath(path, matrix);
+          }
+        }
       }
+
+      ctx.fill(pathAll);
+      ctx.closePath();
+      i += this.settings.spacing;
+
+      x = x + this.settings.spacing * Math.cos(angle);
+      y = y + this.settings.spacing * Math.sin(angle);
     }
-    const originalData = ctx.getImageData(
-      position.x - this.actuallSize / 2,
-      position.y - this.actuallSize / 2,
-      this.actuallSize,
-      this.actuallSize
-    );
-    ctx.fill(pathAll);
-    ctx.closePath();
-    if (this.settings.density !== 100) {
-      this.applyMask(
-        ctx,
-        originalData,
-        createNoiseMask(
-          this.actuallSize,
-          this.actuallSize,
-          this.settings.density / 100
-        ),
-        halfPosition,
-        this.actuallSize
-      );
-    }
+    this.lastPos = position;
   }
 
   endDraw(ctx: CanvasRenderingContext2D) {
     ctx.canvas.style.opacity = "1";
-  }
-
-  applyMask(
-    ctx: CanvasRenderingContext2D,
-    originalData: ImageData,
-    noiseMask: number[],
-    position: Vector2 = { x: 0, y: 0 } as Vector2,
-    size = 100
-  ) {
-    const newData = ctx.getImageData(position.x, position.y, size, size);
-
-    for (let i = 0; i < newData.data.length; i += 4) {
-      // Calculate distance from center for gradient
-      const x = (i / 4) % size;
-      const y = Math.floor(i / 4 / size);
-      const distanceFromCenter = Math.sqrt(
-        Math.pow(x - size / 2, 2) + Math.pow(y - size / 2, 2)
-      );
-      const gradientFactor = Math.max(
-        0,
-        Math.min(1, 1 - distanceFromCenter / (size / 2))
-      );
-
-      // Apply gradient and noise mask
-      newData.data[i + 3] *= gradientFactor * noiseMask[i / 4];
-
-      if (newData.data[i + 3] < 255) {
-        const alpha = newData.data[i + 3] / 255;
-        for (let j = 0; j < 3; j++) {
-          newData.data[i + j] = newData.data[i + j];
-        }
-        newData.data[i + 3] = Math.round(
-          newData.data[i + 3] + originalData.data[i + 3] * (1 - alpha)
-        );
-      }
-    }
-
-    ctx.putImageData(newData, position.x, position.y);
+    this.lastPos = null;
   }
 }

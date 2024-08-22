@@ -26,6 +26,18 @@ export class Color {
     }
   }
 
+  static fromRGB({ r, g, b }: ColorRGB) {
+    return new Color(Color.fromRGBAToHex({ r, g, b, a: 1 }));
+  }
+
+  static fromRGBAToHex({ r, g, b, a }: ColorRGBA) {
+    return `0x${r.toString(16).padStart(2, "0")}${g
+      .toString(16)
+      .padStart(2, "0")}${b.toString(16).padStart(2, "0")}${Math.round(a * 255)
+      .toString(16)
+      .padStart(2, "0")}`;
+  }
+
   toCanvasSrting() {
     return `rgb(${this.color.r}, ${this.color.g}, ${this.color.b})`;
   }
